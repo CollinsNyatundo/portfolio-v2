@@ -90,6 +90,21 @@ test.describe("shell", () => {
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
+
+  test("dark reading mode is reachable from the mobile menu", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    await page.getByText("Menu", { exact: true }).click();
+    const toggle = page.getByRole("button", { name: "Dark reading mode" });
+    await expect(toggle).toHaveCount(1);
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    // The same control undoes a stored preference.
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
 });
 
 for (const route of routes) {

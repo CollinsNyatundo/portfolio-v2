@@ -82,6 +82,12 @@ export function Folio({ marker, title }: FolioProps) {
           </summary>
           <div className="mt-2 pb-2">
             <FolioLinks />
+            <div className="text-muted mt-3 font-sans text-sm">
+              <p>
+                {site.location} · {site.utcOffsetLabel}
+              </p>
+              <ThemeToggle />
+            </div>
           </div>
         </details>
       </div>
