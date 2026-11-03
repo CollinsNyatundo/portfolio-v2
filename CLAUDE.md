@@ -1,0 +1,35 @@
+# CLAUDE.md — Claude Code notes for this repo
+
+@AGENTS.md
+
+The import above loads the shared instructions (project, source of truth, current state, stack, commands, hard rules,
+conventions, how the files evolve). **Do not repeat shared content here.** This file holds only what is specific to
+Claude Code, and it is a **living file** too: update it when a Claude-only tool, skill, MCP server, hook or setting is
+added, changed or retired (trigger table in AGENTS.md).
+
+## Tools and skills  <!-- LIVING: add/remove as they are adopted or dropped -->
+
+| Need | Use | Notes |
+|---|---|---|
+| Library/framework docs | `ctx7` CLI (`npx ctx7@latest library …` then `docs …`) | Required before writing code against an API (user's global rule) |
+| Code navigation | CodeGraph `codegraph_explore` | Only once a `.codegraph/` index exists; indexing is the owner's call |
+| Planning / process | `superpowers:writing-plans`, `superpowers:test-driven-development`, `superpowers:verification-before-completion` | Plan in `docs/06`; prove each milestone's done criteria before claiming it |
+| UI work | `frontend-design`, `impeccable`, `ui-ux-pro-max` | Must obey `docs/04` tokens and banned patterns; the skills don't override them |
+| Security | `security-review`, HawkScan skill (DAST) | HawkScan needs `HAWK_API_KEY` (not set on 2026-11-03); fall back to an OWASP ZAP baseline (06, task 5.2) |
+| Vercel | Vercel MCP + `vercel:*` skills | Deploys, env vars, logs. Vercel CLI not installed yet (`npm i -g vercel` at M1) |
+| Domain | Porkbun MCP | Read-only checks are fine. **Registering, DNS changes and purchases need the owner's explicit yes** |
+| LinkedIn / signed-in sites | Claude in Chrome | The built-in browser hits LinkedIn's auth wall |
+
+## Claude-specific rules  <!-- LIVING -->
+
+- The session may run in "caveman" output style. That style applies to chat only. Never use it in `AGENTS.md`, `CLAUDE.md`, `docs/`, commits, PRs, code comments or vault entries.
+- Commit and PR attribution lines follow the harness's current attribution reminder.
+- Prefer one PR per milestone task group; keep the task list in sync with `docs/06` task numbers (e.g. "M1.3").
+
+## Hooks and settings  <!-- LIVING: record any .claude/settings.json hooks or permissions added for this repo -->
+
+None yet.
+
+## Changelog  <!-- append newest last; one line per change -->
+
+- 2026-11-03 — Created; shared content moved to AGENTS.md and imported (Claude Code).

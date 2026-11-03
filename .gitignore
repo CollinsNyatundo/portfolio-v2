@@ -1,0 +1,12 @@
+# Owner-only drafts (CV edits, outreach messages). Never commit.
+private/
+
+# Secrets and local tooling state
+.env*
+!.env.example
+.remember/
+.vercel/
+
+# OS / editor
+.DS_Store
+Thumbs.db
