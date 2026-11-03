@@ -14,7 +14,8 @@ added, changed or retired (trigger table in AGENTS.md).
 | Library/framework docs | `ctx7` CLI (`npx ctx7@latest library …` then `docs …`) | Required before writing code against an API (user's global rule) |
 | Code navigation | CodeGraph `codegraph_explore` | Only once a `.codegraph/` index exists; indexing is the owner's call |
 | Planning / process | `superpowers:writing-plans`, `superpowers:test-driven-development`, `superpowers:verification-before-completion` | Plan in `docs/06`; prove each milestone's done criteria before claiming it |
-| UI work | `frontend-design`, `impeccable`, `ui-ux-pro-max` | Must obey `docs/04` tokens and banned patterns; the skills don't override them |
+| Home-page scroll design | `nateherk-design:scroll-craft` skill (scripts in its plugin folder: `doctor.mjs`, `workspace.mjs`, `serve.mjs`, `shoot.mjs`, `kie.mjs`, `encode.sh`) | Workspace resolves via `.scrollcraft.json` to `design/scrollcraft`. Generating assets needs `KIE_AI_API_KEY` (not set on 2026-11-03; owner adds it). Verification needs `playwright-core` in the build folder |
+| UI work | `frontend-design`, `impeccable`, `ui-ux-pro-max` | Must obey `docs/04` tokens, the scroll-craft BRIEF and banned patterns; the skills don't override them |
 | Security | `security-review`, HawkScan skill (DAST) | HawkScan needs `HAWK_API_KEY` (not set on 2026-11-03); fall back to an OWASP ZAP baseline (06, task 5.2) |
 | Vercel | Vercel MCP + `vercel:*` skills | Deploys, env vars, logs. Vercel CLI not installed yet (`npm i -g vercel` at M1) |
 | Domain | Porkbun MCP | Read-only checks are fine. **Registering, DNS changes and purchases need the owner's explicit yes** |
@@ -33,3 +34,4 @@ None yet.
 ## Changelog  <!-- append newest last; one line per change -->
 
 - 2026-11-03 — Created; shared content moved to AGENTS.md and imported (Claude Code).
+- 2026-11-03 — Added the scroll-craft skill row (Claude Code).

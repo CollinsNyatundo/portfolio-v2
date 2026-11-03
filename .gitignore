@@ -10,3 +10,8 @@ private/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# scroll-craft raw generations, verification output, local deps
+design/scrollcraft/builds/*/out/
+design/scrollcraft/builds/*/lab/
+node_modules/

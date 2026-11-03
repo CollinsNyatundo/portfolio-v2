@@ -1,6 +1,6 @@
 # 02 — Technical Requirements Document (TRD)
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md)
+**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md)
 
 ## 1. Platforms
 
@@ -17,8 +17,8 @@ in a `<noscript>` message.
 | Content | MDX files in `content/`, typed and validated with a Zod schema at build time (Velite or content-collections; pick at M1) | See [05](05-CONTENT-SCHEMA.md). Invalid frontmatter fails the build. |
 | Styling | Tailwind CSS v4 + CSS variables for tokens | Tokens defined in [04](04-UI-UX-BRIEF.md). |
 | Components | Hand-built primitives; shadcn/ui only where it saves real work (dialog, tabs, toast) | Keep JS small. |
-| Motion | CSS transitions; `motion` library only on Home hero if needed, disabled under `prefers-reduced-motion` | |
-| Fonts | `next/font` self-hosted (no Google Fonts runtime request) | CSP stays strict. |
+| Motion / scroll | **scroll-craft engine** (`scrollcraft.js` ~19 KB gz + `scrollcraft.css` ~7 KB gz, MIT), vendored **unmodified** under `vendor/scrollcraft/`, loaded on the home page only as a client script after hydration. Page-specific behaviour (evidence ledger, title-page planes) is our own code reading `--sc-p`. No other animation library | Native scroll, CSS sticky pins; see 04 §7 and the scroll-craft [BRIEF](../design/scrollcraft/builds/portfolio-home/BRIEF.md) |
+| Fonts | `next/font` self-hosted: Newsreader (variable, OFL) + Geist Sans/Mono (OFL). No Google Fonts runtime request | CSP stays strict. Subset to Latin; preload the two main weights |
 | Images | `next/image`, AVIF/WebP, explicit sizes | |
 | Hosting | **Vercel** (Hobby to start; Pro only if demo traffic needs it) | Node.js 24 runtime (current default). Owner already uses Vercel. |
 | Domain / DNS | Domain registered at **Porkbun** (D-15: `collinsnyagaka.com`); apex + `www` pointed at Vercel; `www` → apex 308 redirect | DNSSEC on. CAA record limiting issuers to Let's Encrypt (Vercel's issuer). |
@@ -135,6 +135,8 @@ Full detail in [07-SECURITY.md](07-SECURITY.md). Summary of the non-negotiables:
 | Local | `http://localhost:3000` | `npm run dev` (Python functions via `vercel dev`) |
 | Preview | Vercel preview URL per PR | Every PR; protected by Vercel Deployment Protection |
 | Production | `https://collinsnyagaka.com` | Merge to `main` after CI passes |
+
+Scroll verification (scroll-craft Step 5) runs on every PR touching the home page: `serve.mjs` + `shoot.mjs` at 1440 × 900, 390 × 844 and `--reduced-motion`, failing on dead scroll, cues that never reach full opacity, or contrast failures; contact sheets are uploaded as CI artifacts for human review.
 
 CI (GitHub Actions) on every PR: typecheck, ESLint, Prettier check, unit tests (Vitest), Python tests (pytest) for
 demo functions, content schema validation, internal + evidence link check, Playwright smoke tests, axe-core,

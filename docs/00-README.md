@@ -13,13 +13,14 @@ contradictions before it writes code.
 | 05 | [Content & Data Schema](05-CONTENT-SCHEMA.md) | MDX content models, demo API contracts, validation, retention (no database in v1) |
 | 06 | [Implementation Plan](06-IMPLEMENTATION-PLAN.md) | Ordered milestones with inputs, outputs and done criteria |
 | 07 | [Security](07-SECURITY.md) | Threat model and the 75-item Vibe Coder Security Framework mapped to this site |
+| — | [Scroll-craft BRIEF](../design/scrollcraft/builds/portfolio-home/BRIEF.md) | Home-page scroll design: interview, feeling curve, peak, grammar, score, signature move |
 | — | [AGENTS.md](../AGENTS.md) / [CLAUDE.md](../CLAUDE.md) | Living agent instructions: current state, stack, commands, hard rules. Updated at every checkpoint |
 
 **Published vs private.** This folder is public and has been trimmed. The project inventory (which repositories
 appear and why), the review notes, the owner's open questions and the account checklist are kept privately in the
 owner's working copy. They are git-ignored and never published.
 
-**Status (2026-11-03):** Draft v0.2. No application code yet. Milestone 0 in progress: the contradiction review
+**Status (2026-11-03):** Draft v0.3 (scroll-craft design added). No application code yet. Milestone 0 in progress: the contradiction review
 and the secret scan of the fraud-detection repository are done.
 
 ## Sources used
@@ -63,6 +64,9 @@ Numbers are stable. Some decisions are recorded here in general terms; the speci
 | D-22 | **Notes ship in v1**: 2 technical notes at launch. | Owner | 2026-11-03 |
 | D-23 | A Testimonials section appears only once 2 real recommendations exist, quoted with permission. | Owner | 2026-11-03 |
 | D-24 | `docs/` is published in the public repository after trimming; private planning material stays out of Git. | Owner | 2026-11-03 |
+| D-25 | The home page is designed with the **scroll-craft** method: chaptered editorial grammar, title-page hero, fraud demo as the single peak, zero video scrub, technical-drawing world on a paper ground. Brief: `design/scrollcraft/builds/portfolio-home/BRIEF.md`. | Owner (interview) | 2026-11-03 |
+| D-26 | Signature move: the **evidence ledger**, a margin ledger of every real figure read, with sources, ending in the colophon with the visitor's own demo run. | Owner (interview) | 2026-11-03 |
+| D-27 | One primary action label everywhere: "Email Collins". The CV is a secondary text link. Replaces the header button layout of D-09. | Proposed (scroll-craft taste floor) | 2026-11-03 |
 
 ## Glossary (one word per idea, in UI copy and in code)
 

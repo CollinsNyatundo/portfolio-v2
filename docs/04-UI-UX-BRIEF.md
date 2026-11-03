@@ -1,161 +1,257 @@
 # 04 — UI and UX Design Brief
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md), [03-APP-FLOW](03-APP-FLOW.md)
+**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md), [03-APP-FLOW](03-APP-FLOW.md)
+
+The scroll design for the home page follows the **scroll-craft** method (nateherk-design plugin 0.3.1,
+github.com/nateherkai/scroll-craft, MIT). Its full brief lives in
+[`design/scrollcraft/builds/portfolio-home/BRIEF.md`](../design/scrollcraft/builds/portfolio-home/BRIEF.md):
+interview answers, feeling curve, peak, grammar, score and signature move. This document is the design system that
+brief sits on. Where they differ, the BRIEF wins for the home page and this document wins everywhere else.
 
 ## 1. Audience and tone
 
 For technical recruiters and engineering managers (D-01) who skim fast and distrust hype.
-Three adjectives: **precise, calm, credible.** The page should feel like a well-written engineering design doc
-that happens to look good — not a template, not a light show.
+Three adjectives (owner's choice in the scroll-craft interview): **precise, calm, credible.** The site reads like a
+well-made printed feature about engineering work: editorial, not a template and not a light show.
 
 Voice rules for copy:
 - Numbers with their context: "hit@10 0.03 → 0.30 on 300 unseen questions", never "10× better retrieval".
-- Say what is not done. Each case study has a "Limits" line. (This is the owner's existing style on GitHub.)
+- Say what is not done. Each case study has a "Limits" line. Missed targets are stated as missed.
 - First person, active voice, short sentences. No "passionate", "ninja", "rockstar", "cutting-edge", "leveraging".
-- No claims of "production-grade" unless real users run it in production; use "production-shaped" or "pre-pilot", as the owner's READMEs already do.
+- No claims of "production-grade" unless real users run it in production; use "production-shaped" or "pre-pilot".
+- **No em dash in visible copy** (scroll-craft taste floor). Use a period, comma, colon or parentheses.
+- One label per intent, everywhere: the primary action is **"Email Collins"**. "Download CV" is a secondary text link.
+- The page addresses the visitor as "you" once, at the demo ("Score one yourself."), and nowhere else.
 
-## 2. Reference products
+## 2. Structure: chaptered editorial (home page)
+
+Grammar 2.2 from scroll-craft. Full rationale in the BRIEF.
+
+| Element | Treatment |
+|---|---|
+| Navigation | **No fixed header bar.** A **folio** in the outer margin: chapter number and title (updates as chapters pass), then text links Work · Demos · Notes · Email Collins · CV. On mobile the folio is a slim top line that expands to a sheet. |
+| Hero | A **title page**: name, one sentence, the folio. No media above the fold. Depth comes from four typographic and paper planes moving at different rates (BRIEF, "Hero depth"). |
+| Chapters | 0 Title page → I Problem → II Method → III Work → intertitle → IV Demo (peak) → V Colophon. Hard cuts between chapter grounds, never crossfaded gradients. |
+| Media | Always in its own column with a caption. Never under type. |
+| Close | A colophon: the evidence ledger set as a table, then "Email Collins" as a line of running text. |
+| Signature move | **The evidence ledger** (§5 component; BRIEF "Signature move"). |
+| Peak | Act IV, the live fraud demo: the only pinned stage, the largest scroll span. |
+
+Grammar bans held on the home page:
+- No full-bleed scrub or video hero.
+- No pinned crossfade type acts.
+- No `spotlight` or `magnet` CTA.
+- No `drift` gradient between chapters.
+- No centred hero copy.
+
+Inner pages (case studies, demos, notes, about, contact) are editorial article pages sharing the folio. They have no
+pinned acts.
+
+## 3. Reference products
+
+Scroll-craft asks for references from any medium, not websites. The owner gave none, so these are
+**authored and owner-adjustable**.
 
 | Reference | Borrow | Avoid |
 |---|---|---|
-| Stripe Docs / Stripe Press | Typographic hierarchy, generous whitespace, calm colour | Heavy illustration |
-| Linear changelog | Dense-but-readable metric rows, crisp dividers | Dark-only aesthetic |
-| Vercel / Geist design system | Monospace for numbers and code, restrained motion | Pure black-and-white coldness |
-| The owner's CV (PDF) | **Deep green accent** and section rules — keeps the CV and site visibly one brand | Two-column density on mobile |
+| A printed long-form magazine feature (e.g. a technical profile in a quarterly) | Folios, captions, asymmetric spreads, measure | Decorative drop caps everywhere |
+| Patent drawings and exploded assembly diagrams | Line weight, leader callouts, ink on paper | Shading, colour fills |
+| A lab notebook / audit ledger | The ledger's ruled lines, tabular figures, sources per line | Faux-handwriting |
+| The owner's CV (PDF) | **Deep green accent** and section rules, so the CV and site read as one brand | Two-column density on mobile |
 | Current portfolio (to replace) | — | Star-field background, "Data Scientist" headline, 101-skill grid, purple accent, runtime CMS fetch |
 
-## 3. Colour palette (tokens)
+## 4. Colour and type
 
-Defined as CSS variables on `:root`; dark values under `prefers-color-scheme: dark` and `[data-theme="dark"]`.
-Contrast values are estimates; verify every text/background pair with an automated check at M1 (target WCAG 2.2 AA:
-4.5:1 body, 3:1 large text and UI).
+### Colour tokens
 
-| Token | Light | Dark | Use |
+Light **paper** canvas is the design. Dark is an optional reading mode.
+
+Rules:
+- One accent, locked.
+- No pure black.
+- Secondary text is green-tinted, not flat grey.
+- No cream-and-brass palette.
+- No violet-blue gradients.
+- Verify every text/ground pair on the rendered page (target WCAG 2.2 AA: 4.5:1 body, 3:1 large text and UI). The values below are estimates.
+
+| Token (`--sc-*` alias) | Light | Dark | Use |
 |---|---|---|---|
-| `--bg` | `#FAFAF7` | `#0E1211` | Page background |
-| `--surface` | `#FFFFFF` | `#151A19` | Cards, demo panels |
-| `--surface-2` | `#F2F3EF` | `#1B2220` | Code blocks, table stripes |
-| `--border` | `#E3E5E0` | `#26302D` | Dividers, card borders |
-| `--text` | `#14181A` | `#E8ECEA` | Body text |
-| `--text-muted` | `#5B6468` (~5.8:1) | `#9AA4A0` | Captions, meta |
-| `--primary` | `#1E6B52` (~6.1:1 on bg) | `#4FBF95` (~8:1 on bg) | Links, primary buttons, focus ring, CV green |
-| `--primary-hover` | `#17573F` | `#6FD3AC` | Hover/pressed |
-| `--accent` | `#B45309` | `#F2A65A` | Metric highlights only (sparingly) |
-| `--success` | `#15803D` | `#4ADE80` | "Allow" decision, passing checks |
-| `--warning` | `#B45309` | `#FBBF24` | Caveats, "may take 30 s to wake" |
+| `--bg` (`--sc-canvas`) | `#F3F4F1` | `#0F1312` | Paper ground |
+| `--surface` (`--sc-surface`) | `#FFFFFF` | `#161C1A` | Demo surface, ledger, plates |
+| `--surface-2` | `#E9EBE6` | `#1D2421` | Code blocks, table stripes, chapter-ground variant |
+| `--border` | `#D9DCD5` | `#2A3330` | Rules, folio line, ledger rules |
+| `--text` (`--sc-ink`) | `#14181A` | `#E6EBE8` | Body text |
+| `--text-muted` (`--sc-ink-soft`) | `#4E5A55` | `#9BA6A1` | Captions, folio, ledger meta |
+| `--primary` (`--sc-accent`) | `#1E6B52` | `#4FBF95` | Links, "Email Collins", focus ring, "you" line in the ledger |
+| `--primary-ink` (`--sc-accent-ink`) | `#FFFFFF` | `#0F1312` | Text on accent |
+| `--success` | `#15803D` | `#4ADE80` | "Allow" decision |
 | `--danger` | `#B91C1C` | `#F87171` | "Flag" decision, errors |
-| `--info` | `#1D4ED8` | `#93C5FD` | Notes, private-work badge |
+| `--warning` | `#8A5A00` | `#FBBF24` | Caveats, "missed target", "may take 30 s to wake" |
 
-Rule: colour never carries meaning alone — every status also has an icon and a text label.
+There's no separate highlight accent (the old amber is removed). Figures get emphasis from Geist Mono and weight,
+not colour. Colour never carries meaning alone: every status also has an icon and a text label.
 
-## 4. Typography
+### Typography
 
-| Role | Font | Size (mobile → desktop) | Weight / leading |
+Two families:
+- **Newsreader** (editorial serif, OFL) for display and text.
+- **Geist** (Sans for the folio and labels, Mono for figures) for UI and data.
+
+Both are self-hosted via `next/font`.
+
+| Role | Font | Size (mobile → desktop) | Weight / leading / tracking |
 |---|---|---|---|
-| Display (hero name) | **Geist Sans** (self-hosted via `next/font`) | 40 → 64 px | 650 / 1.05, tracking −0.02em |
-| H1 (page title) | Geist Sans | 32 → 44 px | 650 / 1.15 |
-| H2 | Geist Sans | 24 → 30 px | 600 / 1.25 |
-| H3 | Geist Sans | 19 → 22 px | 600 / 1.3 |
-| Body | Geist Sans | 17 → 18 px | 400 / 1.65, max line 68ch |
-| Small / meta | Geist Sans | 14 px | 400 / 1.5 |
-| Metrics, code, latency | **Geist Mono** | 15 → 16 px; hero proof numbers 28 px | 500, `font-variant-numeric: tabular-nums` |
+| Title page name | Newsreader | 56 → 112 px (hero moment) | 500 / 0.98 / −0.025em, optical size on |
+| Chapter title | Newsreader | 36 → 64 px | 500 / 1.05 / −0.015em |
+| H2 | Newsreader | 26 → 34 px | 500 / 1.2 |
+| H3 | Geist Sans | 18 → 20 px | 600 / 1.3 |
+| Body | Newsreader | 18 → 20 px | 400 / 1.6, measure 62ch (45–75) |
+| Folio, captions, labels | Geist Sans | 13 → 14 px | 500 / 1.4 / +0.01em, small caps for chapter numbers |
+| Figures, ledger, code | Geist Mono | 14 → 16 px (ledger 13 px) | 500, `tabular-nums` |
 
-Fallback stack: `ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif`. Font files preloaded; `font-display: swap`.
+- Step the title page down one rung below ~700 px viewport height.
+- Tracking tightens as size grows.
+- Fallbacks: `Georgia, "Times New Roman", serif` and `ui-sans-serif, system-ui, sans-serif`. Preload both fonts' main weights.
 
 ## 5. Components
 
 | Component | Spec |
 |---|---|
-| Button | Primary (filled `--primary`), Secondary (outline), Ghost (text). Height 44 px min. Icon + label; icon-only buttons need `aria-label` and tooltip |
-| Link | `--primary`, underline on hover/focus; external links show ↗ icon + sr-only "(opens in new tab)" |
-| Proof chip | Mono number + short label, e.g. `1.4 ms` p95 fraud scoring. Max 3 in hero |
-| Case-study card | Title, one-line outcome, 3 tags, 1 headline metric, visibility badge (Public code / Private work / Live app) |
-| Project card | Smaller; title, one line, tags, links |
-| Evidence link | Inline pill: `↳ tests/test_rls.sql` linking to the exact file/line; private evidence shows lock icon + "Private" |
+| Folio | Fixed in the outer margin (desktop ≥ 1024 px), slim top line on smaller screens. Chapter number (small caps) + title, updated via the engine's chapter events. Links: Work · Demos · Notes · Email Collins · CV. Keyboard reachable, `nav` landmark |
+| **Evidence ledger** (signature) | Narrow ruled panel in the opposite margin (desktop) or a collapsible bottom strip (mobile, collapsed by default, shows a count). Appends one line when a figure tagged `data-ledger` passes the reading line: value (mono) · label · project · source link or "Private work". The visitor's own demo result is written in `--primary` with "you, just now". In the colophon it becomes a real `<table>` with totals. Never shows a figure that isn't in the evidence data. Margin copy `aria-hidden`; the colophon table is the accessible version |
+| Title page | Name (h1), one sentence, folio. Four planes (paper tooth, drawing fragment, type, folio rule) with differential translate on scroll. Static under reduced motion with layering intact |
+| Chapter opener | Number (small caps), title, one-line standfirst. Hard ground change on entry (`reveal`) |
+| Spread | Asymmetric two columns: prose (62ch) and a captioned media column (SVG diagram or plate). Alternates lead/trail. No cards on the home page |
+| Figure in prose | Inline Geist Mono figure that settles (`count`) once, and only when the number is real, then registers with the ledger |
+| Plate | Captioned image or SVG with a hairline frame. Caption: what it is, the source, and the date |
+| Demo surface | The live fraud demo, pinned in Act IV. Sample picker (with 10-transaction history shown read-only), editable target fields, "Score it" button, results panel (`aria-live="polite"`). Same component on `/demos/fraud` |
+| Probability gauge | Horizontal bar 0–1 with a threshold marker; the numeric value is always shown as text |
+| Contribution bars | Five diverging bars in log-odds units (towards fraud = `--danger`, towards legit = `--success`), labelled with feature and signed value |
+| Button | Only inside the demo and forms. Filled `--primary`, 44 px min height, label on one line |
+| Link | `--primary`, underline on hover/focus; external links show ↗ + sr-only "(opens in new tab)" |
+| Evidence link | Inline: `↳ tests/test_rls.sql` to the exact file/line; private evidence shows a lock + "Private work" |
 | Metric table | Metric · Value · Dataset/split · Caveat. Mono numbers, right-aligned |
-| Callout | Info / Caveat / Security variants with icon + title |
-| Timeline (experience) | Vertical, dates in mono, role + org + 1–3 bullets |
-| Demo panel | Two columns ≥ 1024 px (input left, result right), stacked on mobile. Result area has `aria-live="polite"` |
-| Probability gauge | Horizontal bar 0–1 with threshold marker; numeric value always shown as text |
-| SHAP bars | Diverging horizontal bars (towards fraud = `--danger`, towards legit = `--success`), labelled with feature and signed value |
-| Toast | Bottom-centre, auto-dismiss 4 s, pausable on hover/focus, `role="status"` |
-| Header | Sticky, 64 px, background blur off (solid `--bg` with bottom border) — avoids glass effects |
-| Footer | Contact links, last-updated date, source link |
+| Callout | Caveat / Security variants with icon + title |
+| Timeline | Vertical, dates in mono, role + org + 1–3 bullets |
+| Toast | Bottom-centre, 4 s, pausable, `role="status"` |
+| Colophon | The ledger table + totals, then running text: "Email Collins at …", "CV (PDF)", LinkedIn, GitHub, last updated, source of this site |
 
 ## 6. Layout rules
 
-- Grid: 12 columns, max content width 1200 px; reading column 720 px (68ch).
-- Spacing scale (px): 4, 8, 12, 16, 24, 32, 48, 64, 96. Section spacing 96 desktop / 64 mobile.
-- Breakpoints: `sm 640`, `md 768`, `lg 1024`, `xl 1280`.
-- Side gutters: 16 px mobile, 24 px tablet, 32 px desktop. No horizontal scroll at 320 px.
-- Radius: 8 px cards, 6 px buttons, 999 px chips. Shadows: none by default; 1 px border instead.
+- Grid: 12 columns, max content width 1280 px. Reading column 62ch. Margins on ≥ 1024 px hold the folio (outer) and ledger (inner).
+- Spacing scale (px): 4, 8, 12, 16, 24, 32, 48, 64, 96, 144. Chapter spacing 144 desktop / 96 mobile. More space above a heading than below.
+- Breakpoints: `sm 640`, `md 768`, `lg 1024`, `xl 1280`. Side gutters: 16 / 24 / 32 px. No horizontal scroll at 320 px.
+- Anchors vary by act (lead, trail, split; centred only on the intertitle).
+- Radius: 2 px on plates and inputs (print feel), 6 px on buttons. No shadows on paper; a hairline instead. The demo surface gets one soft offset shadow, the only raised object on the page.
 
-## 7. Screen notes (hierarchy)
+## 7. Scroll and motion rules
 
-**Home**
-1. Hero: name (display), "AI & Machine Learning Engineer", "Nairobi, Kenya · UTC+3 · Open to remote roles" (availability from `site.ts`), one-sentence positioning from the CV profile, buttons: Download CV (primary), Email, LinkedIn, GitHub. Headshot (D-21).
-2. Proof row: 3 proof chips.
-3. Selected work: 3 case-study cards (LegalAI Kenya, Credit-card fraud, ComplianceGuard), "All work →".
-4. Live demos: 2 demo cards with a one-line "what you'll see".
-5. Focus areas: Fintech · Legaltech · Agritech — one sentence each with links.
-6. How I work: 4 short principles (evaluate on unseen data; enforce isolation in the database; say what isn't done; ship with CI and security checks).
-7. Experience snapshot: last 3 roles; "Full experience →".
-8. Contact CTA band.
+- Scroll stays native. Pinning is CSS sticky driven by the engine's progress value (`--sc-p`), so it isn't scroll-jacking: no wheel interception, no smooth-scroll override, keyboard and find-in-page keep working.
+- Engine: `scrollcraft.js` + `scrollcraft.css` vendored unmodified (MIT). Page-specific behaviour (ledger, hero planes) lives in our own code reading `--sc-p` and our own `data-ledger-*` attributes. **Never edit the engine.**
+- Animate only `transform`, `opacity` and `clip-path` (wipes). No `transition: all`.
+- UI transitions under 300 ms. No `ease-in` on UI. Never `scale(0)`.
+- **Reduced motion:** chapters render as a normal document. No pinning and no extra scroll space. The ledger fills without animation. The hero keeps its static layering. The demo works identically.
+- Pointer effects are seasoning: at most one (subtle hero plane shift), gated to `(hover: hover) and (pointer: fine)`, never cursor capture.
+- Total scored span: about 12.4 viewport heights over 7 acts (BRIEF score). Administrative content (experience, certifications) lives on `/about` and is not spent on home-page scroll.
 
-**Case study** — Title, one-line outcome, meta row (role, timeframe, team size, stack, visibility). Then: Problem ·
-Constraints · Approach (with one architecture diagram, SVG, theme-aware) · Evaluation (method first, then metric
-table) · Results · Security · Limits / what's not done · What I'd do next · Evidence (list) · Next case study.
+## 8. Screen notes
 
-**Demo** — Title, what it does (1 sentence), "How it works" collapsible, panel, "Model card" (data, split, metrics,
-limits), link to the case study and repo.
+**Home:** see the BRIEF score. Content per chapter:
+- **0 Title page:** "Collins Nyagaka", the one-sentence positioning, availability and time zone in the folio.
+- **I Problem:** three short failures, one per ground: a model that looks great until it meets next month's data; a retrieval answer that cites law that isn't there; one firm's records visible to another.
+- **II Method:** the headshot plate (captioned) and four principles: evaluate on data the model hasn't seen; enforce isolation in the database, not the UI; say what isn't done; ship with tests and security checks.
+- **III Work:** spreads for LegalAI Kenya, ComplianceGuard and Production AI Reference Template, plus one compact row for the remaining case study. Each spread ends with "Read the case study".
+- **Intertitle:** "Now try one."
+- **IV Demo:** the fraud demo surface. The visitor's run is written to the ledger.
+- **V Colophon:** the ledger table with totals, then the contact line.
 
-**About** — Narrative (≤ 250 words), focus areas, how I work, experience timeline, education and certifications,
-"Outside work" (1–2 lines, optional).
+**Case study:** Title, outcome, meta row (role, timeframe, team, stack, visibility). Then:
+- Problem
+- Constraints
+- Approach (one SVG architecture drawing in the technical-drawing world)
+- Evaluation (method first, then the metric table)
+- Results
+- Security
+- Limits
+- What I'd do next
+- Evidence (list)
+- Next case study
 
-**Contact** — Email (copy button), LinkedIn, GitHub, time zone + typical reply time, availability, "Freelance? →
-TundoTech Systems", optional form.
+Its figures also feed the ledger, scoped to that page.
 
-## 8. Accessibility
+**Demo pages:** what it does (1 sentence), the surface, "How it works" (collapsible), model card, links to the case study and repo.
 
-- WCAG 2.2 AA minimum; axe-core 0 violations in CI on every route.
-- Visible focus ring: 2 px `--primary` outline + 2 px offset, never removed.
+**About:** narrative (≤ 250 words), focus areas, experience timeline, education and certifications.
+
+**Contact:** "Email Collins" (copy button), LinkedIn, GitHub, time zone + reply time, availability, "Freelance? TundoTech Systems ↗", optional form.
+
+## 9. Accessibility
+
+- WCAG 2.2 AA minimum; axe-core 0 violations on every route, including at mid-scroll positions of the home page.
+- Visible focus ring: 2 px `--primary` outline + 2 px offset, never removed. Focus order follows reading order through pinned acts.
 - Touch targets ≥ 44 × 44 px.
-- Landmarks: one `<header>`, `<nav>`, `<main id="main">`, `<footer>`; one H1 per page; headings in order.
-- All images have meaningful `alt` or `alt=""` if decorative; diagrams have a text description below.
-- Video: captions (`.vtt`) and a transcript link; no autoplay with sound.
-- `prefers-reduced-motion`: disable all non-essential animation.
-- Forms: labels always visible (no placeholder-only labels); errors linked with `aria-describedby`; error summary on submit.
-- Charts/gauges always include the numeric value as text.
+- Landmarks: folio `nav`, `<main id="main">`, colophon `footer`. One h1 per page; headings in order. Skip link first.
+- Real HTML for all copy (no text in images). Diagrams have a text description below.
+- Video: captions (`.vtt`) and a transcript; no autoplay with sound; no audio track on any scroll-driven media.
+- Charts, gauges and the ledger always carry their numbers as text.
+- Forms: visible labels; errors linked with `aria-describedby`; an error summary on submit.
 
-## 9. Interaction states
+## 10. Interaction states
 
 | State | Treatment |
 |---|---|
-| Hover | Links underline; cards border → `--primary` at 40%; buttons darken (`--primary-hover`) |
-| Focus | 2 px outline ring (all interactive elements) |
-| Active / pressed | Translate 1 px down; no scale bounce |
-| Disabled | 50% opacity, `cursor: not-allowed`, `aria-disabled` |
-| Loading | Spinner after 300 ms + text ("Scoring…"); skeletons for lists |
-| Error | `--danger` border + icon + message under the field |
-| Success | `--success` icon + message; toast for transient confirmations |
+| Hover | Links underline; plates' hairline → `--primary` at 40%; buttons darken |
+| Focus | 2 px outline ring |
+| Active | Translate 1 px down; no bounce |
+| Disabled | 50% opacity, `aria-disabled` |
+| Loading | Spinner after 300 ms + "Scoring…"; skeleton rows for lists |
+| Error | `--danger` hairline + icon + message under the field |
+| Success | `--success` icon + message; the ledger line is the confirmation for a demo run |
 
-## 10. Banned patterns
+## 11. Banned patterns
 
-Star fields, particle or matrix backgrounds; glassmorphism; purple/violet AI gradients; typing/typewriter headline
-effects; skill percentage bars; "101 skills" grids; emoji in headings; auto-playing carousels; scroll-jacking;
-custom cursors; modal on load; stock photos of laptops/robots; AI-generated portraits of the owner; "Hire me" pulsing
-buttons; fake client logos.
+From the old brief:
+- Star fields, particles, matrix backgrounds
+- Glassmorphism
+- Purple/violet AI gradients
+- Typewriter headlines
+- Skill percentage bars and skills-count grids
+- Emoji in headings
+- Auto-playing carousels
+- Scroll-jacking (wheel interception or smooth-scroll override)
+- Custom cursors
+- Modal on load
+- Stock laptop/robot photos
+- AI-generated portraits of the owner
+- Pulsing "Hire me" buttons
+- Fake client logos
 
-## 11. Assets needed
+From the scroll-craft refuse list:
+- Clay, low-poly or diorama worlds
+- A "scroll" cue, arrow or mouse icon
+- `01 / 06` section counters (folio chapter numbers are navigation, not counters)
+- An eyebrow above every heading (at most one per three sections)
+- Em dashes in visible copy
+- Centred copy in every act
+- The same device twice in a row
+- A full-frame dark overlay for contrast
+- Text baked into images
+- Invented statistics or counters without real numbers
+- `transition: all`, or animating width/height/top/left
+- Gradient text, neon glow, halo shadows
+- An ending that fades into a footer
+
+## 12. Assets needed
 
 | Asset | Source | Status |
 |---|---|---|
-| Headshot (square, ≥ 800 px, neutral background) | Owner | Owner supplies (D-21) |
-| CV PDF (current, matching LinkedIn roles) | Owner | Update needed (D-16) |
-| Monogram "CN" favicon + app icons (SVG, 32, 180, 512) | Design at M1 | To do |
-| Open Graph image template (1200 × 630), generated per page with `next/og` | Build | To do |
-| Architecture diagrams (SVG) for each case study | Build from repo docs | To do |
-| LegalAI Kenya 90 s walkthrough video (MP4 + captions) | Owner records; demo tenant data only | To do |
-| ComplianceGuard demo walkthrough (from `make demo`) | Owner records | To do |
-| Screenshots of each live app (light + dark where relevant) | Build | To do |
+| Headshot (square, ≥ 800 px, neutral background) | Owner (D-21) | Pending; graded to the paper/ink palette for the Method plate |
+| CV PDF (current) | Owner | Update needed (D-16) |
+| Architecture drawings (SVG) for each case study | **Hand-authored** from repo docs, technical-drawing style | To do |
+| Chapter-opener ink studies (texture only, no text) | Generated with the BRIEF's style preamble | Blocked until the owner sets `KIE_AI_API_KEY` (optional; the page works without them) |
+| Paper tooth texture (tileable, ≤ 30 KB) | Generated or scanned | To do |
+| Monogram "CN" favicon + icons | Design at M1 | To do |
+| Open Graph images (1200 × 630) via `next/og`, paper + Newsreader | Build | To do |
+| LegalAI Kenya 90 s walkthrough (MP4 + captions) | Owner records; demo tenant only | To do |
+| ComplianceGuard demo walkthrough | Owner records | To do |
 | Icons | Lucide (MIT) | — |
