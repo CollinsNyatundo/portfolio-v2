@@ -27,13 +27,13 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 
 | # | Task | Owner | Output | Definition of done |
 |---|---|---|---|---|
-| 1.1 | `git init` in `D:\portfolio`; create public repo `CollinsNyatundo/portfolio-v2` (D-12); branch protection on `main` | O+A | Repo | Push works; direct pushes to `main` blocked |
-| 1.2 | Scaffold Next.js 16 (App Router, TS strict, ESLint, Prettier, Tailwind v4) — confirm versions with `ctx7` first | A | App skeleton | `npm run build` passes; Node 24 pinned in `engines` and `.nvmrc` |
-| 1.3 | Tooling: Vitest, Playwright, axe, Lighthouse CI, gitleaks pre-commit (husky), `.gitignore` incl. `.env*`, `.remember/`, `.vercel/` | A | Configs | Each script runs locally and in CI |
-| 1.4 | GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
+| 1.1 | **Done 2026-11-03** `git init` in `D:\portfolio`; create public repo `CollinsNyatundo/portfolio-v2` (D-12); branch protection on `main` | O+A | Repo | Push works; direct pushes to `main` blocked |
+| 1.2 | **Done 2026-11-03** Scaffold Next.js 16 (App Router, TS strict, ESLint, Prettier, Tailwind v4) — confirm versions with `ctx7` first | A | App skeleton | `npm run build` passes; Node 24 pinned in `engines` and `.nvmrc` |
+| 1.3 | **Done 2026-11-03** Tooling: Vitest, Playwright, axe, Lighthouse CI, gitleaks pre-commit (husky), `.gitignore` incl. `.env*`, `.remember/`, `.vercel/` | A | Configs | Each script runs locally and in CI |
+| 1.4 | **Done 2026-11-03** GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
 | 1.5 | Vercel project linked; preview deploys on PR; Deployment Protection on previews | O+A | Vercel project | PR shows preview URL |
-| 1.6 | Security headers + CSP in `next.config` / middleware (07 §4) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
-| 1.7 | Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
+| 1.6 | **Done 2026-11-03** Security headers in `next.config.ts` + per-request nonce CSP in `proxy.ts` (07 §4, D-28) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
+| 1.7 | **Done 2026-11-03** Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
 
 **Checkpoint M1:** empty but production-shaped site deploys to a preview URL with headers, CI and a11y green.
 

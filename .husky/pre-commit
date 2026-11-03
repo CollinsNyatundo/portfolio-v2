@@ -1,0 +1,2 @@
+# Block commits that contain secrets (docs/07 items 06, 07, 65).
+gitleaks git --pre-commit --staged --redact --no-banner

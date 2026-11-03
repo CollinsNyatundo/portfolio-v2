@@ -13,7 +13,7 @@ in a `<noscript>` message.
 | Concern | Choice | Notes |
 |---|---|---|
 | Framework | **Next.js 16.x, App Router**, TypeScript strict | Same stack as the owner's other Next.js 16 projects, so patterns and lint rules carry over. Confirm current stable with `ctx7` at M1. |
-| Rendering | Static generation (`generateStaticParams`) for every content page; no runtime data fetching on content pages | Fast, cheap, nothing to break when a backend sleeps (the root cause of today's "Error loading projects"). |
+| Rendering | **Per-request server rendering** of content that is still compiled from MDX at build time (D-28): the root layout awaits `connection()` so every response carries a fresh CSP nonce. No runtime data fetching on content pages, so nothing breaks when a backend sleeps (the root cause of the old site's "Error loading projects"). Cache Components / Partial Prerendering are off: a prerendered shell can't carry a nonce | M1 measured Lighthouse mobile 100/100/100/100, LCP 0.8 s locally with this setup |
 | Content | MDX files in `content/`, typed and validated with a Zod schema at build time (Velite or content-collections; pick at M1) | See [05](05-CONTENT-SCHEMA.md). Invalid frontmatter fails the build. |
 | Styling | Tailwind CSS v4 + CSS variables for tokens | Tokens defined in [04](04-UI-UX-BRIEF.md). |
 | Components | Hand-built primitives; shadcn/ui only where it saves real work (dialog, tabs, toast) | Keep JS small. |
