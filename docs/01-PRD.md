@@ -1,7 +1,7 @@
 # 01 — Product Requirements Document (PRD)
 
 **Product:** Collins Nyagaka — personal portfolio (v2)
-**Owner:** Collins Nyatundo Nyagaka · **Version:** 0.2 · **Date:** 2026-11-03
+**Owner:** Collins Nyatundo Nyagaka · **Version:** 0.3 · **Date:** 2026-11-03
 
 ## 1. Product name and one-sentence idea
 
@@ -52,8 +52,8 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 
 | ID | Feature | User benefit | Priority |
 |---|---|---|---|
-| F-01 | **Hero with positioning** — name, "AI & Machine Learning Engineer", Nairobi (EAT, UTC+3), availability status, 3 proof chips (e.g. "61k-passage legal RAG", "1.4 ms p95 fraud-model inference", "37/37 tenant-isolation probes") | Recruiter qualifies in 10 s | P0 |
-| F-02 | **Primary actions** — Download CV (PDF), Email, LinkedIn, GitHub — visible on every page | Fast contact | P0 |
+| F-01 | **Title page** (editorial hero, [BRIEF](../design/scrollcraft/builds/portfolio-home/BRIEF.md)) — name, "AI & Machine Learning Engineer", one-sentence positioning; Nairobi (UTC+3) and availability in the folio. Proof numbers arrive in the evidence ledger as the visitor reads, not as hero chips | Recruiter qualifies in 10 s | P0 |
+| F-02 | **Primary actions** — "Email Collins" (one label everywhere) and "CV" in the folio on every page; LinkedIn and GitHub in the colophon | Fast contact | P0 |
 | F-03 | **Flagship case studies (max 5)** — Problem → Constraints → Approach → Evaluation → Results (with caveats) → Security → Limits → What I'd do next → Evidence links | Shows engineering judgement, not just output | P0 |
 | F-04 | **Evidence links** — every metric carries a link (repo file, test, report) or a "private work" label | Credibility; matches D-05 | P0 |
 | F-05 | **Project index** — short cards for secondary projects with filters (AI engineering, ML, data, web) | Breadth without clutter | P0 |
@@ -66,6 +66,8 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 | F-12 | **Contact page** — email, LinkedIn, time zone, availability, link to TundoTech for freelance; optional form | Conversion | P0 (form P1) |
 | F-13 | **Notes** — 2+ short technical notes (e.g. "Why hit@10 went from 0.03 to 0.30", "Testing RLS with 37 attack probes") | Depth, SEO | P0 (D-22) |
 | F-14 | **SEO & sharing** — per-page metadata, Open Graph images, JSON-LD `Person` + `CreativeWork`, sitemap, robots | Discoverability; LinkedIn previews look right | P0 |
+| F-18 | **Evidence ledger** (signature move) — a margin ledger that adds a line, with its source, each time a real figure is read; the visitor's own demo result is added; the colophon totals it | Makes evidence-first visible; the memorable hook | P0 |
+| F-19 | **Scroll-crafted home** — chaptered editorial grammar (title page → Problem → Method → Work → intertitle → Demo peak → Colophon), per the scroll-craft [BRIEF](../design/scrollcraft/builds/portfolio-home/BRIEF.md) | Beautiful and interactive without sacrificing speed or access | P0 |
 | F-15 | **Dark / light theme** following system preference with manual toggle | Comfort, accessibility | P1 |
 | F-16 | **Print-friendly / ATS-friendly CV page** (`/cv`) mirroring the PDF in HTML | Recruiters on mobile; parsers | P1 |
 | F-17 | **Redirect old deployments** to the new domain | One canonical presence | P1 |
@@ -97,7 +99,7 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 
 | Story | Given | When | Then |
 |---|---|---|---|
-| 1 | A 375 px wide phone | Home loads | Name, title, "Nairobi · UTC+3", availability badge and "Download CV" are visible without scrolling |
+| 1 | A 375 px wide phone | Home loads | Name, title and the one-sentence positioning are visible without scrolling; the folio line shows "Nairobi · UTC+3", availability, "Email Collins" and "CV" |
 | 2 | Any page | Visitor clicks "Download CV" | `/cv/Collins_Nyagaka_CV.pdf` downloads (HTTP 200, `application/pdf`), and event `cv_download` is recorded |
 | 3 | A case study page | Visitor reaches "Results" | Every number shows its dataset/split, metric definition and at least one stated limitation |
 | 4 | A case study with a public repo | Visitor clicks an evidence link | Link resolves (HTTP 200) to a file or line in a public repo; CI fails the build if any evidence link 404s |
@@ -106,6 +108,8 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 | 6 | A private project card | Visitor views it | A "Private work" label and a "Request a walkthrough" link appear; no dead GitHub link |
 | 7 | Contact page | Visitor clicks "Freelance or company work?" | Navigates to `tundotechsystems.com` in a new tab with `rel="noopener"` |
 | 8 | Lab test: Lighthouse mobile, simulated slow 4G | Home and one case study run | Performance ≥ 95, lab LCP ≤ 2.5 s, lab CLS ≤ 0.1 (field targets are in 02 §8) |
+| 11 | Any home-page scroll position, desktop and 390 × 844 | The scroll-craft harness (`shoot.mjs`) walks every act | No dead scroll except the authored intertitle; every cue reaches full opacity; text contrast passes on the composited page; reduced-motion run shows all content with no pinned space |
+| 12 | Visitor scrolls past a tagged figure, then runs the demo | Reaches the colophon | The ledger lists only figures present in the evidence data, each with a source or "Private work", plus their own run; totals match the lines |
 | 9 | Keyboard only | Visitor tabs through Home and the fraud demo | Every interactive element is reachable, has a visible focus ring, and axe-core reports 0 violations |
 | 10 | Owner adds `content/case-studies/new.mdx` with valid frontmatter | Pushes to `main` | Page builds and appears in the index; invalid frontmatter fails the build with a clear message |
 

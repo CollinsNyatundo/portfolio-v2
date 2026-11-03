@@ -11,7 +11,7 @@ Code specifics. Add a file per agent only when an agent needs something the othe
 
 An evidence-first personal portfolio for Collins Nyagaka (AI & Machine Learning Engineer, Nairobi). Its main audience
 is hiring managers and technical recruiters. It is a static MDX site with a few sandboxed live demos.
-Domain: `collinsnyagaka.com` · Repo: `CollinsNyatundo/portfolio-v2` (to be created at M1).
+Domain: `collinsnyagaka.com` · Repo: [`CollinsNyatundo/portfolio-v2`](https://github.com/CollinsNyatundo/portfolio-v2) (public).
 
 ## Source of truth
 
@@ -27,13 +27,14 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 | Content models, demo API contracts | `docs/05-CONTENT-SCHEMA.md` |
 | Milestones and done criteria | `docs/06-IMPLEMENTATION-PLAN.md` |
 | Security controls (75-item map) | `docs/07-SECURITY.md` |
+| Home-page scroll design (grammar, score, ledger, world, tokens) | `design/scrollcraft/builds/portfolio-home/BRIEF.md` (scroll-craft) |
 | Which projects appear and what to fix | `private/planning/08-CONTENT-INVENTORY.md` (private) |
 | Owner's open questions, full decision detail, review notes | `private/planning/` (private) |
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
 - **Phase:** Milestone 0 in progress. Done: 0.1 (answers), 0.2 (contradiction review, 20 findings), 0.3 (gitleaks: 0 findings), 0.9 (fraud metric provenance). `docs/` trimmed for publishing (D-24).
-- **Code:** none yet. Local git repo initialised; nothing pushed.
+- **Code:** none yet. Repo `CollinsNyatundo/portfolio-v2` is public (created 2026-11-03); `main` holds the trimmed planning docs. Branch protection on `main` not set yet (M1.1).
 - **Waiting on owner:** tasks 0.4–0.8 and the open follow-ups (details in `private/planning/`); domain purchase at M6.
 - **Then:** M1 scaffold (agent can start M1 before the owner tasks finish; none of them block it).
 - **Last updated:** 2026-11-03
@@ -43,7 +44,8 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 Planned (verify current versions against official docs at M1, then pin them here):
 Next.js 16.x App Router · TypeScript strict · MDX + Zod-validated content · Tailwind CSS v4 · Node.js 24 ·
 Python 3.13 Vercel Functions for demos (LightGBM, SQLite FTS5) · Vercel hosting + Web Analytics ·
-Upstash Redis (rate limits) · Cloudflare Turnstile + Resend (contact form) · Vitest, pytest, Playwright, axe, Lighthouse CI.
+Upstash Redis (rate limits) · Cloudflare Turnstile + Resend (contact form) · Vitest, pytest, Playwright, axe, Lighthouse CI ·
+scroll-craft engine (vendored unmodified, home page only) · fonts Newsreader + Geist Sans/Mono.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
@@ -65,6 +67,8 @@ private/         owner-only material, git-ignored, never commit:
   planning/      content inventory (08), full decision detail, review notes, account checklist
   *.md           CV edits, outreach drafts
 .gitignore       ignores private/, .env*, .remember/, .vercel/
+design/scrollcraft/   scroll-craft workspace: builds/portfolio-home/BRIEF.md, FINGERPRINTS.md
+.scrollcraft.json     points scroll-craft at design/scrollcraft
 AGENTS.md        shared agent instructions (this file)
 CLAUDE.md        imports AGENTS.md + Claude Code specifics
 (at M1) app/ content/ components/ api/ scripts/ public/ tests/
@@ -83,6 +87,7 @@ CLAUDE.md        imports AGENTS.md + Claude Code specifics
 9. **Respect the banned UI patterns** in 04 §10 (star fields, glassmorphism, purple AI gradients, skill bars…).
 10. **Fraud demo specifics.** Window features need each sample's 10-transaction history; probability = `sigmoid(raw + init_score)` (focal loss); describe 1.4 ms as in-process model inference, never as API latency.
 11. **Public repo hygiene (D-24).** Everything outside `private/` is public. Never write private repo names, employer details, CV issues or owner follow-ups into `docs/`, `AGENTS.md`, `CLAUDE.md`, code or commit messages; put them in `private/planning/`. `private/` exists only on the owner's machine; if it's missing, ask the owner.
+12. **Scroll design (D-25, D-26).** The home page follows its BRIEF: chaptered editorial grammar and its bans (no fixed bar, no scrub hero, no spotlight/magnet, no pinned type crossfades), one peak (the demo), the evidence ledger shows only real figures from the evidence data. Never edit the vendored engine; put page behaviour in our own code. No em dashes in visible copy. If the page and the BRIEF disagree after the feel check, fix the page, not the BRIEF.
 
 ## Conventions  <!-- LIVING: add a rule when a review finds a repeated mistake -->
 
@@ -128,3 +133,5 @@ Rules for editing them:
 - 2026-11-03 — Created as the shared living instructions file after planning docs v0.2 (Claude Code).
 - 2026-11-03 — M0 progress: state, layout (`private/`, `.gitignore`), hard rules 5 and 10 updated after the contradiction review (Claude Code).
 - 2026-11-03 — Trimmed for the public repo (D-24): private material moved to `private/planning/`; hard rules 6 and 11 added or changed (Claude Code).
+- 2026-11-03 — Public repo created and `main` pushed; Current state updated (Claude Code).
+- 2026-11-03 — Scroll-craft design adopted (D-25–D-27): source of truth, stack, layout, hard rule 12 (Claude Code).

@@ -1,6 +1,6 @@
 # 06 — Implementation Plan
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Depends on: 01–05, 07, 08
+**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: 01–05, 07, 08
 
 Rule for every milestone: **before moving on, run the site, verify that milestone's acceptance criteria, and record
 any unresolved issue** in the private review notes (`private/planning/reviews/`, git-ignored) and in the shared agent memory (`agent-memory/projects/portfolio/`).
@@ -33,7 +33,7 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 | 1.4 | GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
 | 1.5 | Vercel project linked; preview deploys on PR; Deployment Protection on previews | O+A | Vercel project | PR shows preview URL |
 | 1.6 | Security headers + CSP in `next.config` / middleware (07 §4) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
-| 1.7 | Design tokens, fonts, base layout (header, footer, skip link, theme toggle) | A | Layout | Renders at 320/768/1280 px; axe 0 violations |
+| 1.7 | Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
 
 **Checkpoint M1:** empty but production-shaped site deploys to a preview URL with headers, CI and a11y green.
 
@@ -52,7 +52,8 @@ Order follows dependencies: pages that others link to first.
 
 | # | Task | Owner | Output | Definition of done |
 |---|---|---|---|---|
-| 3.1 | Home (all sections in 04 §7) | A | `/` | PRD AC-1, AC-2 pass |
+| 3.1 | Home, chaptered editorial per the scroll-craft BRIEF score (title page with depth planes, Problem, Method, Work spreads, intertitle, Demo stage placeholder, Colophon) | A | `/` | PRD AC-1, AC-2, AC-11 pass |
+| 3.1b | **Evidence ledger** (signature move): `data-ledger` figures register as they pass the reading line; mobile strip; colophon table with totals; reduced-motion and screen-reader versions | A | Component + tests | PRD AC-12 passes; unit tests prove no figure outside the evidence data can render |
 | 3.2 | Case-study template + MDX components (metric table, evidence pill, callouts, diagram) | A | `/work/[slug]` | Renders a fixture with every component |
 | 3.3 | Write case study: **LegalAI Kenya** | O+A | MDX | Owner approves wording; every metric has dataset + caveat; evidence links pass |
 | 3.4 | Write case study: **Real-time credit-card fraud** | O+A | MDX | Same; metrics quoted from a clean-clone re-run; latency described as in-process model inference; the F1 > 0.85 target stated as missed |
@@ -72,7 +73,7 @@ Order follows dependencies: pages that others link to first.
 | 4.1 | Export fraud preprocessor params, amount-bin edges, cluster centroids, threshold and `init_score` to JSON; reimplement window features; verify probabilities equal the repo pipeline on 1 000 test rows (max abs diff < 1e-9) | A | `demos/fraud/prep.json`, parity test | pytest green |
 | 4.2 | Python function `/api/demos/fraud/score` (no pickle; `pred_contrib`), Pydantic validation, rate limit | A | Function | Contract tests for 200/400/413/415/429; p95 warm < 2 s on preview |
 | 4.3 | Samples endpoint (each with its 10-transaction window) + recorded example JSON + dataset attribution | A | Static JSON | 20 samples, label-balanced; licence credit shown |
-| 4.4 | Fraud demo UI (03 §5 states) | A | `/demos/fraud` | Keyboard-only run works; axe 0 |
+| 4.4 | Fraud demo UI (03 §5 states), also mounted as the pinned Act IV peak on the home page; writes the visitor's run to the ledger | A | `/demos/fraud` + home Act IV | Keyboard-only run works; axe 0; Act IV has the largest span on the contact sheet |
 | 4.5 | ML Systems search function (FTS5, bound params) + UI + attribution | A | `/demos/ml-systems-search` | Injection test strings return 200/empty, never 500 |
 | 4.6 | Case studies 4–5: **Production AI Reference Template**, **GEO-AI Cropland Mapping** | O+A | MDX | Same rules as 3.3 |
 | 4.7 | LegalAI walkthrough video (demo tenant only — no client data on screen) + captions | O | MP4 + VTT | Captions accurate; no PII visible |
@@ -86,7 +87,8 @@ Order follows dependencies: pages that others link to first.
 |---|---|---|---|
 | 5.1 | Run the 07 checklist end to end; record evidence per applicable item | A | Every "Applies" row has a passing test or a written verification |
 | 5.2 | DAST scan of preview (HawkScan / OWASP ZAP baseline) | A | No High/Critical findings |
-| 5.3 | Lighthouse CI budgets + real-device check (mid-range Android on 4G) | A | 02 §8 targets met |
+| 5.3 | Lighthouse CI budgets + real-device check (mid-range Android on 4G and an iPhone over `serve.mjs --lan`, stopped afterwards) | A | 02 §8 targets met |
+| 5.3b | Scroll-craft Step 5: harness at desktop, 390 × 844 and reduced motion; read `sheet.png`; **feel check** (scroll cold, one word per act, diff against the BRIEF curve; fix the page, not the brief) | A + O | Report in the build folder; peak reads as the peak; ending resolves |
 | 5.4 | Accessibility: axe on all routes + manual keyboard + NVDA pass on Home, case study, fraud demo | O+A | 0 violations; manual issues fixed |
 | 5.5 | Copy edit (plain English, numbers with context, no banned words from 04 §1) | O+A | Owner sign-off |
 | 5.6 | Cross-check CV, LinkedIn, site, GitHub README for consistency | O | Same title, roles, metrics everywhere |
@@ -103,6 +105,7 @@ Order follows dependencies: pages that others link to first.
 | 6.6 | Search Console + Bing Webmaster verification, submit sitemap | O | Sitemap accepted |
 | 6.7 | Monitoring: Vercel uptime check on `/` and demo health routes; spend limit / alerts; weekly link-check cron | O+A | Alert reaches owner email in a test |
 | 6.8 | Rollback rehearsal: promote previous deployment and back | A | Done in < 2 min |
+| 6.8b | Append the build's row to `design/scrollcraft/FINGERPRINTS.md` (all six dimensions + world) | A | Row present |
 | 6.9 | Retro + update docs, `AGENTS.md` and `CLAUDE.md` to "as built"; vault handoff | A | `log.md` entry; docs version 1.0; AGENTS.md Commands table has no _TBD_ |
 
 ## Indicative timeline (part-time, ~10 h/week)

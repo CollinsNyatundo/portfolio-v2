@@ -1,6 +1,6 @@
 # 03 — App Flow
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md), [02-TRD](02-TRD.md)
+**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md), [02-TRD](02-TRD.md)
 
 ## 1. Entry points
 
@@ -17,7 +17,7 @@
 
 | Route | Screen | Purpose | Data required |
 |---|---|---|---|
-| `/` | Home | Qualify in 10 s, route to depth | `site.ts` (name, title, location, availability, links), featured case studies, top 3 proof metrics |
+| `/` | Home (scroll-crafted, chaptered editorial) | Qualify in 10 s, then carry the visitor through Problem → Method → Work → Demo → Colophon | `site.ts`, featured case studies, ledger entries (from case-study metrics), fraud demo samples |
 | `/work` | Work index | All case studies + project cards, filterable | `caseStudies[]`, `projects[]` |
 | `/work/[slug]` | Case study | Depth and evidence for one flagship project | One `caseStudy` MDX |
 | `/demos` | Demos index | List live demos and their status | `demos[]` |
@@ -32,15 +32,18 @@
 | `404` | Not found | Recover | Links to Home, Work, Contact |
 | `500` / demo error | Error | Recover gracefully | — |
 
-Global chrome on every page: header (name → `/`, Work, Demos, About, Notes*, Contact, theme toggle, "Download CV"
-button), footer (email, LinkedIn, GitHub, "Last updated <build date>", licence of content, link to source repo).
+Global chrome on every page: the **folio** (no header bar): name → `/`, current chapter or page title, then Work,
+Demos, Notes*, "Email Collins", "CV", theme toggle. The evidence ledger sits in the opposite margin on pages that
+have figures. Every page ends in a **colophon** (ledger table where relevant, email, LinkedIn, GitHub, "Last updated
+<build date>", content licence, link to source repo).
 *Notes appears only when ≥ 2 notes exist.
 
 ## 3. Primary journeys
 
 **J1 — Recruiter qualifies (target: < 60 s)**
-`/` → reads hero (title, location, availability, proof chips) → clicks **Download CV** → PDF downloads → (optional)
-clicks **Email** → mail client opens with subject "Opportunity for Collins Nyagaka".
+`/` → reads the title page (name, title, positioning; folio shows location and availability) → clicks **CV** in
+the folio → PDF downloads → (optional) clicks **Email Collins** → mail client opens with subject "Opportunity for
+Collins Nyagaka".
 Success state: `cv_download` or `email_click` event recorded.
 
 **J2 — Hiring manager goes deep (target: 3–10 min)**
@@ -81,13 +84,15 @@ Success state: `demo_run` + contact action.
 
 ## 6. Navigation rules
 
-- Header nav is identical on every page; current section has `aria-current="page"`.
-- Mobile (< 768 px): nav collapses to a menu button opening a full-height sheet; focus is trapped inside; Esc closes and returns focus to the button.
+- The folio is identical on every page; the current chapter/section has `aria-current`. Chapter titles in the folio are links that jump to that chapter (home page).
+- Mobile (< 1024 px): the folio is a slim top line; tapping it opens a full-height sheet; focus is trapped inside; Esc closes and returns focus to the button.
 - External links open in a new tab only for: GitHub evidence, live apps, TundoTech. They carry an "opens in new tab" icon + `sr-only` text and `rel="noopener noreferrer"`.
 - Back button always works: filters and demo sample selection live in the URL (`?tag=`, `?sample=`), not in hidden state.
 - Deep links: every case-study heading has an anchor (`#evaluation`, `#security`) with a copy-link button.
 - Case studies end with "Previous / Next case study" and a CTA block (CV, Email).
-- No infinite scroll; no modal on page load; no exit-intent pop-ups.
+- No infinite scroll; no modal on page load; no exit-intent pop-ups; no "scroll" cue.
+- Home-page pinning (Act IV) uses native sticky scroll: wheel, keyboard (Space, Page Down, arrows), touch and find-in-page all keep working, and Tab moves through the demo controls in reading order.
+- Evidence ledger: on desktop always visible in the margin; on mobile a collapsed bottom strip showing "Evidence · N" that expands to the list. Ledger source links open in a new tab. The visitor's demo run adds a line styled as theirs; running it again replaces that line rather than adding more.
 
 ## 7. Empty and blocked states
 

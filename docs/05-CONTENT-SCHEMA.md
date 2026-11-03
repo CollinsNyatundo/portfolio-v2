@@ -1,6 +1,6 @@
 # 05 — Content & Data Schema
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Depends on: [02-TRD](02-TRD.md), [03-APP-FLOW](03-APP-FLOW.md)
+**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [02-TRD](02-TRD.md), [03-APP-FLOW](03-APP-FLOW.md)
 
 The template calls this "Backend Schema". v1 has **no database** (D-03), so this document defines the stored data
 that does exist: typed content files in Git, demo request/response contracts, and the only server-side state
@@ -56,7 +56,7 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `demo` | demo slug | no | Must exist in `demos.ts` |
 | `video` | `{ src, captions, poster }` | no | Captions required if video present |
 | `headlineMetric` | `{ label, value, context }` | yes | Shown on card |
-| `metrics` | `{ name, value, dataset, caveat? }[]` | yes (≥ 1) | `dataset` required — no context-free numbers |
+| `metrics` | `{ name, value, dataset, caveat?, ledger?: boolean, ledgerLabel?: string ≤ 32 }[]` | yes (≥ 1) | `dataset` required — no context-free numbers. `ledger: true` puts the figure in the evidence ledger (signature move); its source is the matching `evidence` entry |
 | `evidence` | `{ label, url \| null, private: boolean }[]` | yes (≥ 2) | `url` null only when `private: true` |
 | `limits` | string[] ≥ 1 | yes | What is not done |
 | `featured` | boolean | no | `false`; max 3 featured (build check) |

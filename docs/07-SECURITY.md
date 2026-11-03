@@ -121,7 +121,7 @@ Exact CSP hosts are finalised at M1 and kept in `docs/csp-allowlist.md`.
 | 58 | **Insecure deserialization** | C | **A** | **Never load `.pkl`**; LightGBM `.txt` + JSON params only (02 §3) | CI fails if `pickle`/`joblib.load` appears in `api/` |
 | 59 | Prototype pollution | H | R | No deep-merge of user JSON; Zod parses into new objects | ESLint + review |
 | 60 | Vulnerable dependencies | H | A | `npm audit`, `pip-audit`, Dependabot weekly | CI gate (high+) |
-| 61 | Malicious/compromised dependency | C | A | Minimal deps; lockfiles; `npm ci --ignore-scripts` where possible; review new deps; Actions pinned by SHA | PR checklist |
+| 61 | Malicious/compromised dependency | C | A | Minimal deps; the scroll-craft engine is vendored unmodified (MIT) and served from our origin, never a CDN; lockfiles; `npm ci --ignore-scripts` where possible; review new deps; Actions pinned by SHA | PR checklist |
 | 62 | Dependency confusion | H | R | Public registry only; no internal package names | — |
 | 63 | Exposed source maps / build artifacts | M | A | `productionBrowserSourceMaps: false` | Test `*.js.map` → 404 in prod |
 | 64 | Exposed `.env`, `.git`, backups | C | A | Not in `public/`; Vercel serves only build output | Test `/.env`, `/.git/config` → 404 |
