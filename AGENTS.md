@@ -11,7 +11,7 @@ Code specifics. Add a file per agent only when an agent needs something the othe
 
 An evidence-first personal portfolio for Collins Nyagaka (AI & Machine Learning Engineer, Nairobi). Its main audience
 is hiring managers and technical recruiters. It is a static MDX site with a few sandboxed live demos.
-Domain: `collinsnyagaka.com` · Repo: `CollinsNyatundo/portfolio-v2` (to be created at M1).
+Domain: `collinsnyagaka.com` · Repo: [`CollinsNyatundo/portfolio-v2`](https://github.com/CollinsNyatundo/portfolio-v2) (public).
 
 ## Source of truth
 
@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
 - **Phase:** Milestone 0 in progress. Done: 0.1 (answers), 0.2 (contradiction review, 20 findings), 0.3 (gitleaks: 0 findings), 0.9 (fraud metric provenance). `docs/` trimmed for publishing (D-24).
-- **Code:** none yet. Local git repo initialised; nothing pushed.
+- **Code:** none yet. Repo `CollinsNyatundo/portfolio-v2` is public (created 2026-11-03); `main` holds the trimmed planning docs. Branch protection on `main` not set yet (M1.1).
 - **Waiting on owner:** tasks 0.4–0.8 and the open follow-ups (details in `private/planning/`); domain purchase at M6.
 - **Then:** M1 scaffold (agent can start M1 before the owner tasks finish; none of them block it).
 - **Last updated:** 2026-11-03
@@ -128,3 +128,4 @@ Rules for editing them:
 - 2026-11-03 — Created as the shared living instructions file after planning docs v0.2 (Claude Code).
 - 2026-11-03 — M0 progress: state, layout (`private/`, `.gitignore`), hard rules 5 and 10 updated after the contradiction review (Claude Code).
 - 2026-11-03 — Trimmed for the public repo (D-24): private material moved to `private/planning/`; hard rules 6 and 11 added or changed (Claude Code).
+- 2026-11-03 — Public repo created and `main` pushed; Current state updated (Claude Code).
