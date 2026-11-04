@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Colophon } from "@/components/colophon";
+import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
 import { Folio } from "@/components/folio";
 import { site } from "@/content/site";
 import { projects, publishedCaseStudies } from "@/lib/content";
 import { contactMailto, contactTopic } from "@/lib/contact";
+import { contactFormEnabled } from "@/lib/contact-form";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -73,6 +75,21 @@ export default async function ContactPage({
               <CopyEmail email={site.email} />
             </div>
           </section>
+
+          {contactFormEnabled() && (
+            <section aria-labelledby="form" className="mt-16">
+              <h2 id="form" className={h2}>
+                Or send a message
+              </h2>
+              <div className="mt-4">
+                <ContactForm
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  email={site.email}
+                  defaultTopic={topic ? "walkthrough" : "general"}
+                />
+              </div>
+            </section>
+          )}
 
           <dl className="border-border mt-16 grid gap-8 border-t pt-8 md:grid-cols-3">
             <div>

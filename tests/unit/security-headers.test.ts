@@ -55,6 +55,27 @@ describe("Content-Security-Policy", () => {
   });
 });
 
+describe("Turnstile in the CSP (M4.8)", () => {
+  const nonce = "dGVzdC1ub25jZQ==";
+
+  it("trusts Cloudflare only when the contact form is configured", () => {
+    const off = buildCsp({ nonce, dev: false });
+    expect(off).not.toContain("challenges.cloudflare.com");
+    expect(directive(off, "frame-src")).toEqual(["'none'"]);
+
+    const on = buildCsp({ nonce, dev: false, turnstile: true });
+    expect(directive(on, "script-src")).toContain(
+      "https://challenges.cloudflare.com",
+    );
+    expect(directive(on, "frame-src")).toEqual([
+      "https://challenges.cloudflare.com",
+    ]);
+    // Still no inline script or eval with the form on.
+    expect(directive(on, "script-src")).not.toContain("'unsafe-inline'");
+    expect(directive(on, "script-src")).not.toContain("'unsafe-eval'");
+  });
+});
+
 describe("createNonce", () => {
   it("returns a fresh base64 value each call", () => {
     const a = createNonce();

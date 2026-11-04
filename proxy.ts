@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { contactFormEnabled } from "./lib/contact-form";
 import { buildCsp, createNonce } from "./lib/security-headers";
 
 /**
@@ -11,6 +12,7 @@ export function proxy(request: NextRequest) {
   const csp = buildCsp({
     nonce,
     dev: process.env.NODE_ENV === "development",
+    turnstile: contactFormEnabled(),
   });
 
   const requestHeaders = new Headers(request.headers);

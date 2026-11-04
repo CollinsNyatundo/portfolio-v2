@@ -77,7 +77,7 @@ pushing to `main` on GitHub (GitHub account with 2FA and a passkey; branch prote
 | Porkbun | Domain + DNS | ~US$12/yr | Owner | — (no API use from the site) |
 | Upstash Redis (via Vercel Marketplace) | Rate limiting demos and contact form | Free tier 10k commands/day is ample | Owner | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (server only) |
 | Cloudflare Turnstile (P1) | Bot check on contact form | Free | Owner | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` (server only) |
-| Resend (P1) | Send contact-form email to owner | Free tier 100/day | Owner | `RESEND_API_KEY` (server only) |
+| Resend (P1) | Send contact-form email to owner | Free tier 100/day | Owner | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified sender; server only) |
 | GitHub | Source, CI, evidence links | Free | Owner | `GITHUB_TOKEN` in CI only (link checker), read-only |
 
 No LLM provider is called in v1 (D-07, D-14). No secret is ever prefixed `NEXT_PUBLIC_` except the Turnstile site key,

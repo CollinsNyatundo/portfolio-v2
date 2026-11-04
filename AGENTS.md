@@ -51,8 +51,10 @@ scroll-craft engine (vendored unmodified, `public/vendor/scrollcraft/`).
 
 Content (M2): `@next/mdx` 16.4.5 + `@mdx-js/react` 3.1.1, remark-frontmatter 5, remark-gfm 4, gray-matter 4, Zod 4.6.7 (D-29). Scripts run as TypeScript on Node directly (type stripping, `"type": "module"`); no tsx.
 
+Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash are called over their REST APIs (no SDKs). The form and the Turnstile CSP host switch on only when `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` are all set; rate limits use Upstash when `UPSTASH_REDIS_REST_*` are set, else an in-process window.
+
 Planned (not installed yet): Python 3.13 Vercel Functions for demos (M4) · Vercel Web
-Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
+Analytics.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
@@ -170,6 +172,7 @@ Rules for editing them:
 - 2026-11-04 — M3.6 work index: Current state (Claude Code).
 - 2026-11-04 — M3.7 about page: Current state, Layout (Claude Code).
 - 2026-11-04 — M3.8 contact page: Current state (Claude Code).
+- 2026-11-04 — M4.8 contact form (off until keys): Stack (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

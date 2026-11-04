@@ -14,13 +14,24 @@ type CspOptions = {
   nonce: string;
   /** `next dev` needs eval and unhashed styles, and serves over plain http. */
   dev: boolean;
+  /**
+   * Cloudflare Turnstile for the contact form (07 §4, M4.8). Added only when
+   * the form is configured, so the host isn't trusted before it's needed.
+   */
+  turnstile?: boolean;
 };
+
+export const TURNSTILE_ORIGIN = "https://challenges.cloudflare.com";
 
 export function createNonce(): string {
   return btoa(crypto.randomUUID());
 }
 
-export function buildCsp({ nonce, dev }: CspOptions): string {
+export function buildCsp({
+  nonce,
+  dev,
+  turnstile = false,
+}: CspOptions): string {
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
     // 'strict-dynamic' lets nonce-trusted scripts load their own chunks.
@@ -29,6 +40,7 @@ export function buildCsp({ nonce, dev }: CspOptions): string {
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       ...(dev ? ["'unsafe-eval'"] : []),
+      ...(turnstile ? [TURNSTILE_ORIGIN] : []),
     ],
     "style-src-elem": ["'self'", dev ? "'unsafe-inline'" : `'nonce-${nonce}'`],
     // style="" attributes: allowed. React and the scroll engine set inline
@@ -38,7 +50,7 @@ export function buildCsp({ nonce, dev }: CspOptions): string {
     "font-src": ["'self'"],
     "connect-src": ["'self'"],
     "media-src": ["'self'"],
-    "frame-src": ["'none'"],
+    "frame-src": turnstile ? [TURNSTILE_ORIGIN] : ["'none'"],
     "worker-src": ["'self'"],
     "manifest-src": ["'self'"],
     "object-src": ["'none'"],
