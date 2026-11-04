@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Colophon } from "@/components/colophon";
 import { ContactForm } from "@/components/contact-form";
 import { CopyEmail } from "@/components/copy-email";
+import { CvLink } from "@/components/cv-link";
 import { Folio } from "@/components/folio";
 import { site } from "@/content/site";
 import { projects, publishedCaseStudies } from "@/lib/content";
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
   title: "Contact",
   description:
     "Email Collins Nyagaka, AI and machine-learning engineer in Nairobi (UTC+3), open to remote roles.",
+  alternates: { canonical: "/contact" },
 };
 
 function External({ href, children }: { href: string; children: string }) {
@@ -108,13 +110,12 @@ export default async function ContactPage({
               <dd className="mt-3 flex flex-col">
                 <External href={site.links.linkedin}>LinkedIn</External>
                 <External href={site.links.github}>GitHub</External>
-                <a
-                  href={site.cvPath}
-                  download
+                <CvLink
+                  from="contact"
                   className="inline-flex min-h-11 items-center"
                 >
                   CV (PDF)
-                </a>
+                </CvLink>
               </dd>
             </div>
           </dl>
