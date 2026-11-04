@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { principles } from "@/content/about";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
@@ -22,25 +23,6 @@ const failures = [
   {
     lead: "One firm's records visible to another.",
     body: "Isolation lived in the interface, and the database underneath let anyone ask for anything.",
-  },
-];
-
-const principles = [
-  {
-    title: "Evaluate on data the model hasn't seen",
-    body: "Time-ordered splits, held-out questions, and intervals instead of single numbers.",
-  },
-  {
-    title: "Enforce isolation in the database, not the UI",
-    body: "Row-level security, tested by attacking it from another tenant.",
-  },
-  {
-    title: "Say what isn't done",
-    body: "Every case study ends with its limits, including the targets it missed.",
-  },
-  {
-    title: "Ship with tests and security checks",
-    body: "CI runs the evaluation, the secret scan and the accessibility checks on every change.",
   },
 ];
 
