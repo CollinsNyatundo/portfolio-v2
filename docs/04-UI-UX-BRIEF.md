@@ -245,7 +245,7 @@ From the scroll-craft refuse list:
 
 | Asset | Source | Status |
 |---|---|---|
-| Headshot (square, ≥ 800 px, neutral background) | Owner (D-21) | Pending; graded to the paper/ink palette for the Method plate |
+| Headshot (square, ≥ 800 px, neutral background) | Owner (D-21), real photo | In repo: `public/images/collins.jpg` (1200 × 1200, metadata stripped). Grade to the paper/ink palette when the Method plate is built (M3) |
 | CV PDF (current) | Owner | Update needed (D-16) |
 | Architecture drawings (SVG) for each case study | **Hand-authored** from repo docs, technical-drawing style | To do |
 | Chapter-opener ink studies (texture only, no text) | Generated with the BRIEF's style preamble | Blocked until the owner sets `KIE_AI_API_KEY` (optional; the page works without them) |

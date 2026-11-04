@@ -19,7 +19,7 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 | 0.4 | Make `creditcard-fraud` public (D-17) | O | 0.3 | Public repo | CV link returns 200 when logged out | 0.3 |
 | 0.5 | Reconcile CV ↔ LinkedIn titles and roles (private draft ready) | O | D-16 | Updated CV PDF + LinkedIn | Same title, same roles, same dates on both | 0.1 |
 | 0.6 | Draft LinkedIn recommendation requests (2–3 people) for the owner to send (D-23). **Private drafts ready** | O+A | Owner's list of people | Drafts | Owner has sent them | — |
-| 0.7 | Owner supplies headshot (D-21) | O | — | `public/images/collins.jpg` (square, ≥ 800 px) | File in repo | — |
+| 0.7 | **Done 2026-11-04** Owner supplies headshot (D-21); re-encoded to 1200 px with no metadata | O | — | `public/images/collins.jpg` (square, ≥ 800 px) | File in repo | — |
 | 0.8 | Owner account hardening (private checklist, see 07 §6) | O | 07 §6 | Checked list | Every box ticked | — |
 | 0.9 | **Done 2026-11-03** Confirm which threshold produced the fraud repo's reported metrics, and the F1 target that `f1_target_met: false` refers to | A | `creditcard-fraud` repo | Private review notes | Threshold, target and script named | 0.3 |
 
