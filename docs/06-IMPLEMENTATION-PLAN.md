@@ -41,10 +41,10 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 
 | # | Task | Owner | Output | Definition of done |
 |---|---|---|---|---|
-| 2.1 | Content schemas (05 §2) with Zod + content loader | A | `content/schema.ts` | Invalid fixture fails build with readable error |
-| 2.2 | Seed `site`, `experience`, `certifications`, `projects`, `demos` | A | `content/*.ts` | Matches 05 tables + D-16, D-20 |
-| 2.3 | Evidence + link checker script (unauthenticated HEAD/GET, allow-list) | A | `scripts/check-links.ts` | Fails on any 404; runs in CI nightly and on PR |
-| 2.4 | Section-heading lint for case studies | A | Script | Missing `## Limits` fails build |
+| 2.1 | **Done 2026-11-04** Content schemas (05 §2) with Zod + content loader | A | `content/schema.ts` | Invalid fixture fails build with readable error |
+| 2.2 | **Done 2026-11-04** Seed `site`, `experience`, `certifications`, `projects`, `demos` | A | `content/*.ts` | Matches 05 tables + D-16, D-20 |
+| 2.3 | **Done 2026-11-04** Evidence + link checker script (unauthenticated HEAD/GET, allow-list) | A | `scripts/check-links.ts` | Fails on any 404; runs in CI nightly and on PR |
+| 2.4 | **Done 2026-11-04** Section-heading lint for case studies | A | Script | Missing `## Limits` fails build |
 
 ## Milestone 3 — Core journey (J1, J2)
 

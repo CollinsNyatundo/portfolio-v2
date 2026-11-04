@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** Milestone 1 in progress. Done: 1.1, 1.2, 1.3, 1.4, 1.6, 1.7 (branch `feat/m1-scaffold`). Open: 1.5 Vercel project and preview deploys (owner involvement).
+- **Phase:** M1 done except 1.5 (Vercel, owner). M2 content layer done on branch `feat/m2-content` (stacked on `feat/positioning`, PR #3). Next: M3 home page and case studies.
 - **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -49,7 +49,9 @@ React 19.3.0 · TypeScript 5.9.3 strict · Tailwind CSS 4.3.4 (`@tailwindcss/tur
 4.14.0 · Lighthouse CI 0.16.0 · Husky 9.1.7 (gitleaks pre-commit) · fonts Newsreader + Geist Sans/Mono via `next/font` ·
 scroll-craft engine (vendored unmodified, `public/vendor/scrollcraft/`).
 
-Planned (not installed yet): MDX + Zod content layer (M2) · Python 3.13 Vercel Functions for demos (M4) · Vercel Web
+Content (M2): `@next/mdx` 16.4.5 + `@mdx-js/react` 3.1.1, remark-frontmatter 5, remark-gfm 4, gray-matter 4, Zod 4.6.7 (D-29). Scripts run as TypeScript on Node directly (type stripping, `"type": "module"`); no tsx.
+
+Planned (not installed yet): Python 3.13 Vercel Functions for demos (M4) · Vercel Web
 Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
@@ -68,7 +70,8 @@ Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
 | Lighthouse (needs a build) | `npm run lhci` |
 | Everything quick before a commit | `npm run check` (lint, typecheck, format check, unit tests) |
 | Git hooks | `npm run prepare` (installs Husky; pre-commit runs gitleaks on staged changes) |
-| Link + evidence check | _M2.3_ |
+| Validate content and write the index | `npm run content` (runs automatically before dev, build, typecheck and tests) |
+| Link + evidence check (network) | `npm run links` |
 
 ## Layout  <!-- LIVING: update when top-level folders change -->
 
@@ -84,12 +87,15 @@ AGENTS.md        shared agent instructions (this file)
 CLAUDE.md        imports AGENTS.md + Claude Code specifics
 app/             Next.js routes: layout (fonts, skip link, per-request rendering), page, not-found, icon
 components/      folio, colophon, theme toggle
-content/         site.ts (identity, links, positioning)
-lib/             security-headers.ts (CSP builder, static headers)
+content/         site.ts, schema.ts (Zod), tags.ts, experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
+mdx-components.tsx  MDX component map (required by @next/mdx)
+scripts/         build-content.ts (validate + index), check-links.ts (evidence links)
+lib/             security-headers.ts (CSP builder, static headers), content.ts (typed content access)
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe
-.github/workflows/ci.yml     CI: gitleaks, lint, typecheck, format, unit, audit, build, e2e, Lighthouse
+.github/workflows/ci.yml     CI: gitleaks, content, lint, typecheck, format, unit, links, audit, build, e2e, Lighthouse
+.github/workflows/links.yml  nightly link check
 ```
 
 ## Hard rules (do not break without a new decision in docs/00-README.md)
@@ -107,6 +113,7 @@ tests/unit/      Vitest      tests/e2e/   Playwright + axe
 11. **Public repo hygiene (D-24).** Everything outside `private/` is public. Never write private repo names, employer details, CV issues or owner follow-ups into `docs/`, `AGENTS.md`, `CLAUDE.md`, code or commit messages; put them in `private/planning/`. `private/` exists only on the owner's machine; if it's missing, ask the owner.
 12. **Scroll design (D-25, D-26).** The home page follows its BRIEF: chaptered editorial grammar and its bans (no fixed bar, no scrub hero, no spotlight/magnet, no pinned type crossfades), one peak (the demo), the evidence ledger shows only real figures from the evidence data. Never edit the vendored engine; put page behaviour in our own code. No em dashes in visible copy. If the page and the BRIEF disagree after the feel check, fix the page, not the BRIEF.
 13. **Strict CSP (D-28).** Every page renders per request so `proxy.ts` can give it a fresh nonce. Don't re-enable Cache Components or Partial Prerendering, add inline scripts, or add `'unsafe-inline'` to scripts. A new third-party host goes into `lib/security-headers.ts` with a test, only when a feature needs it.
+14. **Content (D-29).** Never add a content library or MDX renderer that evaluates code at runtime (`new Function`, `eval`); MDX compiles at build time. Every new content field goes into `content/schema.ts` with a test in `tests/unit/content.test.ts`. No invented dates or numbers in data files: if a month or figure isn't on record, leave it out.
 
 ## Conventions  <!-- LIVING: add a rule when a review finds a repeated mistake -->
 
@@ -155,6 +162,7 @@ Rules for editing them:
 - 2026-11-03 — Public repo created and `main` pushed; Current state updated (Claude Code).
 - 2026-11-03 — Scroll-craft design adopted (D-25–D-27): source of truth, stack, layout, hard rule 12 (Claude Code).
 - 2026-11-03 — M1 shell built: Current state, Stack (exact versions), Commands, Layout, hard rule 13 (D-28) (Claude Code).
+- 2026-11-04 — M2 content layer: Current state, Stack, Commands, Layout, hard rule 14 (D-29) (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
