@@ -56,7 +56,7 @@ Order follows dependencies: pages that others link to first.
 | 3.1b | **Evidence ledger** (signature move): `data-ledger` figures register as they pass the reading line; mobile strip; colophon table with totals; reduced-motion and screen-reader versions | A | Component + tests | PRD AC-12 passes; unit tests prove no figure outside the evidence data can render |
 | 3.2 | **Done 2026-11-04** Case-study template + MDX components (metric table, evidence pill, callouts, diagram) | A | `/work/[slug]` | Renders a fixture with every component |
 | 3.3 | Write case study: **LegalAI Kenya** | O+A | MDX | Owner approves wording; every metric has dataset + caveat; evidence links pass |
-| 3.4 | **Drafted 2026-11-04, awaiting owner approval** Write case study: **Real-time credit-card fraud** | O+A | MDX | Same; metrics quoted from a clean-clone re-run; latency described as in-process model inference; the F1 > 0.85 target stated as missed |
+| 3.4 | **Done 2026-11-04 (owner approved wording)** Write case study: **Real-time credit-card fraud** | O+A | MDX | Same; metrics quoted from a clean-clone re-run; latency described as in-process model inference; the F1 > 0.85 target stated as missed |
 | 3.5 | Write case study: **ComplianceGuard AML/KYC** | O+A | MDX | Same; "pre-pilot, not run on real infrastructure" stated |
 | 3.6 | Work index with filters | A | `/work` | `?tag=` works with back button |
 | 3.7 | About + experience timeline + certifications | O+A | `/about` | Owner approves narrative |
