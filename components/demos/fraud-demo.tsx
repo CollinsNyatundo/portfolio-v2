@@ -232,7 +232,10 @@ export function FraudDemo({
   function reset() {
     if (!sample) return;
     setEdit(null);
-    setStatus({ kind: "ready" });
+    // A rate-limit cooldown survives Reset (docs/03 §7: no retry storm).
+    setStatus((s) =>
+      s.kind === "limited" && s.until > wallClock() ? s : { kind: "ready" },
+    );
   }
 
   async function scoreIt() {
@@ -303,8 +306,12 @@ export function FraudDemo({
   const mine = edit && sample && edit.id === sample.id ? edit : null;
   const values = mine?.values ?? base;
   const errors = mine?.errors ?? {};
-  const setValues = (next: Record<string, string>) =>
-    sample && setEdit({ id: sample.id, values: next, errors });
+  const setValues = (next: Record<string, string>) => {
+    if (!sample) return;
+    setEdit({ id: sample.id, values: next, errors });
+    // Edited values haven't been scored: drop the old result.
+    if (status.kind === "scored") setStatus({ kind: "ready" });
+  };
   const setErrors = (next: Record<string, string>) =>
     sample && setEdit({ id: sample.id, values, errors: next });
   const scored =

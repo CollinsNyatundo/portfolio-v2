@@ -138,6 +138,29 @@ test.describe("fraud demo", () => {
     await expect(page.locator("main ol > li")).toHaveCount(5);
   });
 
+  test("editing a value clears the old result", async ({ page }) => {
+    await mockScore(page, 200, result);
+    await page.goto(PATH);
+    await page.getByLabel("Edit values").check();
+    await page.getByRole("button", { name: "Score" }).click();
+    await expect(page.locator("main")).toContainText("70.9%");
+    await page.getByLabel("Amount", { exact: true }).fill("55");
+    await expect(page.locator("main")).not.toContainText("70.9%");
+  });
+
+  test("Reset keeps the rate-limit cooldown", async ({ page }) => {
+    await mockScore(page, 429, {
+      error: "rate_limited",
+      retryAfterSeconds: 120,
+    });
+    await page.goto(PATH);
+    await page.getByRole("button", { name: "Score" }).click();
+    await expect(page.getByRole("status")).toContainText("try again in 2 min");
+    await page.getByRole("button", { name: "Reset" }).click();
+    await expect(page.getByRole("button", { name: "Score" })).toBeDisabled();
+    await expect(page.getByRole("status")).toContainText("try again in 2 min");
+  });
+
   test("credits the dataset and its licence", async ({ page }) => {
     await page.goto(PATH);
     await expect(page.locator("main")).toContainText("CC BY-NC-SA 4.0");
