@@ -15,7 +15,16 @@ describe("sitemap", () => {
   const urls = sitemap().map((e) => e.url);
 
   it("lists the main pages and every published case study", () => {
-    for (const path of ["/", "/work", "/about", "/contact"])
+    for (const path of [
+      "/",
+      "/work",
+      "/demos",
+      "/demos/ml-systems-search",
+      "/about",
+      "/contact",
+      "/cv",
+      "/cv",
+    ])
       expect(urls).toContain(absoluteUrl(path));
     for (const s of publishedCaseStudies())
       expect(urls).toContain(absoluteUrl(`/work/${s.slug}`));

@@ -1,0 +1,49 @@
+{
+  "query": "data drift",
+  "results": [
+    {
+      "chapter": "Chapter 14: ML Operations (MLOps, Drift, Edge Fleets)",
+      "section": "7. Quantifying Drift: The Mathematics of Observability",
+      "snippet": "Because ML systems fail silently, monitoring must continuously track statistical divergence between production \u0002data\u0003 and baseline training \u0002data\u0003.",
+      "url": "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/8780dd21c927c4f1031be269697ad57da18dbb94/skills/machine-learning-systems/chapters/ch14.md",
+      "score": 5.006
+    },
+    {
+      "chapter": "Chapter 14: ML Operations (MLOps, Drift, Edge Fleets)",
+      "section": "Metric ingestion:",
+      "snippet": "- \u0002Data\u0003 points per month: 3 50 (4/min 30) = 26 million - Cost at USD 0.30/million: USD 8/month",
+      "url": "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/8780dd21c927c4f1031be269697ad57da18dbb94/skills/machine-learning-systems/chapters/ch14.md",
+      "score": 4.841
+    },
+    {
+      "chapter": "Chapter 14: ML Operations (MLOps, Drift, Edge Fleets)",
+      "section": "9.2 The Uptime Dependency Stack (The Iceberg Model)",
+      "snippet": "Visible service uptime (the tip of the iceberg) is supported by a massive hidden infrastructure stack: ``` [ Uptime (100%) ] <-- Visible Service Health ~~~~~~~~~~~~~~~~~~~~~~ Waterline ~~~~~~~~~~~~~~~~~~~~~~ [ Model Accuracy ] [ \u0002Data\u0003 Quality ] [ Feature \u0002Drift\u0003 ] [ Concept \u0002Drift\u0003 ] <-- Hidden Statistical …",
+      "url": "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/8780dd21c927c4f1031be269697ad57da18dbb94/skills/machine-learning-systems/chapters/ch14.md",
+      "score": 4.825
+    },
+    {
+      "chapter": "Chapter 14: ML Operations (MLOps, Drift, Edge Fleets)",
+      "section": "Layer 2: Data",
+      "snippet": "… Stale features are a common silent killer-the model continues serving predictions using yesterday's \u0002data\u0003, producing outputs that look plausible but reflect an outdated world. - □ \u0002Drift\u0003: Distributional shift (measured via PSI …",
+      "url": "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/8780dd21c927c4f1031be269697ad57da18dbb94/skills/machine-learning-systems/chapters/ch14.md",
+      "score": 4.825
+    },
+    {
+      "chapter": "Chapter 14: ML Operations (MLOps, Drift, Edge Fleets)",
+      "section": "Definition 14.3: Data drift",
+      "snippet": "… The sibling concept is concept \u0002drift\u0003, in which 𝑃(𝑌 |𝑋) itself shifts. 2. Distinction (durable) : Unlike model decay (which implies internal failure, where the algorithm or code degraded), \u0002data\u0003 \u0002drift\u0003 is …",
+      "url": "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/8780dd21c927c4f1031be269697ad57da18dbb94/skills/machine-learning-systems/chapters/ch14.md",
+      "score": 4.81
+    }
+  ],
+  "attribution": {
+    "author": "Vijay Janapa Reddi",
+    "title": "Machine Learning Systems",
+    "licence": "CC BY-NC-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    "url": "https://mlsysbook.ai/",
+    "adaptation": "Adapted edition in machine-learning-systems-plugin by Collins Nyagaka"
+  },
+  "recordedOn": "2026-11-04"
+}

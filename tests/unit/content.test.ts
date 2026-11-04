@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   aboutProblems,
+  skillProblems,
   buildIndex,
   ContentError,
   demoReferenceProblems,
@@ -126,6 +127,24 @@ describe("about data", () => {
     expect(aboutProblems([{ ...area, extra: 1 }], [])).not.toEqual([]);
     expect(aboutProblems([area, area], [])).toContain(
       "focusAreas: each tag may appear once",
+    );
+  });
+});
+
+describe("cv skills", () => {
+  const ok = { group: "MLOps", items: ["MLflow"] };
+
+  it("accepts a valid group", () => {
+    expect(skillProblems([ok])).toEqual([]);
+  });
+
+  it("rejects empty groups, empty items, extra fields and repeats", () => {
+    expect(skillProblems([{ ...ok, items: [] }])).not.toEqual([]);
+    expect(skillProblems([{ ...ok, items: [""] }])).not.toEqual([]);
+    expect(skillProblems([{ ...ok, group: "" }])).not.toEqual([]);
+    expect(skillProblems([{ ...ok, level: 5 }])).not.toEqual([]);
+    expect(skillProblems([ok, ok])).toContain(
+      "skills: each group may appear once",
     );
   });
 });
