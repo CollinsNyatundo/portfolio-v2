@@ -196,3 +196,10 @@ Light paper canvas by default. Dark is an optional reading mode, not the design.
 
 `design/scrollcraft/FINGERPRINTS.md` is empty (first build), so the gate passes trivially. The row is appended after
 the page ships and is verified.
+
+## Build notes (2026-11-04, M3.1)
+
+- Built: title page (paper, drawing and rule planes at different parallax rates), I Problem (three hard-cut grounds with `reveal`), II Method (photo plate with frame and photo at different rates, principles via `in`), III Work (case-study spreads whose ledger figures carry `data-ledger-id`, plus project cards), V Colophon (ledger table and totals, running-text CTA).
+- Deferred to M4: the intertitle and Act IV render only when the fraud demo is live, so the page never shows an empty stage. Current length 6.2 vh; the scored 12.4 vh includes the pinned demo.
+- Harness (scratch copy with `bypassCSP`, since the site's CSP blocks its injected style): no dead scroll and no contrast failures at 1440 × 900, 390 × 844 and reduced motion. The 404s it logs are folio prefetches of routes built later in M3.
+- Feel check not run yet: it needs the peak (Act IV) to exist.
