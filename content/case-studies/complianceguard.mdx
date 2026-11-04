@@ -1,0 +1,122 @@
+---
+slug: complianceguard
+title: ComplianceGuard, anti-money-laundering monitoring for Kenya
+outcome: A pre-pilot platform that turns M-Pesa-style payments into holds, cases and drafted reports under Kenyan anti-money-laundering law.
+role: Engineer
+period: { start: "2026-03", end: "2026-10" }
+domain: fintech
+tags: [fintech, ml, security, data]
+stack:
+  [
+    Python,
+    FastAPI,
+    PostgreSQL,
+    Redis,
+    Kafka,
+    scikit-learn,
+    River,
+    Next.js,
+    Docker,
+  ]
+visibility: private
+headlineMetric:
+  label: money-laundering typologies encoded
+  value: "35"
+  context: tested on synthetic M-Pesa-style data only
+metrics:
+  - name: Typology rules
+    value: "35"
+    dataset: Versioned JSON registry, exercised by a synthetic M-Pesa-style generator (seed 42)
+    caveat: Synthetic data only. The rules have never scored a real institution's transactions.
+    ledger: true
+    ledgerLabel: AML typologies, synthetic data
+  - name: Sanctions names screened against
+    value: 285,503
+    dataset: Live OFAC SDN, UN Consolidated and OpenSanctions downloads on 2026-10-20, after deduplication
+    caveat: One full download, checked against a SHA-256 manifest. There's no incremental update feed yet.
+    ledger: true
+    ledgerLabel: sanctions names, live sync
+  - name: PEP names screened against
+    value: 835,168
+    dataset: OpenSanctions PEP list downloaded on 2026-10-20, after deduplication
+    caveat: OpenSanctions data is free for non-commercial use only; a commercial pilot needs a licence.
+  - name: Test files
+    value: about 240
+    dataset: Unit and integration suites, with a 90% coverage gate in CI
+    caveat: Tests run in-process and on SQLite. Several database paths have never run on real infrastructure.
+evidence:
+  - label: Typology registry and synthetic data generator
+    url: null
+    private: true
+  - label: Watchlist sync manifest (2026-10-20)
+    url: null
+    private: true
+  - label: Test suite and coverage gate
+    url: null
+    private: true
+limits:
+  - It's a pre-pilot build, not a production deployment. It has never run on real infrastructure or real customer data.
+  - The Postgres audit triggers and the last three database migrations have never run on a live Postgres.
+  - National ID and credit bureau checks run against mocks; real access needs agreements with those bodies.
+  - Live filing with the Financial Reporting Centre has never been tried with institution credentials.
+  - The graph engine isn't live, so its score is missing and its weight is spread across the other engines.
+featured: true
+order: 3
+published: true
+updated: "2026-11-04"
+---
+
+## Problem
+
+Kenyan banks, SACCOs and payment providers must spot money laundering in fast, high-volume mobile-money traffic, then report it to the Financial Reporting Centre within strict deadlines. Off-the-shelf tools are built for card and wire data. They don't model M-Pesa patterns such as agent cash-outs or split transfers, and they don't follow Kenyan law, POCAMLA, out of the box.
+
+## Constraints
+
+- **The law sets the deadlines.** A suspicious-activity report is due within 3 days of a hold.
+- **Rules must stay in charge.** FATF guidance says a machine-learning score can't be the only reason to report someone.
+- **Personal data is regulated.** The Kenya Data Protection Act 2019 limits who can see national ID numbers and phone numbers.
+- **Every decision must be auditable**, by an examiner who reads the trail months later.
+
+## Approach
+
+<Figure caption="One payment, from event to hold. The rules carry the decision; machine-learning scores only add to it.">
+  <ComplianceGuardPipeline />
+</Figure>
+
+Payments arrive from M-Pesa, CSV files or core banking. A normaliser turns each into one canonical shape, and Kafka carries it to detection. There, 35 typology rules check for known laundering patterns, such as structuring a large sum into many small transfers.
+
+Behaviour and velocity profiles in Redis add context, and an Isolation Forest plus a River online model add an anomaly score. A composite scorer fuses the engine scores with reviewed weights. Some outcomes can't be tuned away: a strong sanctions match always escalates, and a politically exposed person is always treated as high risk.
+
+Above the hold threshold, the system creates a hold, opens a case and drafts the report. An analyst investigates, and a second person must approve before anything is filed.
+
+## Evaluation
+
+There's no real-world accuracy figure, and I don't claim one. No institution's transaction data has gone through the system. The rules and scoring are tested against a synthetic M-Pesa-style dataset with all 35 typologies planted in it, which shows the logic works as designed, not how often it would catch real laundering.
+
+<Metrics />
+
+## Results
+
+The full analyst journey runs end to end in a one-command demo: a payment comes in, raises an alert and a hold, becomes a case, gets a drafted report and passes four-eyes approval. The sanctions and PEP screening lists were synced from live public sources on 2026-10-20.
+
+<Callout title="Pre-pilot, said plainly">
+  Everything here passes in tests or in the in-process demo. Nothing has run on
+  a real bank's infrastructure, so I describe it as pre-pilot, not production.
+</Callout>
+
+## Security
+
+Personal identifiers go into a reversible vault encrypted with AES-GCM. Revealing one needs a stated purpose and leaves an audit record, and keys can be rotated or erased. Logs scrub national IDs, phone numbers and names automatically.
+
+Decisions are written to an append-only audit ledger in which each entry carries the hash of the one before, so a changed record breaks the chain. An API gateway checks a signed token and a role on every call, and rate-limits each client. Production settings fail closed when a required secret is missing.
+
+## Limits
+
+<Limits />
+
+## What I'd do next
+
+- Bring the stack up on a real Postgres and Docker host, and prove the audit triggers refuse updates and deletes.
+- Run a shadow pilot on one institution's historical data, to measure real alert rates and false positives.
+- Replace full watchlist downloads with incremental updates.
+- Bring the graph engine live, so related accounts count towards risk.

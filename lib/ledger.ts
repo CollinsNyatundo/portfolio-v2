@@ -10,7 +10,7 @@ export type LedgerEntry = {
   caveat: string;
   project: string;
   projectSlug: string;
-  /** First evidence link of the study, or null for private work. */
+  /** First evidence link of a public or partial study; null for private work. */
   source: string | null;
 };
 
@@ -21,7 +21,12 @@ export type LedgerEntry = {
  */
 export function ledgerEntries(): LedgerEntry[] {
   return publishedCaseStudies().flatMap((study) => {
-    const source = study.evidence.find((e) => e.url)?.url ?? null;
+    // A private study's figures come from private reports. A public link on
+    // it (such as the live app) isn't their source, so never cite one.
+    const source =
+      study.visibility === "private"
+        ? null
+        : (study.evidence.find((e) => e.url && !e.private)?.url ?? null);
     return study.metrics
       .filter((m) => m.ledger)
       .map((m) => ({
