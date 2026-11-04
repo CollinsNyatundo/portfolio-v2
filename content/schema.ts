@@ -134,6 +134,19 @@ export const experience = z.strictObject({
   visible: z.boolean(),
 });
 
+/** A focus area on /about (docs/01 F-11); shown only once work carries its tag. */
+export const focusArea = z.strictObject({
+  tag,
+  title: z.string().min(1).max(40),
+  body: z.string().min(1).max(160),
+});
+
+/** One "How I work" rule, shared by the home page and /about. */
+export const principle = z.strictObject({
+  title: z.string().min(1).max(60),
+  body: z.string().min(1).max(140),
+});
+
 export const certification = z.strictObject({
   name: z.string().min(1),
   issuer: z.string().min(1),
@@ -148,6 +161,8 @@ export type NoteFrontmatter = z.infer<typeof noteFrontmatter>;
 export type Project = z.infer<typeof project>;
 export type Demo = z.infer<typeof demo>;
 export type Experience = z.infer<typeof experience>;
+export type FocusArea = z.infer<typeof focusArea>;
+export type Principle = z.infer<typeof principle>;
 export type Certification = z.infer<typeof certification>;
 
 /** Body sections every case study must have, in this order (docs/05 §2). */

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { mailtoHref, site } from "@/content/site";
 
 const repoUrl = "https://github.com/CollinsNyatundo/portfolio-v2";
@@ -18,6 +19,9 @@ export function Colophon({ updated }: { updated: string }) {
         .
       </p>
       <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+        <li>
+          <Link href="/about">About</Link>
+        </li>
         <li>
           <a
             href={site.links.linkedin}
