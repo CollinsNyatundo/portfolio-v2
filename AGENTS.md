@@ -33,13 +33,13 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 in progress. Merged: 3.2 template, 3.4 fraud case study. Branch `feat/m3-home`: 3.1 home chapters and 3.1b evidence ledger, with the scroll engine mounted on the home page only. Act IV (pinned demo) and its intertitle render only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
-- **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
+- **Phase:** M3 in progress. Merged: 3.1 home chapters and 3.1b evidence ledger, 3.2 template, 3.4 fraud case study. Branch `feat/m3-private-case-studies`: 3.3 LegalAI Kenya and 3.5 ComplianceGuard drafted as private case studies, awaiting owner approval of the wording. Act IV (pinned demo) renders only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
+- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
 - **Known gaps:** folio links to `/work`, `/demos`, `/notes` return 404 until M3. The CV at `/cv/Collins_Nyagaka_CV.pdf` is the phone-free public copy; its HTML source and the owner's copy (with phone) are in `private/cv/` (`node private/cv/render.mjs` prints both).
 - **Waiting on owner:** M0 tasks 0.4–0.8 and follow-ups (details in `private/planning/`); 1.5 Vercel link; domain purchase at M6.
-- **Last updated:** 2026-11-03
+- **Last updated:** 2026-11-04
 
 ## Stack  <!-- LIVING: replace "planned" with exact versions once installed -->
 
@@ -166,6 +166,7 @@ Rules for editing them:
 - 2026-11-03 — Scroll-craft design adopted (D-25–D-27): source of truth, stack, layout, hard rule 12 (Claude Code).
 - 2026-11-03 — M1 shell built: Current state, Stack (exact versions), Commands, Layout, hard rule 13 (D-28) (Claude Code).
 - 2026-11-04 — M2 content layer: Current state, Stack, Commands, Layout, hard rule 14 (D-29) (Claude Code).
+- 2026-11-04 — M3.3 and M3.5 drafted: Current state (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

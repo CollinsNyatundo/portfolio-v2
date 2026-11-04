@@ -66,8 +66,21 @@ export default async function CaseStudyPage({
                   </a>
                 </>
               )}
+              {study.liveUrl && (
+                <>
+                  {" · "}
+                  <a
+                    href={study.liveUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    Live app
+                    <span className="sr-only"> (opens in new tab)</span>
+                  </a>
+                </>
+              )}
             </p>
-            <h1 className="mt-4 max-w-[20ch] font-serif text-[2.5rem] leading-[1.05] font-medium tracking-[-0.015em] lg:text-[4rem]">
+            <h1 className="mt-4 max-w-[20ch] font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] [overflow-wrap:break-word] sm:text-[2.5rem] lg:text-[4rem]">
               {study.title}
             </h1>
             <p className="mt-6 max-w-[62ch] text-xl lg:text-2xl">

@@ -1,0 +1,137 @@
+---
+slug: legalai-kenya
+title: LegalAI Kenya, legal research for advocates
+outcome: A multi-tenant research workspace over 61,683 passages of Kenyan law that refuses to answer when the evidence is weak.
+role: Engineer
+period: { start: "2026-08", end: "2026-10" }
+domain: legaltech
+tags: [ai-engineering, retrieval, evaluation, security, legaltech]
+stack:
+  [
+    TypeScript,
+    React,
+    Express,
+    Supabase Postgres,
+    pgvector,
+    Voyage AI,
+    Gemini,
+    NVIDIA NIM,
+    Vercel,
+  ]
+visibility: private
+liveUrl: https://legalai-kenya.vercel.app
+headlineMetric:
+  label: hit@10 on the live index
+  value: "0.303"
+  context: 300 litigation questions; settings were tuned on them
+metrics:
+  - name: hit@10, tuning questions
+    value: "0.303"
+    dataset: 300 litigation questions held out of the index, run against the live index
+    caveat: Search settings were tuned on these questions. The previous keyword engine scored 0.025.
+    ledger: true
+    ledgerLabel: hit@10, LegalAI live index
+  - name: hit@10, untuned questions
+    value: 0.153 to 0.183
+    dataset: The next 300 questions, which played no part in tuning
+    caveat: The honest test of the tuning. The gain held, on a harder slice.
+    ledger: true
+    ledgerLabel: hit@10 gain, untuned set
+  - name: Off-topic queries refused
+    value: 34 of 40
+    dataset: 40 off-topic or gibberish queries
+    caveat: At an evidence floor of 0.45, about 97% of real questions still pass. A 0.35 floor answered 26 of the 40 and was rejected.
+    ledger: true
+    ledgerLabel: off-topic queries refused
+  - name: Cross-tenant attack probes passed
+    value: 37 of 37
+    dataset: Attack suite run against the staging database
+    caveat: Staging, not production. No SOC 2 or ISO 27001 certification is held.
+    ledger: true
+    ledgerLabel: tenant-isolation probes passed
+  - name: Searchable passages
+    value: 61,683
+    dataset: 543 Acts and 990 judgments from 2024 to 2026, after cleaning
+    caveat: Not all of Kenyan law. The Constitution is partial and older case law is largely absent.
+evidence:
+  - label: Live application
+    url: https://legalai-kenya.vercel.app
+    private: false
+  - label: Retrieval evaluation report and scripts
+    url: null
+    private: true
+  - label: Cross-tenant attack suite and its run on staging
+    url: null
+    private: true
+  - label: Corpus statistics after cleaning
+    url: null
+    private: true
+limits:
+  - Absolute accuracy is modest. On hard litigation questions, hit@10 sits between 0.18 and 0.30 depending on the question set.
+  - The corpus is cut into fixed 800-character chunks, and 74% start mid-word. Re-chunking by section is the biggest remaining gain.
+  - Rate limits are per server instance, not global.
+  - M-Pesa payments aren't implemented; they fail closed in production.
+  - It's a research and drafting aid. An advocate must verify every answer and citation.
+featured: true
+order: 1
+published: true
+updated: "2026-11-04"
+---
+
+## Problem
+
+Kenyan advocates research across Acts, judgments and practice notes that live in different places and different formats. A general chatbot answers confidently even when it has nothing to go on, and in law a fluent wrong citation is worse than no answer. Firms also can't let one firm's matters be visible to another.
+
+## Constraints
+
+- **Wrong is worse than silent.** The system has to say when it doesn't know.
+- **Citations must exist.** A cited section has to be one that's actually in the law it searched.
+- **Several firms, one database.** Isolation has to hold even if the application code has a bug.
+- **A modest corpus.** 543 Acts and 990 recent judgments, cut into fixed chunks at the source.
+
+## Approach
+
+<Figure caption="From question to answer. The evidence floor and citation check are where it chooses not to answer.">
+  <LegalAiPipeline />
+</Figure>
+
+Retrieval combines meaning and exact wording. Each question is embedded with Voyage, and Postgres returns candidates from both a vector index and full-text search, fused with reciprocal rank fusion. A reranker reorders them, keeping at most two chunks from any one document so a single long Act can't crowd out the rest.
+
+Then two checks decide whether to answer at all. An evidence floor returns nothing when the best match is too weak, and a citation check flags any section the answer mentions that doesn't exist in the corpus. Only then does a language model write the answer, with Gemini and NVIDIA NIM as fallbacks for each other.
+
+Each firm is a tenant, and Postgres row-level security decides what every query can see. The server keeps two database clients apart: one carries the user's own session so the database enforces their access, and a separate administrative client, never sent to the browser, handles audited operations.
+
+## Evaluation
+
+The test set is 12,945 synthetic court-submission questions whose model answers cite real Acts. They're kept out of the search index entirely, so they can't leak into results. A hit means an Act the answer cites comes back in the top 10.
+
+<Metrics />
+
+## Results
+
+On the live index, hit@10 rose from 0.025 with the old keyword engine to 0.303. I tuned the search settings on those 300 questions, so that number flatters the design. On the next 300, which played no part in tuning, hit@10 went from 0.153 to 0.183: smaller, but the gain held.
+
+The evidence floor is a deliberate trade. A lower floor would raise hit@10 by about 0.03, but it would also answer most of the nonsense queries. I kept the floor that refuses 34 of 40 of them.
+
+<Callout title="A benchmark that couldn't fail">
+  An earlier 20-question benchmark scored 100%, but it searched a 15-document
+  seed in which every document was a right answer. It's kept as a smoke test and
+  not quoted as accuracy.
+</Callout>
+
+## Security
+
+Isolation is enforced by the database, not the interface. A 37-probe attack suite tries cross-tenant reads and writes, role escalation, tampering with the audit and trust records, and abuse of database functions, and it rolls everything back afterwards. All 37 probes pass on staging.
+
+Every request carries a verified session token. Roles gate citation approval, billing and membership. The API has rate limits, a strict content security policy, and an allow-list for its one outbound document fetch.
+
+## Limits
+
+<Limits />
+
+## What I'd do next
+
+- Re-chunk the corpus by section from the source XML, which should do more for accuracy than any further tuning.
+- Grow the test set with questions written by practising advocates, not only synthetic ones.
+- Move rate limiting to a global edge rule.
+- Run the attack suite against production on every release.

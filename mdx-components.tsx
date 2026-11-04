@@ -1,7 +1,11 @@
 import type { MDXComponents } from "mdx/types";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { Callout, Figure } from "@/components/case-study/parts";
-import { FraudPipeline } from "@/components/diagrams/fraud-pipeline";
+import {
+  ComplianceGuardPipeline,
+  FraudPipeline,
+  LegalAiPipeline,
+} from "@/components/diagrams/fraud-pipeline";
 
 function textOf(node: ReactNode): string {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -71,6 +75,8 @@ const components: MDXComponents = {
   Callout,
   Figure,
   FraudPipeline,
+  LegalAiPipeline,
+  ComplianceGuardPipeline,
 };
 
 export function useMDXComponents(): MDXComponents {

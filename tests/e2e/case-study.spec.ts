@@ -108,3 +108,90 @@ test.describe("case study page", () => {
     });
   }
 });
+
+const privateStudies = [
+  {
+    slug: "legalai-kenya",
+    title: "LegalAI Kenya, legal research for advocates",
+    diagram: "How a legal question is answered",
+    metrics: 5,
+    live: "https://legalai-kenya.vercel.app",
+  },
+  {
+    slug: "complianceguard",
+    title: "ComplianceGuard, anti-money-laundering monitoring for Kenya",
+    diagram: "How one payment is monitored",
+    metrics: 4,
+    live: null,
+  },
+];
+
+for (const s of privateStudies) {
+  test.describe(`private case study: ${s.slug}`, () => {
+    const url = `/work/${s.slug}`;
+
+    test("renders every section in order, labelled private", async ({
+      page,
+    }) => {
+      const response = await page.goto(url);
+      expect(response?.status()).toBe(200);
+      await expect(page.locator("h1")).toHaveText(s.title);
+      await expect(page.locator("article h2")).toHaveText(
+        sections.map((x) => new RegExp(`^${x}`)),
+      );
+      await expect(page.locator("main header")).toContainText("Private work");
+    });
+
+    test("links to no code, only the live app if there is one", async ({
+      page,
+    }) => {
+      await page.goto(url);
+      const hrefs = await page
+        .locator("main a[href^='http']")
+        .evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+      for (const href of hrefs) expect(href).not.toMatch(/github\.com/);
+      const live = page
+        .locator("main header")
+        .getByRole("link", { name: /Live app/ });
+      if (s.live) await expect(live).toHaveAttribute("href", s.live);
+      else await expect(live).toHaveCount(0);
+    });
+
+    test("every metric has a dataset and caveat", async ({ page }) => {
+      await page.goto(url);
+      const rows = page.locator("table tbody tr");
+      await expect(rows).toHaveCount(s.metrics);
+      for (const row of await rows.all()) {
+        await expect(row.locator("td").nth(1)).not.toBeEmpty();
+        await expect(row.locator("td").nth(2)).not.toBeEmpty();
+      }
+    });
+
+    test("diagram has a text alternative and copy has no em dashes", async ({
+      page,
+    }) => {
+      await page.goto(url);
+      await expect(page.getByRole("img", { name: s.diagram })).toBeVisible();
+      expect(await page.locator("main").innerText()).not.toContain("—");
+    });
+
+    for (const width of [320, 1280]) {
+      test(`axe and no horizontal scroll at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(url);
+        const results = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+          .analyze();
+        expect(results.violations).toEqual([]);
+        await page.evaluate(() => document.fonts.ready);
+        expect(
+          await page.evaluate(
+            () =>
+              document.documentElement.scrollWidth >
+              document.documentElement.clientWidth,
+          ),
+        ).toBe(false);
+      });
+    }
+  });
+}
