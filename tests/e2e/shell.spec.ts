@@ -75,6 +75,19 @@ test.describe("shell", () => {
     await expect(page.locator("h1")).toHaveText("Collins Nyagaka");
   });
 
+  test("title page shows role and positioning above the fold on a phone", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    for (const text of [
+      "AI & Machine Learning Engineer",
+      "honest evaluation",
+    ]) {
+      await expect(page.getByText(text).first()).toBeInViewport();
+    }
+  });
+
   test("unknown routes return 404 with recovery links", async ({ page }) => {
     const response = await page.goto("/this-page-does-not-exist");
     expect(response?.status()).toBe(404);

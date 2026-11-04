@@ -22,6 +22,23 @@ Step 1 answers come from the project docs (`docs/01-PRD.md`), so they aren't ask
 - **Believe by the end:** "His AI systems hold up under honest evaluation, and he shows you exactly how."
 - **One action, one label everywhere:** **"Email Collins"**. The CV download is a secondary link, never a second button.
 
+## Title-page positioning (written 2026-11-04)
+
+> I build ML and LLM systems that hold up under honest evaluation, from fraud models tested on future data to legal
+> search that refuses to guess.
+
+Owner delegated the wording ("use the best one"). Authored from research and the project evidence:
+
+| Rule (source) | How the sentence follows it |
+|---|---|
+| Name the role, then state an outcome as a claim, in one breath; proof or domain goes in the supporting line (SlateGit, "Portfolio hero headline", 2026; Hbaek, "About page", 2025) | The role is already the line above ("AI & Machine Learning Engineer"), so this sentence carries the outcome plus two proofs |
+| Recruiters decide fit in about 6 to 7.4 seconds and read titles first (Ladders eye-tracking studies, 2012 and 2018) | Name, title and this sentence sit above the fold at 375 px (e2e test) |
+| ML hiring managers screen for evaluation rigour, leakage awareness and honest handling of low confidence, not tool lists (Calyptus 2026; Interviewer Signal 2026; Devinity 2026; Eugene Yan 2024) | "Honest evaluation", "tested on future data" (time-ordered splits, no leakage) and "refuses to guess" (LegalAI declines weak matches) |
+| Avoid "passionate about", generic labels and unbacked claims (all sources) | Every clause points to a case study with evidence |
+
+No figures in the sentence: numbers on this site travel with their dataset, caveat and source, which is the ledger's
+job, not the title page's.
+
 ## Journey (beats)
 
 | Beat | What changes in the visitor |

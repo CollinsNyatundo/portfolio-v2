@@ -35,8 +35,9 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 - **Phase:** Milestone 1 in progress. Done: 1.1, 1.2, 1.3, 1.4, 1.6, 1.7 (branch `feat/m1-scaffold`). Open: 1.5 Vercel project and preview deploys (owner involvement).
 - **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
+- **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
-- **Known gaps:** folio links to `/work`, `/demos`, `/notes` (built in M3) and the CV PDF at `/cv/Collins_Nyagaka_CV.pdf` (owner supplies) return 404 for now. `site.positioning` is empty until the owner writes it.
+- **Known gaps:** folio links to `/work`, `/demos`, `/notes` (built in M3) and the CV PDF at `/cv/Collins_Nyagaka_CV.pdf` (owner supplies) return 404 for now. The CV PDF is not published yet (owner is updating it; a phone-free draft is in `private/cv/`).
 - **Waiting on owner:** M0 tasks 0.4–0.8 and follow-ups (details in `private/planning/`); 1.5 Vercel link; domain purchase at M6.
 - **Last updated:** 2026-11-03
 
