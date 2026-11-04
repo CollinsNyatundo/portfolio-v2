@@ -56,7 +56,7 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `demo` | demo slug | no | Must exist in `demos.ts` |
 | `video` | `{ src, captions, poster }` | no | Captions required if video present |
 | `headlineMetric` | `{ label, value, context }` | yes | Shown on card |
-| `metrics` | `{ name, value, dataset, caveat?, ledger?: boolean, ledgerLabel?: string ≤ 32 }[]` | yes (≥ 1) | `dataset` required — no context-free numbers. `ledger: true` puts the figure in the evidence ledger (signature move); its source is the matching `evidence` entry |
+| `metrics` | `{ name, value, dataset, caveat, ledger?: boolean, ledgerLabel?: string ≤ 32 }[]` | yes (≥ 1) | `dataset` and `caveat` required — no context-free numbers (D-05). `ledger: true` puts the figure in the evidence ledger (signature move); its source is the matching `evidence` entry |
 | `evidence` | `{ label, url \| null, private: boolean }[]` | yes (≥ 2) | `url` null only when `private: true` |
 | `limits` | string[] ≥ 1 | yes | What is not done |
 | `featured` | boolean | no | `false`; max 3 featured (build check) |

@@ -19,7 +19,7 @@ const metric = z.strictObject({
   name: z.string().min(1),
   value: z.string().min(1),
   dataset: z.string().min(1, "every number needs its dataset or split (D-05)"),
-  caveat: z.string().min(1).optional(),
+  caveat: z.string().min(1, "every number needs a stated caveat (D-05)"),
   /** Show this figure in the evidence ledger (D-26). */
   ledger: z.boolean().optional(),
   ledgerLabel: z.string().min(1).max(32).optional(),

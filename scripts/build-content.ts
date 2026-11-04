@@ -23,6 +23,7 @@ import {
   noteFrontmatter,
   project,
   type CaseStudyFrontmatter,
+  type Demo,
   type NoteFrontmatter,
 } from "../content/schema.ts";
 
@@ -87,6 +88,25 @@ export function sectionProblems(body: string): string[] {
     );
   }
   return problems;
+}
+
+/**
+ * A demo that isn't offline must point at a published case study: that's the
+ * only page caseStudyBySlug() can resolve. A project card doesn't count.
+ */
+export function demoReferenceProblems(
+  demoList: Pick<Demo, "slug" | "status" | "caseStudy">[],
+  caseStudies: Pick<CaseStudyFrontmatter, "slug" | "published">[],
+): string[] {
+  const published = new Set(
+    caseStudies.filter((c) => c.published).map((c) => c.slug),
+  );
+  return demoList
+    .filter((d) => d.status !== "offline" && !published.has(d.caseStudy))
+    .map(
+      (d) =>
+        `demos (${d.slug}): caseStudy "${d.caseStudy}" isn't a published case study`,
+    );
 }
 
 function mdxFiles(dir: string): string[] {
@@ -163,15 +183,8 @@ export function buildIndex(contentDir: string): ContentIndex {
   );
 
   const demoSlugs = new Set(demos.map((d) => d.slug));
-  demos.forEach((d, i) => {
-    check(demo, d, `demos[${i}] (${d.slug})`, problems);
-    // An offline demo isn't linked anywhere yet, so its case study may not exist.
-    if (d.status !== "offline" && !slugs.has(d.caseStudy)) {
-      problems.push(
-        `demos[${i}] (${d.slug}): caseStudy "${d.caseStudy}" doesn't exist`,
-      );
-    }
-  });
+  demos.forEach((d, i) => check(demo, d, `demos[${i}] (${d.slug})`, problems));
+  problems.push(...demoReferenceProblems(demos, caseStudies));
   for (const c of caseStudies) {
     if (c.demo && !demoSlugs.has(c.demo))
       problems.push(

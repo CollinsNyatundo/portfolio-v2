@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildIndex,
   ContentError,
+  demoReferenceProblems,
   headings,
   sectionProblems,
 } from "../../scripts/build-content.ts";
@@ -48,6 +49,11 @@ describe("content index", () => {
       s.replace(/dataset: time-ordered holdout,\s*/, ""),
     );
     expect(problemsOf(run)).toMatch(/metrics\.0\.dataset/);
+  });
+
+  it("rejects a metric without a caveat (D-05)", () => {
+    const run = buildWith((s) => s.replace(/caveat: target was 0\.85,\s*/, ""));
+    expect(problemsOf(run)).toMatch(/metrics\.0\.caveat/);
   });
 
   it("rejects evidence without a URL unless it's private", () => {
@@ -97,6 +103,44 @@ describe("content index", () => {
         .replace("## TEMP", "## Approach"),
     );
     expect(problemsOf(run)).toMatch(/out of order/);
+  });
+});
+
+describe("demo references", () => {
+  const studies = [
+    { slug: "creditcard-fraud", published: true },
+    { slug: "draft-study", published: false },
+  ];
+
+  it("lets offline demos point anywhere until they ship", () => {
+    expect(
+      demoReferenceProblems(
+        [{ slug: "a", status: "offline", caseStudy: "nowhere" }],
+        studies,
+      ),
+    ).toEqual([]);
+  });
+
+  it("requires live demos to point at a published case study", () => {
+    expect(
+      demoReferenceProblems(
+        [{ slug: "a", status: "live", caseStudy: "creditcard-fraud" }],
+        studies,
+      ),
+    ).toEqual([]);
+    expect(
+      demoReferenceProblems(
+        [{ slug: "b", status: "live", caseStudy: "draft-study" }],
+        studies,
+      ),
+    ).toHaveLength(1);
+    // A project card slug isn't a case study page.
+    expect(
+      demoReferenceProblems(
+        [{ slug: "c", status: "degraded", caseStudy: "ml-systems-mcp-server" }],
+        studies,
+      ),
+    ).toHaveLength(1);
   });
 });
 
