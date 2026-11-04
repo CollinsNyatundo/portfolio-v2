@@ -33,31 +33,41 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** Milestone 0 in progress. Done: 0.1 (answers), 0.2 (contradiction review, 20 findings), 0.3 (gitleaks: 0 findings), 0.9 (fraud metric provenance). `docs/` trimmed for publishing (D-24).
-- **Code:** none yet. Repo `CollinsNyatundo/portfolio-v2` is public (created 2026-11-03); `main` holds the trimmed planning docs. Branch protection on `main` not set yet (M1.1).
-- **Waiting on owner:** tasks 0.4–0.8 and the open follow-ups (details in `private/planning/`); domain purchase at M6.
-- **Then:** M1 scaffold (agent can start M1 before the owner tasks finish; none of them block it).
+- **Phase:** Milestone 1 in progress. Done: 1.1, 1.2, 1.3, 1.4, 1.6, 1.7 (branch `feat/m1-scaffold`). Open: 1.5 Vercel project and preview deploys (owner involvement).
+- **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
+- **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
+- **Known gaps:** folio links to `/work`, `/demos`, `/notes` (built in M3) and the CV PDF at `/cv/Collins_Nyagaka_CV.pdf` (owner supplies) return 404 for now. `site.positioning` is empty until the owner writes it.
+- **Waiting on owner:** M0 tasks 0.4–0.8 and follow-ups (details in `private/planning/`); 1.5 Vercel link; domain purchase at M6.
 - **Last updated:** 2026-11-03
 
 ## Stack  <!-- LIVING: replace "planned" with exact versions once installed -->
 
-Planned (verify current versions against official docs at M1, then pin them here):
-Next.js 16.x App Router · TypeScript strict · MDX + Zod-validated content · Tailwind CSS v4 · Node.js 24 ·
-Python 3.13 Vercel Functions for demos (LightGBM, SQLite FTS5) · Vercel hosting + Web Analytics ·
-Upstash Redis (rate limits) · Cloudflare Turnstile + Resend (contact form) · Vitest, pytest, Playwright, axe, Lighthouse CI ·
-scroll-craft engine (vendored unmodified, home page only) · fonts Newsreader + Geist Sans/Mono.
+Installed (M1, 2026-11-03): Node.js ≥ 24 (`.nvmrc`) · Next.js 16.4.5 App Router, `proxy.ts` for the per-request CSP ·
+React 19.3.0 · TypeScript 5.9.3 strict · Tailwind CSS 4.3.4 (`@tailwindcss/turbopack`) · ESLint 9 + `eslint-config-next`
+16.4.5 · Prettier 3.9.10 + `prettier-plugin-tailwindcss` · Vitest 5.1.0 · Playwright 1.64.1 + `@axe-core/playwright`
+4.14.0 · Lighthouse CI 0.16.0 · Husky 9.1.7 (gitleaks pre-commit) · fonts Newsreader + Geist Sans/Mono via `next/font` ·
+scroll-craft engine (vendored unmodified, `public/vendor/scrollcraft/`).
+
+Planned (not installed yet): MDX + Zod content layer (M2) · Python 3.13 Vercel Functions for demos (M4) · Vercel Web
+Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
 | Task | Command |
 |---|---|
-| Install | _TBD at M1_ |
-| Dev server | _TBD_ |
-| Typecheck / lint / format | _TBD_ |
-| Unit tests (TS / Python) | _TBD_ |
-| E2E + a11y | _TBD_ |
-| Link + evidence check | _TBD_ |
-| Build | _TBD_ |
+| Install | `npm ci` (then `npx playwright install chromium` once) |
+| Dev server | `npm run dev` |
+| Lint | `npm run lint` |
+| Typecheck | `npm run typecheck` (runs `next typegen` first) |
+| Format / check format | `npm run format` / `npm run format:check` |
+| Unit tests | `npm test` |
+| Build | `npm run build` |
+| Start the production build | `npm start` |
+| E2E + accessibility (needs a build) | `npm run e2e` |
+| Lighthouse (needs a build) | `npm run lhci` |
+| Everything quick before a commit | `npm run check` (lint, typecheck, format check, unit tests) |
+| Git hooks | `npm run prepare` (installs Husky; pre-commit runs gitleaks on staged changes) |
+| Link + evidence check | _M2.3_ |
 
 ## Layout  <!-- LIVING: update when top-level folders change -->
 
@@ -71,7 +81,14 @@ design/scrollcraft/   scroll-craft workspace: builds/portfolio-home/BRIEF.md, FI
 .scrollcraft.json     points scroll-craft at design/scrollcraft
 AGENTS.md        shared agent instructions (this file)
 CLAUDE.md        imports AGENTS.md + Claude Code specifics
-(at M1) app/ content/ components/ api/ scripts/ public/ tests/
+app/             Next.js routes: layout (fonts, skip link, per-request rendering), page, not-found, icon
+components/      folio, colophon, theme toggle
+content/         site.ts (identity, links, positioning)
+lib/             security-headers.ts (CSP builder, static headers)
+proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
+public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
+tests/unit/      Vitest      tests/e2e/   Playwright + axe
+.github/workflows/ci.yml     CI: gitleaks, lint, typecheck, format, unit, audit, build, e2e, Lighthouse
 ```
 
 ## Hard rules (do not break without a new decision in docs/00-README.md)
@@ -88,6 +105,7 @@ CLAUDE.md        imports AGENTS.md + Claude Code specifics
 10. **Fraud demo specifics.** Window features need each sample's 10-transaction history; probability = `sigmoid(raw + init_score)` (focal loss); describe 1.4 ms as in-process model inference, never as API latency.
 11. **Public repo hygiene (D-24).** Everything outside `private/` is public. Never write private repo names, employer details, CV issues or owner follow-ups into `docs/`, `AGENTS.md`, `CLAUDE.md`, code or commit messages; put them in `private/planning/`. `private/` exists only on the owner's machine; if it's missing, ask the owner.
 12. **Scroll design (D-25, D-26).** The home page follows its BRIEF: chaptered editorial grammar and its bans (no fixed bar, no scrub hero, no spotlight/magnet, no pinned type crossfades), one peak (the demo), the evidence ledger shows only real figures from the evidence data. Never edit the vendored engine; put page behaviour in our own code. No em dashes in visible copy. If the page and the BRIEF disagree after the feel check, fix the page, not the BRIEF.
+13. **Strict CSP (D-28).** Every page renders per request so `proxy.ts` can give it a fresh nonce. Don't re-enable Cache Components or Partial Prerendering, add inline scripts, or add `'unsafe-inline'` to scripts. A new third-party host goes into `lib/security-headers.ts` with a test, only when a feature needs it.
 
 ## Conventions  <!-- LIVING: add a rule when a review finds a repeated mistake -->
 
@@ -135,3 +153,14 @@ Rules for editing them:
 - 2026-11-03 — Trimmed for the public repo (D-24): private material moved to `private/planning/`; hard rules 6 and 11 added or changed (Claude Code).
 - 2026-11-03 — Public repo created and `main` pushed; Current state updated (Claude Code).
 - 2026-11-03 — Scroll-craft design adopted (D-25–D-27): source of truth, stack, layout, hard rule 12 (Claude Code).
+- 2026-11-03 — M1 shell built: Current state, Stack (exact versions), Commands, Layout, hard rule 13 (D-28) (Claude Code).
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes â€” APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` â€” verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

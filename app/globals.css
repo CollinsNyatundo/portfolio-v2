@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens (docs/04-UI-UX-BRIEF.md §4). Light paper canvas is the design;
+ * dark is an optional reading mode. The --sc-* aliases theme the vendored
+ * scroll-craft engine without editing it.
+ */
+:root {
+  --bg: #f3f4f1;
+  --surface: #ffffff;
+  --surface-2: #e9ebe6;
+  --border: #d9dcd5;
+  --text: #14181a;
+  --text-muted: #4e5a55;
+  --primary: #1e6b52;
+  --primary-hover: #17573f;
+  --primary-ink: #ffffff;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --warning: #8a5a00;
+
+  --sc-canvas: var(--bg);
+  --sc-surface: var(--surface);
+  --sc-ink: var(--text);
+  --sc-ink-soft: var(--text-muted);
+  --sc-accent: var(--primary);
+  --sc-accent-ink: var(--primary-ink);
+  --sc-font-display: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --sc-font-text: var(--font-newsreader), Georgia, "Times New Roman", serif;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1312;
+    --surface: #161c1a;
+    --surface-2: #1d2421;
+    --border: #2a3330;
+    --text: #e6ebe8;
+    --text-muted: #9ba6a1;
+    --primary: #4fbf95;
+    --primary-hover: #6fd3ac;
+    --primary-ink: #0f1312;
+    --success: #4ade80;
+    --danger: #f87171;
+    --warning: #fbbf24;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f1312;
+  --surface: #161c1a;
+  --surface-2: #1d2421;
+  --border: #2a3330;
+  --text: #e6ebe8;
+  --text-muted: #9ba6a1;
+  --primary: #4fbf95;
+  --primary-hover: #6fd3ac;
+  --primary-ink: #0f1312;
+  --success: #4ade80;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-ink: var(--primary-ink);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+}
+
+html {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+}
+
+@media (min-width: 64rem) {
+  body {
+    font-size: 1.25rem;
+  }
+}
+
+/* Focus is always visible, themed to the accent (docs/04 §9). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--primary);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+}
+
+/* Figures use tabular mono everywhere (docs/04 §4). */
+.figure,
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

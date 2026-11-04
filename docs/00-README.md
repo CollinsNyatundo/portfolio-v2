@@ -67,6 +67,7 @@ Numbers are stable. Some decisions are recorded here in general terms; the speci
 | D-25 | The home page is designed with the **scroll-craft** method: chaptered editorial grammar, title-page hero, fraud demo as the single peak, zero video scrub, technical-drawing world on a paper ground. Brief: `design/scrollcraft/builds/portfolio-home/BRIEF.md`. | Owner (interview) | 2026-11-03 |
 | D-26 | Signature move: the **evidence ledger**, a margin ledger of every real figure read, with sources, ending in the colophon with the visitor's own demo run. | Owner (interview) | 2026-11-03 |
 | D-27 | One primary action label everywhere: "Email Collins". The CV is a secondary text link. Replaces the header button layout of D-09. | Proposed (scroll-craft taste floor) | 2026-11-03 |
+| D-28 | **Strict nonce-based CSP, pages rendered per request.** Static pages with SRI were tested and blocked Next.js's inline bootstrap scripts; `'unsafe-inline'` was rejected. Cost: no CDN page cache and no Partial Prerendering. | Owner | 2026-11-03 |
 
 ## Glossary (one word per idea, in UI copy and in code)
 

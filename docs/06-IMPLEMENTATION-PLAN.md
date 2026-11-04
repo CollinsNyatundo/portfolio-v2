@@ -19,7 +19,7 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 | 0.4 | Make `creditcard-fraud` public (D-17) | O | 0.3 | Public repo | CV link returns 200 when logged out | 0.3 |
 | 0.5 | Reconcile CV ↔ LinkedIn titles and roles (private draft ready) | O | D-16 | Updated CV PDF + LinkedIn | Same title, same roles, same dates on both | 0.1 |
 | 0.6 | Draft LinkedIn recommendation requests (2–3 people) for the owner to send (D-23). **Private drafts ready** | O+A | Owner's list of people | Drafts | Owner has sent them | — |
-| 0.7 | Owner supplies headshot (D-21) | O | — | `public/images/collins.jpg` (square, ≥ 800 px) | File in repo | — |
+| 0.7 | **Done 2026-11-04** Owner supplies headshot (D-21); re-encoded to 1200 px with no metadata | O | — | `public/images/collins.jpg` (square, ≥ 800 px) | File in repo | — |
 | 0.8 | Owner account hardening (private checklist, see 07 §6) | O | 07 §6 | Checked list | Every box ticked | — |
 | 0.9 | **Done 2026-11-03** Confirm which threshold produced the fraud repo's reported metrics, and the F1 target that `f1_target_met: false` refers to | A | `creditcard-fraud` repo | Private review notes | Threshold, target and script named | 0.3 |
 
@@ -27,13 +27,13 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 
 | # | Task | Owner | Output | Definition of done |
 |---|---|---|---|---|
-| 1.1 | `git init` in `D:\portfolio`; create public repo `CollinsNyatundo/portfolio-v2` (D-12); branch protection on `main` | O+A | Repo | Push works; direct pushes to `main` blocked |
-| 1.2 | Scaffold Next.js 16 (App Router, TS strict, ESLint, Prettier, Tailwind v4) — confirm versions with `ctx7` first | A | App skeleton | `npm run build` passes; Node 24 pinned in `engines` and `.nvmrc` |
-| 1.3 | Tooling: Vitest, Playwright, axe, Lighthouse CI, gitleaks pre-commit (husky), `.gitignore` incl. `.env*`, `.remember/`, `.vercel/` | A | Configs | Each script runs locally and in CI |
-| 1.4 | GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
+| 1.1 | **Done 2026-11-03** `git init` in `D:\portfolio`; create public repo `CollinsNyatundo/portfolio-v2` (D-12); branch protection on `main` | O+A | Repo | Push works; direct pushes to `main` blocked |
+| 1.2 | **Done 2026-11-03** Scaffold Next.js 16 (App Router, TS strict, ESLint, Prettier, Tailwind v4) — confirm versions with `ctx7` first | A | App skeleton | `npm run build` passes; Node 24 pinned in `engines` and `.nvmrc` |
+| 1.3 | **Done 2026-11-03** Tooling: Vitest, Playwright, axe, Lighthouse CI, gitleaks pre-commit (husky), `.gitignore` incl. `.env*`, `.remember/`, `.vercel/` | A | Configs | Each script runs locally and in CI |
+| 1.4 | **Done 2026-11-03** GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
 | 1.5 | Vercel project linked; preview deploys on PR; Deployment Protection on previews | O+A | Vercel project | PR shows preview URL |
-| 1.6 | Security headers + CSP in `next.config` / middleware (07 §4) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
-| 1.7 | Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
+| 1.6 | **Done 2026-11-03** Security headers in `next.config.ts` + per-request nonce CSP in `proxy.ts` (07 §4, D-28) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
+| 1.7 | **Done 2026-11-03** Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
 
 **Checkpoint M1:** empty but production-shaped site deploys to a preview URL with headers, CI and a11y green.
 

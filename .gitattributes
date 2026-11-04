@@ -1,0 +1,7 @@
+* text=auto eol=lf
+# Vendored files are byte-for-byte copies; never normalise them.
+public/vendor/** -text
+*.png binary
+*.jpg binary
+*.pdf binary
+*.svg text eol=lf

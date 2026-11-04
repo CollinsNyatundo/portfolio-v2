@@ -39,20 +39,28 @@ recorded manual verification before launch (06, task 5.1).
 
 ## 4. Required HTTP security headers
 
+As built at M1 (`lib/security-headers.ts`, `proxy.ts`; decision D-28). The CSP is set **per request** with a fresh
+nonce, because Next.js emits inline bootstrap scripts that a static strict policy blocks. That was tested: SRI alone
+left 13 inline scripts blocked and the page never hydrated.
+
 ```
-Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{n}' https://challenges.cloudflare.com;
-  style-src 'self' 'unsafe-inline'; img-src 'self' data:;
-  font-src 'self'; connect-src 'self' https://vitals.vercel-insights.com;
-  frame-src https://challenges.cloudflare.com; media-src 'self';
-  frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{n}' 'strict-dynamic';
+  style-src-elem 'self' 'nonce-{n}'; style-src-attr 'unsafe-inline'; img-src 'self' data: blob:;
+  font-src 'self'; connect-src 'self'; media-src 'self'; frame-src 'none'; worker-src 'self';
+  manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+  upgrade-insecure-requests
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 Cross-Origin-Opener-Policy: same-origin
+X-Frame-Options: DENY
 ```
-`style-src 'unsafe-inline'` is a known trade-off for Tailwind/Next inline styles; revisit with hashes if feasible.
-Exact CSP hosts are finalised at M1 and kept in `docs/csp-allowlist.md`.
+
+- No `'unsafe-inline'` for scripts or style elements in production. `next dev` adds `'unsafe-eval'` and inline styles only in development.
+- `style-src-attr 'unsafe-inline'` permits `style=""` attributes, which React and the scroll engine use for custom properties. Attributes can't load resources or run script.
+- Hosts are added only when a feature needs them, for example `https://challenges.cloudflare.com` in `script-src` and `frame-src` when the Turnstile contact form ships (M4.8), with a test.
+- Unit tests (`tests/unit/security-headers.test.ts`) and end-to-end tests (`tests/e2e/shell.spec.ts`) check the exact directives, a fresh nonce per response, and zero CSP violations at runtime.
 
 ## 5. The 75 items mapped to this site
 
@@ -92,7 +100,7 @@ Exact CSP hosts are finalised at M1 and kept in `docs/csp-allowlist.md`.
 | 29 | "Remember me" tokens | H | N/A | — | — |
 | 30 | Insecure cookies | H | R | Site sets no cookies (theme in `localStorage`) | Playwright asserts no `Set-Cookie` from our origin |
 | 31 | CORS misconfiguration | H | A | No CORS headers on `/api/*` (same-origin only) | `curl -H "Origin: https://evil.test"` → no `Access-Control-Allow-Origin` |
-| 32 | Missing/weak CSP | M | A | §4 | Header test + CSP evaluator |
+| 32 | Missing/weak CSP | M | A | §4: per-request nonce, `'strict-dynamic'`, no inline script | Unit + e2e header tests, runtime zero-violation test |
 | 33 | Clickjacking | M | A | `frame-ancestors 'none'` | Header test |
 | 34 | Open redirect | M | A | Redirects only in config with fixed targets; no `?next=` parameters | Route inventory |
 | 35 | SSRF | C | A | No function fetches a user-supplied URL; outbound hosts fixed (Turnstile, Resend, Upstash) | Code review + Semgrep |
