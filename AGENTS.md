@@ -33,8 +33,8 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 in progress. Merged: 3.1 home chapters and 3.1b evidence ledger, 3.2 template, 3.3 LegalAI Kenya, 3.4 fraud and 3.5 ComplianceGuard case studies. 3.6 `/work` index. Branch `feat/m3-about`: 3.7 `/about` drafted, narrative awaiting owner approval. Act IV (pinned demo) renders only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
-- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
+- **Phase:** M3 in progress. Merged: 3.1 home chapters and 3.1b evidence ledger, 3.2 template, 3.3 LegalAI Kenya, 3.4 fraud and 3.5 ComplianceGuard case studies. 3.6 `/work` index, 3.7 `/about`. Branch `feat/m3-contact`: 3.8 `/contact` (no form; copy-email, walkthrough topics). Act IV (pinned demo) renders only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
+- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
 - **Known gaps:** folio links to `/demos` and `/notes` return 404 until they are built. The CV at `/cv/Collins_Nyagaka_CV.pdf` is the phone-free public copy; its HTML source and the owner's copy (with phone) are in `private/cv/` (`node private/cv/render.mjs` prints both).
@@ -90,7 +90,7 @@ components/      folio, colophon, theme toggle
 content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
 mdx-components.tsx  MDX component map (required by @next/mdx)
 scripts/         build-content.ts (validate + index), check-links.ts (evidence links)
-lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter)
+lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics)
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe
@@ -169,6 +169,7 @@ Rules for editing them:
 - 2026-11-04 — M3.3 and M3.5 drafted: Current state (Claude Code).
 - 2026-11-04 — M3.6 work index: Current state (Claude Code).
 - 2026-11-04 — M3.7 about page: Current state, Layout (Claude Code).
+- 2026-11-04 — M3.8 contact page: Current state (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

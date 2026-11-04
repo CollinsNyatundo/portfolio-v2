@@ -13,7 +13,9 @@ export default function NotFound() {
           </h1>
           <p className="mt-6 max-w-[62ch]">
             It may not be written yet, or the link is wrong. Start from the{" "}
-            <Link href="/">title page</Link>.
+            <Link href="/">title page</Link>, see the{" "}
+            <Link href="/work">work</Link>, or{" "}
+            <Link href="/contact">get in touch</Link>.
           </p>
         </main>
         <div className="mx-auto max-w-5xl">
