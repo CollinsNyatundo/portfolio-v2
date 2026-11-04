@@ -21,7 +21,8 @@
     "predev": "npm run content --silent",
     "prebuild": "npm run content --silent",
     "pretypecheck": "npm run content --silent",
-    "pretest": "npm run content --silent"
+    "pretest": "npm run content --silent",
+    "test:py": "uv run --no-project --python 3.13 --with pytest==9.2.0 pytest tests/python -q -p no:cacheprovider"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
