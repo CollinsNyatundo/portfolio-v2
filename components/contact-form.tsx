@@ -12,6 +12,7 @@ declare global {
           sitekey: string;
           callback: (token: string) => void;
           "expired-callback": () => void;
+          "response-field": boolean;
         },
       ) => string;
       reset: (id?: string) => void;
@@ -56,6 +57,8 @@ export function ContactForm({
           sitekey: siteKey,
           callback: setToken,
           "expired-callback": () => setToken(""),
+          // We send the token ourselves; no hidden cf-turnstile-response input.
+          "response-field": false,
         });
     };
     if (window.turnstile) return render();
@@ -70,10 +73,14 @@ export function ContactForm({
     if (status.kind === "sending") return; // no double submit (07 item 44)
     setStatus({ kind: "sending" });
     setFields({});
-    const data = Object.fromEntries(new FormData(form)) as Record<
-      string,
-      string
-    >;
+    // Only the fields the API accepts; anything a widget injects is dropped.
+    const fd = new FormData(form);
+    const data = Object.fromEntries(
+      ["name", "email", "topic", "message", "website"].map((k) => [
+        k,
+        String(fd.get(k) ?? ""),
+      ]),
+    );
     try {
       const res = await fetch("/api/contact", {
         method: "POST",

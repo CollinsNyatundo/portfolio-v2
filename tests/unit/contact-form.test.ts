@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/contact/route";
 import { contactFormEnabled, contactMessage } from "@/lib/contact-form";
-import { rateLimited, resetLocalRateLimits } from "@/lib/rate-limit";
+import { hashIp, rateLimited, resetLocalRateLimits } from "@/lib/rate-limit";
 
 const ORIGIN = "https://collinsnyagaka.com";
 const KEYS = {
@@ -154,6 +154,30 @@ describe("POST /api/contact", () => {
     const body = await res.json();
     expect(res.headers.get("Retry-After")).toBe(String(body.retryAfterSeconds));
     expect((await post(valid, { ip: "198.51.100.2" })).status).toBe(200);
+  });
+});
+
+describe("rate limit privacy", () => {
+  it("sends Redis only a hash of the IP", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "t");
+    const bodies: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const body = String(init.body);
+        bodies.push(body);
+        return Response.json(
+          body.includes('"SET"')
+            ? [{ result: "OK" }, { result: "salt-today" }]
+            : [{ result: 1 }, { result: 1 }],
+        );
+      }),
+    );
+    expect(await rateLimited("contact", "203.0.113.99", 3, 3600)).toBe(0);
+    const all = bodies.join("\n");
+    expect(all).not.toContain("203.0.113.99");
+    expect(all).toContain(await hashIp("203.0.113.99", "salt-today"));
   });
 });
 

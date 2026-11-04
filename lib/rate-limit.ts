@@ -6,11 +6,21 @@
  */
 
 const local = new Map<string, { count: number; at: number }>();
+// Used only when Redis is unavailable; never leaves the process.
+const processSalt = crypto.randomUUID();
 
-async function upstashIncr(
-  key: string,
-  window: number,
-): Promise<number | null> {
+/** SHA-256 of salt + IP: Redis never holds a raw address (02 §6, 07 item 55). */
+export async function hashIp(ip: string, salt: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${salt}:${ip}`),
+  );
+  return Array.from(new Uint8Array(digest).slice(0, 16), (b) =>
+    b.toString(16).padStart(2, "0"),
+  ).join("");
+}
+
+async function upstash(commands: string[][]): Promise<unknown[] | null> {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
@@ -21,19 +31,26 @@ async function upstashIncr(
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify([
-        ["INCR", key],
-        ["EXPIRE", key, String(window), "NX"],
-      ]),
+      body: JSON.stringify(commands),
       signal: AbortSignal.timeout(1500),
       cache: "no-store",
     });
     if (!res.ok) return null;
-    const body = (await res.json()) as { result: number }[];
-    return Number(body[0].result);
+    const body = (await res.json()) as { result: unknown }[];
+    return body.map((r) => r.result);
   } catch {
     return null; // fall back to the in-process window, never to no limit
   }
+}
+
+/** A random salt per UTC day, shared by all instances through Redis. */
+async function dailySalt(now: number): Promise<string | null> {
+  const key = `salt:${new Date(now).toISOString().slice(0, 10)}`;
+  const out = await upstash([
+    ["SET", key, crypto.randomUUID(), "NX", "EX", "90000"],
+    ["GET", key],
+  ]);
+  return out ? String(out[1]) : null;
 }
 
 /** Seconds to wait when over the limit, else 0. */
@@ -45,9 +62,19 @@ export async function rateLimited(
   now = Date.now(),
 ): Promise<number> {
   const seconds = now / 1000;
-  const key = `rl:${name}:${ip}:${Math.floor(seconds / window)}`;
-  let count = await upstashIncr(key, window);
+  const bucket = Math.floor(seconds / window);
+  let count: number | null = null;
+  const salt = await dailySalt(now);
+  if (salt) {
+    const key = `rl:${name}:${await hashIp(ip, salt)}:${bucket}`;
+    const out = await upstash([
+      ["INCR", key],
+      ["EXPIRE", key, String(window), "NX"],
+    ]);
+    count = out ? Number(out[0]) : null;
+  }
   if (count === null) {
+    const key = `rl:${name}:${await hashIp(ip, processSalt)}:${bucket}`;
     const prev = local.get(key)?.count ?? 0;
     count = prev + 1;
     local.set(key, { count, at: seconds });
