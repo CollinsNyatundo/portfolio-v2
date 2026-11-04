@@ -1,0 +1,147 @@
+---
+slug: creditcard-fraud
+title: Real-time credit-card fraud detection
+outcome: A LightGBM model, evaluated on transactions it never saw in training, that scores a payment in 1.4 ms p95.
+role: Sole engineer
+period: { start: "2026-06", end: "2026-11" }
+domain: fintech
+tags: [ml, evaluation, fintech, mlops]
+stack:
+  [
+    Python,
+    LightGBM,
+    Optuna,
+    SHAP,
+    scikit-learn,
+    FastAPI,
+    Redis,
+    PostgreSQL,
+    Docker,
+  ]
+visibility: public
+repoUrl: https://github.com/CollinsNyatundo/creditcard-fraud
+demo: fraud
+headlineMetric:
+  label: F1 on the time-ordered holdout
+  value: "0.80"
+  context: 42,722 held-out transactions; the 0.85 target was missed
+metrics:
+  - name: F1
+    value: "0.80"
+    dataset: Time-ordered holdout, 42,722 transactions
+    caveat: Bootstrap 95% CI 0.71 to 0.88. The project's own target was 0.85, and this misses it.
+    ledger: true
+    ledgerLabel: F1, fraud holdout
+  - name: Precision
+    value: "0.87"
+    dataset: Time-ordered holdout, at the tuned threshold
+    caveat: About 13 in every 100 flags are false alarms at this threshold.
+  - name: Recall
+    value: "0.75"
+    dataset: Time-ordered holdout, at the tuned threshold
+    caveat: Bootstrap 95% CI 0.63 to 0.86. The 0.85 recall gate failed.
+    ledger: true
+    ledgerLabel: Recall, gate failed
+  - name: PR-AUC
+    value: "0.77"
+    dataset: Time-ordered holdout, after isotonic calibration
+    caveat: The stricter score for rare fraud. The pre-calibration value isn't recorded in the repo.
+  - name: ROC-AUC
+    value: "0.98"
+    dataset: Time-ordered holdout
+    caveat: Looks high on data that is 0.17% fraud; read PR-AUC first.
+  - name: Model latency, p95
+    value: 1.4 ms
+    dataset: One in-process predict call per row, on precomputed features
+    caveat: Not API latency. Feature engineering and the network add to it.
+    ledger: true
+    ledgerLabel: p95 in-process inference
+evidence:
+  - label: Holdout metrics and latency (reports/end_to_end_optimized_results.json)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/end_to_end_optimized_results.json
+    private: false
+  - label: Bootstrap intervals and the recall gate (reports/bootstrap_statistical_results.json)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/bootstrap_statistical_results.json
+    private: false
+  - label: Evaluation script, threshold and latency loop (debug_scripts/end_to_end_test_optimized.py)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/debug_scripts/end_to_end_test_optimized.py
+    private: false
+  - label: Decision threshold and focal-loss settings (models/optimal_threshold_v2.json)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/models/optimal_threshold_v2.json
+    private: false
+  - label: Tuning results (reports/hyperparameter_optimization.json)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/hyperparameter_optimization.json
+    private: false
+  - label: Holdout size (reports/dataset_validation_report.json)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/dataset_validation_report.json
+    private: false
+  - label: API service, key check and rate limits (app/main.py)
+    url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/app/main.py
+    private: false
+limits:
+  - The data is a 2013 European card dataset with PCA-anonymised features. It says nothing about Kenyan card traffic.
+  - These numbers come from the repository's own evaluation script. A rerun from a clean clone, with only tracked files, is still to do.
+  - Tuning reached F1 0.96 on its validation objective, far above the 0.80 on the holdout. The validation setup flattered the model.
+  - The service is shaped for production but has never carried real traffic.
+featured: true
+order: 2
+published: true
+updated: "2026-11-04"
+---
+
+## Problem
+
+Card fraud is rare and expensive. In this dataset it's 0.17% of payments, so a model that calls everything legitimate is 99.8% accurate and useless. The job is to catch as much fraud as possible, with few enough false alarms that someone will still read them, quickly enough to decide before the payment clears.
+
+## Constraints
+
+- **Time.** A score has to come back within the 10 ms the project set for itself, so a slower configuration loses even if it's more accurate.
+- **No peeking at the future.** Fraud patterns change over time. Training on a random shuffle would let the model learn from transactions that happen after the ones it's tested on.
+- **Few positives.** 284,807 transactions hold only 492 frauds, so every metric on the test set rests on a few dozen cases.
+
+## Approach
+
+<Figure caption="One transaction's path through the model. The window features are why a single row can't be scored on its own.">
+  <FraudPipeline />
+</Figure>
+
+I split the data by time, 70/15/15: training on the earliest transactions, tuning and calibrating on the next block, and holding out the last 42,722 for the final test. All preprocessing was fitted on the training block only.
+
+Beyond the 28 PCA components and the amount, the model sees 50 engineered features. Most describe how a transaction compares with the card's recent history: rolling means, spreads and z-scores of the amount over the previous 3, 5 and 10 transactions, the time since the last one, and cumulative spending.
+
+The model is LightGBM trained with focal loss, which concentrates learning on hard, rare examples. SMOTE plus undersampling rebalanced the training block. Optuna searched the hyperparameters and threw out any configuration too slow to serve. Isotonic calibration on the validation block made the probabilities usable as probabilities.
+
+## Evaluation
+
+Every number below comes from the time-ordered holdout, which the model never saw during training or tuning. The decision threshold is the one stored in the repository with the model.
+
+<Metrics />
+
+Bootstrap resampling of the holdout gives the intervals in the caveats. They're wide because the holdout holds few frauds, and they're the honest reading of the result.
+
+## Results
+
+The model catches three in four frauds, and 87 of every 100 flags it raises are real fraud. It missed both targets the project set itself: F1 0.85 and recall 0.85. Recall's upper interval just reaches 0.86, so the gate isn't hopeless, but on this evidence it isn't met.
+
+Latency is comfortably inside budget. The model call takes 1.4 ms at the 95th percentile, measured on a single row with its features already computed.
+
+<Callout title="What 1.4 ms measures">
+  It's the model call alone, timed in-process. An API request also computes the
+  window features, reads history from Redis and crosses the network, so its
+  latency is higher. That end-to-end number hasn't been measured yet.
+</Callout>
+
+## Security
+
+The scoring API checks an API key on every route except health and docs, and rate-limits requests. It loads pickled model files, which run code when opened; that's acceptable only because the files come from this repository's own build. The live demo on this site loads the LightGBM text model and plain JSON instead, so it never unpickles anything.
+
+## Limits
+
+<Limits />
+
+## What I'd do next
+
+- Rerun the evaluation from a clean clone and replace these numbers with that run.
+- Measure end-to-end API latency under load, not just the model call.
+- Move the tuning objective onto a time-ordered validation block, so tuning stops overestimating the model.
+- Pick the threshold from an explicit cost of a missed fraud against a false alarm, rather than from a recall target.

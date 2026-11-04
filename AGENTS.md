@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M1 done except 1.5 (Vercel, owner). M2 content layer done on branch `feat/m2-content` (stacked on `feat/positioning`, PR #3). Next: M3 home page and case studies.
+- **Phase:** M3 in progress on `feat/m3-case-studies`: 3.2 case-study template done; 3.4 fraud case study drafted (owner approves wording in the PR). M2 merged. Open: 1.5 Vercel (owner).
 - **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
