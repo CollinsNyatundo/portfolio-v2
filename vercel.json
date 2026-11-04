@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
+  "functions": {
+    "api/demos/mlsys/search.py": {
+      "maxDuration": 10,
+      "includeFiles": "api/{_lib,_data}/**"
+    }
+  }
+}

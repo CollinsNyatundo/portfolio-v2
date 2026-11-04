@@ -4,7 +4,14 @@ import { absoluteUrl } from "@/lib/seo";
 
 /** Every public page; filtered views (?tag=, ?topic=) are left out. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["/", "/work", "/about", "/contact"].map((path) => ({
+  const pages = [
+    "/",
+    "/work",
+    "/demos",
+    "/demos/ml-systems-search",
+    "/about",
+    "/contact",
+  ].map((path) => ({
     url: absoluteUrl(path),
   }));
   const studies = publishedCaseStudies().map((s) => ({
