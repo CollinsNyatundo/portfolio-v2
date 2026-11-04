@@ -15,3 +15,19 @@ export const TAGS = [
 ] as const;
 
 export type Tag = (typeof TAGS)[number];
+
+/** How each tag reads in the UI (filter chips, card tags). */
+export const TAG_LABELS: Record<Tag, string> = {
+  "ai-engineering": "AI engineering",
+  ml: "ML",
+  llm: "LLM",
+  retrieval: "Retrieval",
+  evaluation: "Evaluation",
+  data: "Data",
+  mlops: "MLOps",
+  security: "Security",
+  web: "Web",
+  fintech: "Fintech",
+  legaltech: "Legaltech",
+  agritech: "Agritech",
+};

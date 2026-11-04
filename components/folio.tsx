@@ -7,6 +7,8 @@ type FolioProps = {
   marker?: string;
   /** Current chapter or page title. */
   title?: string;
+  /** Path of the page itself; its section link gets aria-current (docs/03 §6). */
+  currentPath?: string;
 };
 
 const sections = [
@@ -15,13 +17,14 @@ const sections = [
   { href: "/notes", label: "Notes" },
 ] as const;
 
-function FolioLinks() {
+function FolioLinks({ currentPath }: { currentPath?: string }) {
   return (
     <ul className="flex flex-col gap-1 font-sans text-sm">
       {sections.map((section) => (
         <li key={section.href}>
           <Link
             href={section.href}
+            aria-current={section.href === currentPath ? "page" : undefined}
             className="text-text inline-flex min-h-11 items-center no-underline hover:underline lg:min-h-0"
           >
             {section.label}
@@ -53,7 +56,7 @@ function FolioLinks() {
  * The folio replaces a header bar (chaptered editorial grammar, docs/04 §2):
  * a margin column on wide screens, a slim top line that expands on small ones.
  */
-export function Folio({ marker, title }: FolioProps) {
+export function Folio({ marker, title, currentPath }: FolioProps) {
   return (
     <nav
       aria-label="Site"
@@ -81,7 +84,7 @@ export function Folio({ marker, title }: FolioProps) {
             Menu
           </summary>
           <div className="mt-2 pb-2">
-            <FolioLinks />
+            <FolioLinks currentPath={currentPath} />
             <div className="text-muted mt-3 font-sans text-sm">
               <p>
                 {site.location} · {site.utcOffsetLabel}
@@ -93,7 +96,7 @@ export function Folio({ marker, title }: FolioProps) {
       </div>
 
       <div className="hidden lg:block">
-        <FolioLinks />
+        <FolioLinks currentPath={currentPath} />
       </div>
 
       <div className="text-muted hidden font-sans text-sm lg:block">
