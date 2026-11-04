@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import { connection } from "next/server";
 import { site } from "@/content/site";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -21,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://collinsnyagaka.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: `${site.name}, ${site.title}`,
     template: `%s · ${site.name}`,
@@ -29,6 +31,13 @@ export const metadata: Metadata = {
   description:
     "Evidence-first portfolio of Collins Nyagaka, an AI and machine learning engineer in Nairobi.",
   authors: [{ name: site.fullName }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    locale: "en_KE",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -54,6 +63,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to main content
         </a>
         {children}
+        <Analytics />
       </body>
     </html>
   );
