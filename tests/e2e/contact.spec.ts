@@ -88,6 +88,21 @@ test.describe("contact page", () => {
     ).toHaveAttribute("href", "/contact");
   });
 
+  test("the form stays off, and Cloudflare untrusted, until configured", async ({
+    page,
+  }) => {
+    const response = await page.goto("/contact");
+    await expect(page.locator("main form")).toHaveCount(0);
+    expect(response?.headers()["content-security-policy"]).not.toContain(
+      "challenges.cloudflare.com",
+    );
+    const api = await page.request.post("/api/contact", {
+      data: {},
+      headers: { origin: new URL(page.url()).origin },
+    });
+    expect(api.status()).toBe(503);
+  });
+
   test("no visible em dashes and no CSP violations", async ({ page }) => {
     const violations: string[] = [];
     page.on("console", (m) => {

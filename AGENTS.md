@@ -55,7 +55,9 @@ Analytics (3.9): `@vercel/analytics` 2.0.1 (cookieless; custom events record onl
 
 Demo functions (4.5): Python 3.13 Vercel Functions in `api/` (stdlib only for search; `.python-version`), `vercel.json` (region `fra1`, bundled files). Tests: pytest 9.2.0 via `uv` locally, `pipx` in CI.
 
-Planned (not installed yet): Upstash Redis · Cloudflare Turnstile + Resend.
+Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash are called over their REST APIs (no SDKs). The form and the Turnstile CSP host switch on only when `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` are all set; rate limits use Upstash when `UPSTASH_REDIS_REST_*` are set, else an in-process window.
+
+Planned (not installed yet): nothing beyond the fraud demo's `numpy` and `lightgbm` (M4).
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
@@ -179,6 +181,7 @@ Rules for editing them:
 - 2026-11-04 — M3.9 and M3.10: Current state, Stack, Layout (Claude Code).
 - 2026-11-04 — M4.5 ML Systems search: Current state, Stack, Commands, Layout (Claude Code).
 - 2026-11-04 — M4.10 /cv page: Layout (Claude Code).
+- 2026-11-04 — M4.8 contact form (off until keys): Stack (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
