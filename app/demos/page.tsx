@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 /** Pages that exist; a demo without one isn't linked (no dead links). */
 const pages: Record<string, string> = {
+  fraud: "/demos/fraud",
   "ml-systems-search": "/demos/ml-systems-search",
 };
 

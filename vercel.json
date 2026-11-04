@@ -4,7 +4,11 @@
   "functions": {
     "api/demos/mlsys/search.py": {
       "maxDuration": 10,
-      "includeFiles": "api/{_lib,_data}/**"
+      "includeFiles": "{api/_lib/**,api/_data/mlsys.*}"
+    },
+    "api/demos/fraud/score.py": {
+      "maxDuration": 10,
+      "includeFiles": "{api/_lib/**,api/_data/fraud/**}"
     }
   }
 }

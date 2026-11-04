@@ -48,3 +48,7 @@ content/.generated/
 
 # impeccable design-hook cache (config.json is tracked)
 .impeccable/hook.cache.json
+
+# Python
+__pycache__/
+*.pyc

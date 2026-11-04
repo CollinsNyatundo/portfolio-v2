@@ -61,8 +61,11 @@ jobs:
         run: npm test
 
       - name: Python demo function tests
-        # Stdlib-only functions; pipx is preinstalled on the runner.
-        run: pipx run --spec pytest==9.2.0 pytest tests/python -q -p no:cacheprovider
+        # The runner's Python 3; dependencies pinned in requirements.txt.
+        run: |
+          python3 -m venv /tmp/pyenv
+          /tmp/pyenv/bin/pip install --quiet -r requirements.txt pytest==9.2.0
+          /tmp/pyenv/bin/pytest tests/python -q -p no:cacheprovider
 
       - name: Link and evidence check
         run: npm run links

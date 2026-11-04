@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { headers } from "next/headers";
+import { Suspense } from "react";
+import { FraudDemo } from "@/components/demos/fraud-demo";
 import { principles } from "@/content/about";
 import { jsonLdHtml, personJsonLd } from "@/lib/seo";
 import Link from "next/link";
@@ -271,7 +273,29 @@ export default async function Home() {
                   Now try one.
                 </p>
               </section>
-              {/* IV · Demo: the pinned peak arrives with the scoring function (M4). */}
+              {/* IV · Demo: the peak. The visitor's run is written into the ledger. */}
+              <section
+                aria-labelledby="demo"
+                className="chapter bg-surface px-4 sm:px-6 lg:px-16"
+              >
+                <div className="chapter__opener !px-0">
+                  <p className="chapter__number">IV</p>
+                  <h2 id="demo" className="chapter__title">
+                    Score a transaction
+                  </h2>
+                </div>
+                <div className="mx-auto max-w-5xl pb-28">
+                  <p className="max-w-[48ch]">
+                    A real transaction from the held-out test data, with the 10
+                    before it. Score it, change it, score it again.
+                  </p>
+                  <div className="mt-8">
+                    <Suspense fallback={null}>
+                      <FraudDemo writesLedger />
+                    </Suspense>
+                  </div>
+                </div>
+              </section>
             </>
           )}
 

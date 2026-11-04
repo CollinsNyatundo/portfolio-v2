@@ -7,3 +7,4 @@ docs/
 *.md
 package-lock.json
 .impeccable/
+tests/python/fixtures/
