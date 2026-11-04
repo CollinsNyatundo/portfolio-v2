@@ -233,7 +233,7 @@ export default function Home() {
                           </dt>
                           <dd className="figure mt-1 text-3xl">{m.value}</dd>
                           <dd className="text-muted mt-1 text-xs">
-                            {m.caveat}
+                            {m.dataset}. {m.caveat}
                           </dd>
                         </div>
                       ))}
@@ -306,7 +306,7 @@ export default function Home() {
                 aria-label="Evidence table"
                 tabIndex={0}
               >
-                <table className="w-full min-w-[32rem] border-collapse font-sans text-sm">
+                <table className="w-full min-w-[48rem] border-collapse font-sans text-sm">
                   <caption className="sr-only">
                     Evidence for every figure on this page
                   </caption>
@@ -317,6 +317,12 @@ export default function Home() {
                       </th>
                       <th scope="col" className="py-2 pr-4 font-medium">
                         What
+                      </th>
+                      <th scope="col" className="py-2 pr-4 font-medium">
+                        Measured on
+                      </th>
+                      <th scope="col" className="py-2 pr-4 font-medium">
+                        Caveat
                       </th>
                       <th scope="col" className="py-2 pr-4 font-medium">
                         Project
@@ -338,6 +344,8 @@ export default function Home() {
                         >
                           {e.label}
                         </th>
+                        <td className="text-muted py-3 pr-4">{e.dataset}</td>
+                        <td className="text-muted py-3 pr-4">{e.caveat}</td>
                         <td className="py-3 pr-4">
                           <Link href={`/work/${e.projectSlug}`}>
                             {e.project}

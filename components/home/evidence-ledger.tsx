@@ -14,24 +14,39 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
   const [seen, setSeen] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const known = useRef(new Set(entries.map((e) => e.id)));
+  const seenRef = useRef(new Set<string>());
 
   useEffect(() => {
-    const targets = document.querySelectorAll<HTMLElement>("[data-ledger-id]");
-    const observer = new IntersectionObserver(
-      (records) => {
-        for (const record of records) {
-          if (!record.isIntersecting) continue;
-          const id = (record.target as HTMLElement).dataset.ledgerId ?? "";
-          observer.unobserve(record.target);
-          if (!known.current.has(id)) continue;
-          setSeen((prev) => (prev.includes(id) ? prev : [...prev, id]));
-        }
-      },
-      // The reading line: a figure counts once it passes 60% of the viewport.
-      { rootMargin: "0px 0px -40% 0px" },
-    );
-    targets.forEach((t) => observer.observe(t));
-    return () => observer.disconnect();
+    let observer: IntersectionObserver | null = null;
+    const observe = () => {
+      observer?.disconnect();
+      const pending = [
+        ...document.querySelectorAll<HTMLElement>("[data-ledger-id]"),
+      ].filter((t) => !seenRef.current.has(t.dataset.ledgerId ?? ""));
+      // Percentage root margins resolve against the viewport's width, so the
+      // reading line (60% down the screen) is set in pixels from its height.
+      const margin = Math.round(window.innerHeight * 0.4);
+      observer = new IntersectionObserver(
+        (records) => {
+          for (const record of records) {
+            if (!record.isIntersecting) continue;
+            const id = (record.target as HTMLElement).dataset.ledgerId ?? "";
+            observer?.unobserve(record.target);
+            if (!known.current.has(id)) continue;
+            seenRef.current.add(id);
+            setSeen((prev) => (prev.includes(id) ? prev : [...prev, id]));
+          }
+        },
+        { rootMargin: `0px 0px -${margin}px 0px` },
+      );
+      pending.forEach((t) => observer?.observe(t));
+    };
+    observe();
+    window.addEventListener("resize", observe);
+    return () => {
+      window.removeEventListener("resize", observe);
+      observer?.disconnect();
+    };
   }, []);
 
   const lines = seen

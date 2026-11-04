@@ -30,6 +30,9 @@ test.describe("home page chapters", () => {
     expect(await rows.count()).toBeGreaterThan(0);
     for (const row of await rows.all()) {
       await expect(row.locator("td").first()).not.toBeEmpty();
+      // Figure, measured on, caveat: every number keeps its context (D-05).
+      await expect(row.locator("td").nth(1)).not.toBeEmpty();
+      await expect(row.locator("td").nth(2)).not.toBeEmpty();
       await expect(row.locator("td").last()).toContainText(
         /Repository file|Private work/,
       );
@@ -68,6 +71,16 @@ test.describe("home page chapters", () => {
     // The fraud demo ships in M4; until then there is no empty stage.
     await expect(page.getByText("Now try one.")).toHaveCount(0);
   });
+});
+
+test("the ledger records figures on a wide, short screen", async ({ page }) => {
+  // Percentage margins would resolve against this width and leave no
+  // reading area at all.
+  await page.setViewportSize({ width: 2560, height: 900 });
+  await page.goto("/");
+  await page.locator("[data-ledger-id]").first().scrollIntoViewIfNeeded();
+  await page.mouse.wheel(0, 200);
+  await expect(page.locator("aside .ledger-line").first()).toBeVisible();
 });
 
 test.describe("home page without JavaScript", () => {
