@@ -97,6 +97,8 @@ test.describe("case study page", () => {
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         .analyze();
       expect(results.violations).toEqual([]);
+      // Measure after web fonts load: fallback fonts are narrower.
+      await page.evaluate(() => document.fonts.ready);
       const overflow = await page.evaluate(
         () =>
           document.documentElement.scrollWidth >

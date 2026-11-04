@@ -66,9 +66,9 @@ export function LimitsList({ limits }: { limits: string[] }) {
 /** Every claim's source: an exact file, or a "Private work" label. */
 export function EvidenceList({ evidence }: { evidence: Evidence[] }) {
   return (
-    <ul className="my-6 space-y-2 font-sans text-sm">
+    <ul className="my-6 space-y-2 font-sans text-sm [overflow-wrap:anywhere]">
       {evidence.map((e) => (
-        <li key={e.label} className="flex gap-2">
+        <li key={e.label} className="flex min-w-0 gap-2">
           <span aria-hidden="true" className="text-muted">
             ↳
           </span>

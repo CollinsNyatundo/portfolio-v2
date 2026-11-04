@@ -63,7 +63,10 @@ const components: MDXComponents = {
   ),
   a: A,
   code: (props) => (
-    <code className="bg-surface-2 rounded-sm px-1 text-[0.9em]" {...props} />
+    <code
+      className="bg-surface-2 rounded-sm px-1 text-[0.9em] [overflow-wrap:anywhere]"
+      {...props}
+    />
   ),
   Callout,
   Figure,

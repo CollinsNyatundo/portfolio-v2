@@ -141,6 +141,8 @@ for (const route of routes) {
     test(`no horizontal scroll: ${route} at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(route);
+      // Measure after web fonts load: fallback fonts are narrower.
+      await page.evaluate(() => document.fonts.ready);
       const overflow = await page.evaluate(
         () =>
           document.documentElement.scrollWidth >
