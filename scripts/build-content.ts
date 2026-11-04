@@ -13,6 +13,7 @@ import { basename, join } from "node:path";
 import matter from "gray-matter";
 import type { ZodType } from "zod";
 import { focusAreas, principles } from "../content/about.ts";
+import { skills } from "../content/cv.ts";
 import { certifications, experience } from "../content/experience.ts";
 import { demos, projects } from "../content/projects.ts";
 import {
@@ -25,12 +26,23 @@ import {
   noteFrontmatter,
   principle,
   project,
+  skillGroup,
   type CaseStudyFrontmatter,
   type Demo,
   type NoteFrontmatter,
 } from "../content/schema.ts";
 
 export const MAX_PUBLISHED_CASE_STUDIES = 5;
+
+/** Problems in the /cv skills: schema, and each group named once. */
+export function skillProblems(groups: unknown[]): string[] {
+  const problems: string[] = [];
+  groups.forEach((g, i) => check(skillGroup, g, `skills[${i}]`, problems));
+  const names = groups.map((g) => (g as { group?: unknown }).group);
+  if (new Set(names).size !== names.length)
+    problems.push("skills: each group may appear once");
+  return problems;
+}
 
 /** Problems in the /about data (focus areas, principles), for buildIndex and tests. */
 export function aboutProblems(areas: unknown[], rules: unknown[]): string[] {
@@ -196,6 +208,7 @@ export function buildIndex(contentDir: string): ContentIndex {
     check(certification, c, `certifications[${i}] (${c.name})`, problems),
   );
   problems.push(...aboutProblems(focusAreas, principles));
+  problems.push(...skillProblems(skills));
 
   const demoSlugs = new Set(demos.map((d) => d.slug));
   demos.forEach((d, i) => check(demo, d, `demos[${i}] (${d.slug})`, problems));
