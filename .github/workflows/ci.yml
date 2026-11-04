@@ -60,6 +60,10 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Python demo function tests
+        # Stdlib-only functions; pipx is preinstalled on the runner.
+        run: pipx run --spec pytest==9.2.0 pytest tests/python -q -p no:cacheprovider
+
       - name: Link and evidence check
         run: npm run links
 
