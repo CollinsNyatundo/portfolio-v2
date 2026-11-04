@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Work",
   description:
     "Case studies and projects by Collins Nyagaka, each with its evidence or a Private work label.",
+  alternates: { canonical: "/work" },
 };
 
 const visibilityLabel = {

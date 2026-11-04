@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CvLink } from "./cv-link";
 import { mailtoHref, site } from "@/content/site";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -40,13 +41,10 @@ function FolioLinks({ currentPath }: { currentPath?: string }) {
         </a>
       </li>
       <li>
-        <a
-          href={site.cvPath}
-          download
+        <CvLink
+          from="folio"
           className="inline-flex min-h-11 items-center lg:min-h-0"
-        >
-          CV
-        </a>
+        />
       </li>
     </ul>
   );

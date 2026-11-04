@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 in progress. Merged: 3.1 home chapters and 3.1b evidence ledger, 3.2 template, 3.3 LegalAI Kenya, 3.4 fraud and 3.5 ComplianceGuard case studies. 3.6 `/work` index, 3.7 `/about`. Branch `feat/m3-contact`: 3.8 `/contact` (no form; copy-email, walkthrough topics). Act IV (pinned demo) renders only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
+- **Phase:** M3 in progress. Merged: 3.1 home chapters and 3.1b evidence ledger, 3.2 template, 3.3 LegalAI Kenya, 3.4 fraud and 3.5 ComplianceGuard case studies. 3.6 `/work`, 3.7 `/about`, 3.8 `/contact`. Branch `feat/m3-cv-seo`: 3.9 `cv_download` event and 3.10 SEO (sitemap, robots, preview images, Person JSON-LD, canonical URLs). Act IV (pinned demo) renders only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
 - **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -51,8 +51,9 @@ scroll-craft engine (vendored unmodified, `public/vendor/scrollcraft/`).
 
 Content (M2): `@next/mdx` 16.4.5 + `@mdx-js/react` 3.1.1, remark-frontmatter 5, remark-gfm 4, gray-matter 4, Zod 4.6.7 (D-29). Scripts run as TypeScript on Node directly (type stripping, `"type": "module"`); no tsx.
 
-Planned (not installed yet): Python 3.13 Vercel Functions for demos (M4) · Vercel Web
-Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
+Analytics (3.9): `@vercel/analytics` 2.0.1 (cookieless; custom events record only on a Vercel plan that supports them).
+
+Planned (not installed yet): Python 3.13 Vercel Functions for demos (M4) · Upstash Redis · Cloudflare Turnstile + Resend.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
@@ -90,7 +91,7 @@ components/      folio, colophon, theme toggle
 content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
 mdx-components.tsx  MDX component map (required by @next/mdx)
 scripts/         build-content.ts (validate + index), check-links.ts (evidence links)
-lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics)
+lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), seo.ts, og.tsx (preview images)
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe
@@ -170,6 +171,7 @@ Rules for editing them:
 - 2026-11-04 — M3.6 work index: Current state (Claude Code).
 - 2026-11-04 — M3.7 about page: Current state, Layout (Claude Code).
 - 2026-11-04 — M3.8 contact page: Current state (Claude Code).
+- 2026-11-04 — M3.9 and M3.10: Current state, Stack, Layout (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
