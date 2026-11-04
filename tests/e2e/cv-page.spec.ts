@@ -28,6 +28,26 @@ test.describe("CV page", () => {
     ).toHaveAttribute("href", "/work/legalai-kenya");
   });
 
+  test("every selected-work line carries its evidence or Private work", async ({
+    page,
+  }) => {
+    await page.goto("/cv");
+    const rows = page.locator("#work ~ ul > li");
+    for (const row of await rows.all()) {
+      const text = await row.innerText();
+      if (text.includes("(Private work)"))
+        expect(text).toContain("Evidence: Private work");
+      else
+        await expect(
+          row.getByRole("link", { name: "Evidence" }),
+        ).toHaveAttribute("href", /^https:\/\/github\.com\/CollinsNyatundo\//);
+    }
+    // The latency figure is always qualified (AGENTS.md rule 10).
+    await expect(page.locator("main")).toContainText(
+      "1.4 ms p95 in-process model inference",
+    );
+  });
+
   test("prints on two A4 pages without the folio", async ({ page }) => {
     await page.goto("/cv");
     await page.evaluate(() => document.fonts.ready);

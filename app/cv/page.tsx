@@ -7,6 +7,7 @@ import type { Experience } from "@/content/schema";
 import { mailtoHref, site } from "@/content/site";
 import {
   certifications,
+  evidenceSource,
   publishedCaseStudies,
   visibleExperience,
 } from "@/lib/content";
@@ -141,7 +142,19 @@ export default function CvPage() {
                       </span>
                     )}
                   </h3>
-                  <p>{s.outcome}</p>
+                  <p>
+                    {s.outcome}{" "}
+                    <span className="text-muted font-sans text-sm print:text-[8.5pt]">
+                      {(() => {
+                        const e = evidenceSource(s);
+                        return e ? (
+                          <a href={e.url}>Evidence</a>
+                        ) : (
+                          "Evidence: Private work"
+                        );
+                      })()}
+                    </span>
+                  </p>
                 </li>
               ))}
             </ul>
