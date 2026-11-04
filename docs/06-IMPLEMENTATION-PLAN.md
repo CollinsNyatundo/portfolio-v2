@@ -1,6 +1,6 @@
 # 06 — Implementation Plan
 
-**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: 01–05, 07, 08
+**Version:** 0.4 · **Date:** 2026-11-04 · Depends on: 01–05, 07, 08
 
 Rule for every milestone: **before moving on, run the site, verify that milestone's acceptance criteria, and record
 any unresolved issue** in the private review notes (`private/planning/reviews/`, git-ignored) and in the shared agent memory (`agent-memory/projects/portfolio/`).
@@ -55,12 +55,12 @@ Order follows dependencies: pages that others link to first.
 | 3.1 | **Done 2026-11-04 (Act IV and the intertitle appear when the demo ships, M4)** Home, chaptered editorial per the scroll-craft BRIEF score (title page with depth planes, Problem, Method, Work spreads, intertitle, Demo stage placeholder, Colophon) | A | `/` | PRD AC-1, AC-2, AC-11 pass |
 | 3.1b | **Done 2026-11-04** **Evidence ledger** (signature move): `data-ledger` figures register as they pass the reading line; mobile strip; colophon table with totals; reduced-motion and screen-reader versions | A | Component + tests | PRD AC-12 passes; unit tests prove no figure outside the evidence data can render |
 | 3.2 | **Done 2026-11-04** Case-study template + MDX components (metric table, evidence pill, callouts, diagram) | A | `/work/[slug]` | Renders a fixture with every component |
-| 3.3 | Write case study: **LegalAI Kenya** | O+A | MDX | Owner approves wording; every metric has dataset + caveat; evidence links pass |
+| 3.3 | **Done 2026-11-04 (owner approved wording)** Write case study: **LegalAI Kenya** | O+A | MDX | Owner approves wording; every metric has dataset + caveat; evidence links pass |
 | 3.4 | **Done 2026-11-04 (owner approved wording)** Write case study: **Real-time credit-card fraud** | O+A | MDX | Same; metrics quoted from a clean-clone re-run; latency described as in-process model inference; the F1 > 0.85 target stated as missed |
-| 3.5 | Write case study: **ComplianceGuard AML/KYC** | O+A | MDX | Same; "pre-pilot, not run on real infrastructure" stated |
-| 3.6 | Work index with filters | A | `/work` | `?tag=` works with back button |
-| 3.7 | About + experience timeline + certifications | O+A | `/about` | Owner approves narrative |
-| 3.8 | Contact page (no form yet) | A | `/contact` | Copy-email works; freelance link to TundoTech |
+| 3.5 | **Done 2026-11-04 (owner approved wording)** Write case study: **ComplianceGuard AML/KYC** | O+A | MDX | Same; "pre-pilot, not run on real infrastructure" stated |
+| 3.6 | **Done 2026-11-04** Work index with filters | A | `/work` | `?tag=` works with back button |
+| 3.7 | **Done 2026-11-04 (owner approved narrative)** About + experience timeline + certifications | O+A | `/about` | Owner approves narrative |
+| 3.8 | **Done 2026-11-04** Contact page (no form yet) | A | `/contact` | Copy-email works; freelance link to TundoTech |
 | 3.9 | CV PDF in `public/cv/` + download event | O+A | PDF | AC-2 |
 | 3.10 | SEO: metadata, `next/og` images, JSON-LD, sitemap, robots | A | — | Rich-results test passes; LinkedIn Post Inspector preview correct |
 
