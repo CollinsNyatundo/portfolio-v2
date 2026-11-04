@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 done except 3.9–3.10 (PR #12). M4 started. Branch `feat/m4-mlsys-search`: 4.5 ML Systems search (Python function, read-only FTS5 index, `/demos` pages). Fraud demo (4.1–4.4) is waiting on the dataset (owner). Open: 1.5 Vercel (owner).
+- **Phase:** M3 done (3.9–3.10 merged). M4 started. Branch `feat/m4-mlsys-search`: 4.5 ML Systems search (Python function, read-only FTS5 index, `/demos` pages). Fraud demo (4.1–4.4) next. Act IV (pinned demo) renders only once the fraud demo is live. Open: 1.5 Vercel (owner).
 - **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -51,10 +51,11 @@ scroll-craft engine (vendored unmodified, `public/vendor/scrollcraft/`).
 
 Content (M2): `@next/mdx` 16.4.5 + `@mdx-js/react` 3.1.1, remark-frontmatter 5, remark-gfm 4, gray-matter 4, Zod 4.6.7 (D-29). Scripts run as TypeScript on Node directly (type stripping, `"type": "module"`); no tsx.
 
+Analytics (3.9): `@vercel/analytics` 2.0.1 (cookieless; custom events record only on a Vercel plan that supports them).
+
 Demo functions (4.5): Python 3.13 Vercel Functions in `api/` (stdlib only for search; `.python-version`), `vercel.json` (region `fra1`, bundled files). Tests: pytest 9.2.0 via `uv` locally, `pipx` in CI.
 
-Planned (not installed yet): Vercel Web
-Analytics · Upstash Redis · Cloudflare Turnstile + Resend.
+Planned (not installed yet): Upstash Redis · Cloudflare Turnstile + Resend.
 
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
@@ -95,7 +96,7 @@ content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, experi
 mdx-components.tsx  MDX component map (required by @next/mdx)
 scripts/         build-content.ts (validate + index), check-links.ts (evidence links), build_mlsys_index.py
 api/             Python Vercel Functions: demos/mlsys/search.py; _lib/ shared code; _data/ read-only index (+ manifest)
-lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics)
+lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), seo.ts, og.tsx (preview images)
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe      tests/python/   pytest (demo functions)
@@ -175,6 +176,7 @@ Rules for editing them:
 - 2026-11-04 — M3.6 work index: Current state (Claude Code).
 - 2026-11-04 — M3.7 about page: Current state, Layout (Claude Code).
 - 2026-11-04 — M3.8 contact page: Current state (Claude Code).
+- 2026-11-04 — M3.9 and M3.10: Current state, Stack, Layout (Claude Code).
 - 2026-11-04 — M4.5 ML Systems search: Current state, Stack, Commands, Layout (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
