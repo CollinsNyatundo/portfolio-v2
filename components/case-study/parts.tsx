@@ -9,7 +9,7 @@ export function MetricTable({ metrics }: { metrics: Metric[] }) {
   return (
     // Focusable so keyboard users can scroll the table on narrow screens.
     <div
-      className="my-8 overflow-x-auto"
+      className="relative my-8 overflow-x-auto"
       role="region"
       aria-label="Results table"
       tabIndex={0}

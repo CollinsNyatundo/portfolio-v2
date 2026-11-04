@@ -1,7 +1,22 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const routes = ["/", "/this-page-does-not-exist"];
+
+/**
+ * Scroll through the page so every on-entry reveal has fired, then wait for
+ * the fades to finish: axe should read the page a visitor actually sees.
+ */
+async function revealAll(page: Page) {
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 400) {
+      window.scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 30));
+    }
+    window.scrollTo(0, 0);
+  });
+  await page.waitForTimeout(800);
+}
 const widths = [320, 768, 1280];
 
 test.describe("security headers", () => {
@@ -132,6 +147,7 @@ for (const route of routes) {
     test(`axe: ${route} at ${width}px has no violations`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(route);
+      await revealAll(page);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
         .analyze();

@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 in progress on `feat/m3-case-studies`: 3.2 case-study template done; 3.4 fraud case study done (owner approved wording). M2 merged. Open: 1.5 Vercel (owner).
+- **Phase:** M3 in progress. Merged: 3.2 template, 3.4 fraud case study. Branch `feat/m3-home`: 3.1 home chapters and 3.1b evidence ledger, with the scroll engine mounted on the home page only. Act IV (pinned demo) and its intertitle render only once the fraud demo is live (M4). Open: 1.5 Vercel (owner).
 - **Code:** Next.js app shell: folio, colophon, title-page placeholder, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28). The home chapters start in M3.
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -122,6 +122,8 @@ tests/unit/      Vitest      tests/e2e/   Playwright + axe
 - Copy: plain English, active voice, short sentences, numbers with their context. No "passionate", "cutting-edge" or "leveraging".
 - Check current official docs for a library or framework before writing code against its API.
 - Windows host: PowerShell is primary and Git Bash is available. Use forward slashes in scripts.
+- The scroll-craft harness (`shoot.mjs`) injects an inline style, which the strict CSP blocks. Run a scratch copy with Playwright's `bypassCSP: true`; never relax the site's CSP for a test tool.
+- Every `sr-only` element must sit inside a positioned ancestor (body is `relative`; scroll regions are `relative`), or it anchors to the viewport and widens narrow pages.
 - Chain checks and commit with `&&` (`npm run check && git commit …`), never `;`. A formatter run once rewrote an MDX fixture, two tests failed, and a `;` chain still committed and pushed.
 
 ## Shared agent memory
