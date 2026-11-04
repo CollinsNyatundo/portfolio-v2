@@ -45,6 +45,13 @@ test.describe("security headers", () => {
     expect(violations).toEqual([]);
   });
 
+  test("the CV downloads as a PDF", async ({ request }) => {
+    const response = await request.get("/cv/Collins_Nyagaka_CV.pdf");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
+  });
+
   test("source maps are not served", async ({ request, page }) => {
     await page.goto("/");
     const script = await page
