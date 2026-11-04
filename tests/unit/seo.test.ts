@@ -3,7 +3,13 @@ import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { site } from "@/content/site";
 import { publishedCaseStudies } from "@/lib/content";
-import { SITE_URL, absoluteUrl, jsonLdHtml, personJsonLd } from "@/lib/seo";
+import {
+  SITE_URL,
+  absoluteUrl,
+  evidenceLabel,
+  jsonLdHtml,
+  personJsonLd,
+} from "@/lib/seo";
 
 describe("sitemap", () => {
   const urls = sitemap().map((e) => e.url);
@@ -20,6 +26,19 @@ describe("sitemap", () => {
       expect(url.startsWith(SITE_URL)).toBe(true);
       expect(url).not.toContain("?");
     }
+  });
+});
+
+describe("evidenceLabel", () => {
+  it("shortens a pinned GitHub file URL and labels private work", () => {
+    expect(
+      evidenceLabel(
+        "https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/x.json",
+      ),
+    ).toBe(
+      "Evidence: github.com/CollinsNyatundo/creditcard-fraud/reports/x.json",
+    );
+    expect(evidenceLabel(null)).toBe("Evidence: Private work");
   });
 });
 

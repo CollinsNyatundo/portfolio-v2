@@ -63,7 +63,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to main content
         </a>
         {children}
-        <Analytics />
+        {/* The script is served by Vercel only; elsewhere it would 404. */}
+        {process.env.VERCEL && <Analytics />}
       </body>
     </html>
   );

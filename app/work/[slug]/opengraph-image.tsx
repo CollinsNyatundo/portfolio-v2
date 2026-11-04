@@ -1,5 +1,6 @@
-import { caseStudyBySlug } from "@/lib/content";
+import { caseStudyBySlug, evidenceSource } from "@/lib/content";
 import { ogContentType, ogImage, ogSize } from "@/lib/og";
+import { evidenceLabel } from "@/lib/seo";
 
 export const alt = "Case study by Collins Nyagaka";
 export const size = ogSize;
@@ -19,5 +20,7 @@ export default async function Image({
         : "Case study",
     title: study.title,
     figure: study.headlineMetric,
+    // The figure's provenance travels with it (AGENTS.md rule 1).
+    source: evidenceLabel(evidenceSource(study)?.url ?? null),
   });
 }

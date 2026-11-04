@@ -11,6 +11,18 @@ export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();
 }
 
+/**
+ * A figure's source as short readable text for images, where links can't be
+ * clicked: the repo path without the pinned commit, or "Private work".
+ */
+export function evidenceLabel(url: string | null): string {
+  if (!url) return "Evidence: Private work";
+  const short = url
+    .replace(/^https:\/\//, "")
+    .replace(/\/blob\/[0-9a-f]{40}\//, "/");
+  return `Evidence: ${short}`;
+}
+
 /** schema.org Person for the home page (docs/03 §1: Google search entry). */
 export function personJsonLd() {
   return {

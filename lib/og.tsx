@@ -18,12 +18,15 @@ export function ogImage({
   title,
   body,
   figure,
+  source,
 }: {
   eyebrow: string;
   title: string;
   body?: string;
   /** A figure always travels with its context (AGENTS.md rule 1). */
   figure?: { value: string; label: string; context: string };
+  /** Where the figure comes from: a readable URL, or "Private work". */
+  source?: string;
 }) {
   return new ImageResponse(
     <div
@@ -119,6 +122,18 @@ export function ogImage({
             >
               {figure.context}
             </div>
+            {source && (
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 18,
+                  color: ACCENT,
+                  marginTop: 6,
+                }}
+              >
+                {source}
+              </div>
+            )}
           </div>
         )}
       </div>
