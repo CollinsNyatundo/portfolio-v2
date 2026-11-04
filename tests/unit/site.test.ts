@@ -16,7 +16,13 @@ describe("site identity", () => {
   });
 
   it("keeps the positioning to one short sentence", () => {
+    expect(site.positioning.length).toBeGreaterThan(0);
     expect(site.positioning.length).toBeLessThanOrEqual(160);
+    expect(site.positioning.match(/[.!?](\s|$)/g)).toHaveLength(1);
+  });
+
+  it("keeps figures out of the positioning (they need sources)", () => {
+    expect(site.positioning).not.toMatch(/\d/);
   });
 
   it("never publishes a phone number", () => {

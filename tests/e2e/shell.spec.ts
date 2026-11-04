@@ -45,6 +45,13 @@ test.describe("security headers", () => {
     expect(violations).toEqual([]);
   });
 
+  test("the CV downloads as a PDF", async ({ request }) => {
+    const response = await request.get("/cv/Collins_Nyagaka_CV.pdf");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect((await response.body()).subarray(0, 5).toString()).toBe("%PDF-");
+  });
+
   test("source maps are not served", async ({ request, page }) => {
     await page.goto("/");
     const script = await page
@@ -73,6 +80,19 @@ test.describe("shell", () => {
     await page.goto("/");
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.locator("h1")).toHaveText("Collins Nyagaka");
+  });
+
+  test("title page shows role and positioning above the fold on a phone", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    for (const text of [
+      "AI & Machine Learning Engineer",
+      "honest evaluation",
+    ]) {
+      await expect(page.getByText(text).first()).toBeInViewport();
+    }
   });
 
   test("unknown routes return 404 with recovery links", async ({ page }) => {

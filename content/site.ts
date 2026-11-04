@@ -22,8 +22,12 @@ export const site = {
   },
   cvPath: "/cv/Collins_Nyagaka_CV.pdf",
   showPhone: false,
-  /** The one sentence on the title page (BRIEF: "believe by the end"). */
-  positioning: "",
+  /**
+   * The one sentence on the title page (BRIEF: "believe by the end").
+   * No figures here: numbers live in the evidence ledger with their sources.
+   */
+  positioning:
+    "I build ML and LLM systems that hold up under honest evaluation, from fraud models tested on future data to legal search that refuses to guess.",
   /** The single primary action label, used everywhere (D-27). */
   primaryActionLabel: "Email Collins",
 } as const;
