@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
+import { CvLink } from "@/components/cv-link";
 import { Folio } from "@/components/folio";
 import { skills } from "@/content/cv";
 import type { Experience } from "@/content/schema";
@@ -68,10 +69,8 @@ export default function CvPage() {
               · <a href={site.links.github}>github.com/CollinsNyatundo</a>
             </p>
             <p className="mt-4 font-sans text-sm print:hidden">
-              <a href={site.cvPath} download>
-                Download the PDF
-              </a>{" "}
-              · <Link href="/work">See the work</Link>
+              <CvLink from="cv-page">Download the PDF</CvLink> ·{" "}
+              <Link href="/work">See the work</Link>
             </p>
           </header>
 

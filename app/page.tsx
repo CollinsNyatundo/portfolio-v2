@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { headers } from "next/headers";
 import { principles } from "@/content/about";
+import { jsonLdHtml, personJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
@@ -31,7 +33,9 @@ const failures = [
  * Problem, Method, Work, then the demo (from M4) and the colophon. Chapter
  * grounds change on hard edges; nothing is pinned until the demo exists.
  */
-export default function Home() {
+export default async function Home() {
+  // JSON-LD is a data block, never executed; it still carries the nonce (D-28).
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const studies = publishedCaseStudies();
   const ledger = ledgerEntries();
   const liveDemo = demos.find(
@@ -40,6 +44,11 @@ export default function Home() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(personJsonLd()) }}
+      />
       <ScrollEngine />
       <Folio marker="Title" title="Collins Nyagaka" />
       <EvidenceLedger entries={ledger} />

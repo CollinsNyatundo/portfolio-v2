@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
+import { CvLink } from "@/components/cv-link";
 import { Folio } from "@/components/folio";
 import Narrative from "@/content/about.mdx";
 import { focusAreas, principles } from "@/content/about";
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "Collins Nyagaka, AI and machine-learning engineer in Nairobi: how he works, his experience and certifications.",
+  alternates: { canonical: "/about" },
 };
 
 const typeLabel: Record<Experience["type"], string> = {
@@ -80,9 +82,7 @@ export default function AboutPage() {
               <Narrative />
               <p className="font-sans text-base">
                 <a href={mailtoHref}>{site.primaryActionLabel}</a> ·{" "}
-                <a href={site.cvPath} download>
-                  CV (PDF)
-                </a>
+                <CvLink from="about">CV (PDF)</CvLink>
               </p>
             </div>
           </div>

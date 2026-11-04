@@ -31,7 +31,18 @@ export async function generateMetadata({
 }: PageProps<"/work/[slug]">): Promise<Metadata> {
   const study = caseStudyBySlug((await params).slug);
   if (!study) return {};
-  return { title: study.title, description: study.outcome };
+  return {
+    title: study.title,
+    description: study.outcome,
+    alternates: { canonical: `/work/${study.slug}` },
+    openGraph: {
+      type: "article",
+      siteName: "Collins Nyagaka",
+      title: study.title,
+      description: study.outcome,
+      modifiedTime: study.updated,
+    },
+  };
 }
 
 export default async function CaseStudyPage({

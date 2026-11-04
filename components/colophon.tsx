@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CvLink } from "./cv-link";
 import { mailtoHref, site } from "@/content/site";
 
 const repoUrl = "https://github.com/CollinsNyatundo/portfolio-v2";
@@ -12,11 +13,7 @@ export function Colophon({ updated }: { updated: string }) {
     <footer className="border-border text-muted mt-36 border-t pt-10 pb-16 font-sans text-sm">
       <p className="text-text font-serif text-lg">
         <a href={mailtoHref}>{site.primaryActionLabel}</a> at {site.email}, or
-        read the{" "}
-        <a href={site.cvPath} download>
-          CV (PDF)
-        </a>
-        .
+        read the <CvLink from="colophon">CV (PDF)</CvLink>.
       </p>
       <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
         <li>
