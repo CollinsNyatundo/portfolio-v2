@@ -135,6 +135,22 @@ def test_internal_errors_hide_details(monkeypatch):
     assert code == 500 and body == {"error": "internal"}
 
 
+def test_redis_keys_never_hold_the_raw_ip(monkeypatch):
+    sent: list = []
+
+    def fake_upstash(commands):
+        sent.append(commands)
+        if commands[0][0] == "SET":
+            return ["OK", "salt-for-today"]
+        return [1, 1]
+
+    monkeypatch.setattr(http_lib, "_upstash", fake_upstash)
+    assert http_lib.rate_limited("mlsys", "203.0.113.77", 60, 600) == 0
+    flat = json.dumps(sent)
+    assert "203.0.113.77" not in flat
+    assert http_lib.hash_ip("203.0.113.77", "salt-for-today") in flat
+
+
 def test_fts_match_keeps_only_quoted_words():
     assert mlsys.fts_match('a "b" NEAR(c) OR d*', "and") == '"a" "b" "near" "c" "or" "d"*'
     assert mlsys.fts_match("!!!", "and") is None

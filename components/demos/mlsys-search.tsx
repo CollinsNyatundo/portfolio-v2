@@ -100,11 +100,14 @@ export function MlsysSearch() {
 
   async function run(text: string) {
     const q = text.trim();
+    // Any newer input cancels the request in flight, even a short one, so a
+    // stale response can't overwrite the current state.
+    controller.current?.abort();
+    controller.current = null;
     if (q.length < 3) {
       setState({ kind: "idle" });
       return;
     }
-    controller.current?.abort();
     const ac = new AbortController();
     controller.current = ac;
     const timeout = setTimeout(() => ac.abort("timeout"), TIMEOUT_MS);

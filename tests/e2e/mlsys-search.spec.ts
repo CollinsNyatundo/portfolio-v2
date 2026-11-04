@@ -60,6 +60,30 @@ test.describe("ML Systems search demo", () => {
     expect(calls).toBe(0);
   });
 
+  test("clearing the field cancels a pending search", async ({ page }) => {
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => (release = r));
+    await page.route("**/api/demos/mlsys/search**", async (route) => {
+      await gate;
+      await route
+        .fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ results, attribution: {} }),
+        })
+        .catch(() => {});
+    });
+    await page.goto(URL_PATH);
+    const field = page.getByLabel("Search the book");
+    await field.fill("drift");
+    await page.keyboard.press("Enter");
+    await field.fill("");
+    await page.keyboard.press("Enter");
+    release();
+    await page.waitForTimeout(400);
+    await expect(page.locator("main ol > li")).toHaveCount(0);
+  });
+
   test("no matches suggests other searches", async ({ page }) => {
     await mockApi(page, 200, { results: [] });
     await page.goto(URL_PATH);
