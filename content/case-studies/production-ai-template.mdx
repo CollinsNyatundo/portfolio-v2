@@ -1,0 +1,113 @@
+---
+slug: production-ai-template
+title: Production AI Reference Template
+outcome: A FastAPI reference for multi-tenant LLM workflows, where tenant scope comes from the login and the agent loop is bounded.
+role: Sole engineer
+period: { start: "2026-07", end: "2026-09" }
+domain: ai-infra
+tags: [ai-engineering, llm, retrieval, security]
+stack:
+  [
+    Python,
+    FastAPI,
+    SQLAlchemy,
+    NVIDIA NIM,
+    OpenTelemetry,
+    Streamlit,
+    Docker,
+    pytest,
+  ]
+visibility: public
+repoUrl: https://github.com/CollinsNyatundo/production-ai-template
+headlineMetric:
+  label: tests passing in CI
+  value: "49"
+  context: commit 3b800c1; external services mocked
+metrics:
+  - name: Tests passing
+    value: "49"
+    dataset: The repository's test suite in CI at commit 3b800c1 (2026-09-08)
+    caveat: External services (the model, the OpenKB sidecar, web search) are mocked, so no test makes a live model call.
+    ledger: true
+    ledgerLabel: tests passing, AI template CI
+  - name: Line coverage of app/
+    value: 76.24%
+    dataset: The same CI run, with a 75% coverage gate
+    caveat: Coverage counts lines run, not behaviour checked.
+  - name: mypy and Bandit findings
+    value: "0"
+    dataset: The same CI run; mypy over 80 source files, Bandit over app/ at medium severity and confidence and above
+    caveat: Static checks only. They don't replace a security review or a penetration test.
+evidence:
+  - label: CI run at 3b800c1 (tests, coverage, Ruff, mypy, Bandit)
+    url: https://github.com/CollinsNyatundo/production-ai-template/actions/runs/34270682624
+    private: false
+  - label: Tenant-scope and upload tests (tests/test_security_boundaries.py)
+    url: https://github.com/CollinsNyatundo/production-ai-template/blob/3b800c1e169327b05eb34459949535dbfde31c75/tests/test_security_boundaries.py
+    private: false
+  - label: Bounded agent loop (app/agents/executor.py)
+    url: https://github.com/CollinsNyatundo/production-ai-template/blob/3b800c1e169327b05eb34459949535dbfde31c75/app/agents/executor.py
+    private: false
+  - label: Circuit breakers (app/security/resilience.py)
+    url: https://github.com/CollinsNyatundo/production-ai-template/blob/3b800c1e169327b05eb34459949535dbfde31c75/app/security/resilience.py
+    private: false
+limits:
+  - It's a reference project, not a deployed platform. Demo users and API keys are published and must be replaced.
+  - Cache, ingestion jobs, collections and memory live in one process; they vanish on restart and don't coordinate replicas.
+  - The offline evaluation set has 2 questions, so it's a harness, not a measurement of answer quality.
+  - Ingestion stores metadata and chunk counts, not a complete searchable index.
+  - The SSRF checks cover common paths; production still needs egress controls and a DNS-aware network policy.
+featured: false
+order: 4
+published: true
+updated: "2026-11-05"
+---
+
+## Problem
+
+Most LLM application templates show the happy path: a prompt, a retriever, an answer. The parts that break first in a real deployment are left out: who the caller is, which tenant's data a query may touch, what happens when the model or a tool keeps failing, and how anyone knows the change didn't make things worse.
+
+## Constraints
+
+- **The caller can't choose their scope.** Tenant, user and permissions must come from the authenticated identity, never from the request body.
+- **The agent must stop.** A tool loop can't run forever or call a failing service over and over.
+- **No paid calls in tests.** The suite has to run in CI without production keys.
+- **Honest about what it is.** A reference that says plainly which parts aren't production-ready.
+
+## Approach
+
+A FastAPI service answers queries through a ReAct-style loop: it routes the question, may split it into parts, calls permission-gated tools and reranks what comes back. The loop is capped at five turns, and if it reaches the cap it ends with an answer rather than another call.
+
+The API ignores any tenant, user or session scope the caller sends where identity matters. Those values are set from the authenticated principal, and ingestion records, collections, cache entries, memories and sessions are all scoped by tenant.
+
+Calls to the model and to search sit behind circuit breakers, so repeated failures open the breaker and the agent gets a clear "blocked" result instead of retrying. Input and output filters, upload limits and URL checks against private addresses guard the edges. OpenTelemetry hooks trace each step.
+
+## Evaluation
+
+Every change runs the full suite in CI, with external services mocked: tests, a coverage gate, Ruff, mypy and Bandit. The security tests check the boundaries directly: one tenant can't list or delete another's collections, query scope comes from the login and not the request, unsafe uploads and private URLs are refused, and secrets are redacted across streamed chunks.
+
+<Metrics />
+
+## Results
+
+At commit 3b800c1 all 49 tests pass, coverage of the application code is 76.24% against a 75% gate, and mypy and Bandit report nothing. Those numbers say the code does what its tests describe; they don't say how good the answers are.
+
+<Callout title="What isn't measured">
+  The offline evaluation harness runs, but its golden set has 2 questions.
+  There's no answer-quality figure here, and I don't claim one.
+</Callout>
+
+## Security
+
+Identity sets scope: API-key or JWT authentication, with tenant and user taken from the token. Outside development the service refuses the published JWT secret and requires authentication. Tools are permission-gated, uploads are size- and type-checked, HTML extraction drops scripts, and the URL resolver pins a public address so a later DNS answer can't redirect a fetch to an internal host.
+
+## Limits
+
+<Limits />
+
+## What I'd do next
+
+- Move cache, jobs and memory to a shared store so replicas agree.
+- Grow the golden set to a few hundred questions and report answer quality with it.
+- Replace the demo identities with a real identity provider and a secret store.
+- Add network egress policy alongside the URL checks.

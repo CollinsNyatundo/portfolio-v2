@@ -46,8 +46,8 @@ describe("workIndex", () => {
   });
 
   it("shows everything when the tag is known but unused", () => {
-    // agritech is on the allow-list; nothing published uses it yet.
-    const index = workIndex(studies, projects, "agritech");
+    // "web" is on the allow-list; nothing published uses it yet.
+    const index = workIndex(studies, projects, "web");
     expect(index.active).toBeNull();
     expect(index.caseStudies.length).toBe(studies.length);
   });

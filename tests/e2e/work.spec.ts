@@ -9,7 +9,7 @@ test.describe("work index", () => {
     expect(response?.status()).toBe(200);
     await expect(page.locator("h1")).toHaveText("Work");
     const studies = page.locator("#case-studies ~ ol > li");
-    await expect(studies).toHaveCount(3);
+    await expect(studies).toHaveCount(5);
     await expect(
       page.getByRole("link", { name: /LegalAI Kenya/ }).first(),
     ).toHaveAttribute("href", "/work/legalai-kenya");
@@ -58,7 +58,7 @@ test.describe("work index", () => {
         .getByRole("navigation", { name: "Filter by tag" })
         .getByRole("link", { name: "All" }),
     ).toHaveAttribute("aria-current", "true");
-    await expect(page.locator("#case-studies ~ ol > li")).toHaveCount(3);
+    await expect(page.locator("#case-studies ~ ol > li")).toHaveCount(5);
   });
 
   test("private case studies carry the label and no repository link", async ({

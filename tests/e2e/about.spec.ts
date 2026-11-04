@@ -25,7 +25,11 @@ test.describe("about page", () => {
   }) => {
     await page.goto("/about");
     const areas = page.locator("#focus ~ ul > li");
-    await expect(areas.locator("h3")).toHaveText(["Fintech", "Legaltech"]);
+    await expect(areas.locator("h3")).toHaveText([
+      "Fintech",
+      "Legaltech",
+      "Agritech",
+    ]);
     await expect(
       page.getByRole("link", { name: "See the fintech work" }),
     ).toHaveAttribute("href", "/work?tag=fintech");

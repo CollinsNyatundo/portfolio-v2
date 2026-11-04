@@ -1,0 +1,111 @@
+---
+slug: geo-ai-cropland-mapping
+title: GEO-AI cropland mapping from satellite data
+outcome: Crop versus non-crop from Sentinel-1 and Sentinel-2 data in two regions, with an honest look at where the evaluation flattered the model.
+role: Team lead
+period: { start: "2025-08", end: "2025-08" }
+domain: agritech
+tags: [ml, data, evaluation, agritech]
+stack:
+  [
+    Python,
+    pandas,
+    scikit-learn,
+    XGBoost,
+    LightGBM,
+    CatBoost,
+    Optuna,
+    imbalanced-learn,
+    Streamlit,
+  ]
+visibility: public
+repoUrl: https://github.com/CollinsNyatundo/phase5
+headlineMetric:
+  label: held-out accuracy, RandomForest
+  value: "0.745"
+  context: 200 points; majority-class baseline 0.703; random split
+metrics:
+  - name: Accuracy, RandomForest
+    value: "0.745"
+    dataset: 200 held-out labelled points (stratified random 20% of 1,000 across Fergana and Orenburg)
+    caveat: Guessing "non-crop" for every point scores 0.703 on this data, and a random split lets nearby points leak between train and test.
+    ledger: true
+    ledgerLabel: accuracy vs 0.703 baseline
+  - name: ROC-AUC, RandomForest
+    value: "0.727"
+    dataset: The same 200 held-out points
+    caveat: One split of 200 points; no confidence interval was computed.
+  - name: Accuracy, stacked ensemble
+    value: "0.725"
+    dataset: The same 200 held-out points
+    caveat: The ensemble scored below the single RandomForest, so it didn't earn its complexity.
+evidence:
+  - label: Notebook with every run and its output (index.ipynb)
+    url: https://github.com/CollinsNyatundo/phase5/blob/8b5f0d49bfb16ce7b436f692e2fcf409d5e28d84/index.ipynb
+    private: false
+  - label: Saved model metrics (cache/metrics.json)
+    url: https://github.com/CollinsNyatundo/phase5/blob/8b5f0d49bfb16ce7b436f692e2fcf409d5e28d84/cache/metrics.json
+    private: false
+  - label: Satellite data extraction (DataExtraction.py)
+    url: https://github.com/CollinsNyatundo/phase5/blob/8b5f0d49bfb16ce7b436f692e2fcf409d5e28d84/DataExtraction.py
+    private: false
+limits:
+  - Only 1,000 labelled points, 297 of them cropland, so every figure moves with a handful of points.
+  - Splits were random, not spatial. The project's own notes call spatial cross-validation essential; it wasn't done.
+  - Earlier runs oversampled with SMOTE before splitting, which put synthetic copies of test points into training. Their higher scores (around 0.76) aren't quoted here.
+  - Satellite matches covered 81.6% of the labelled points; the rest relied on a coarser coordinate fallback.
+  - The competition leaderboard score isn't recorded in the repository.
+featured: false
+order: 5
+published: true
+updated: "2026-11-05"
+---
+
+## Problem
+
+The GEO-AI challenge asked teams to label points in two regions, Fergana in Uzbekistan and Orenburg in Russia, as cropland or not, using Sentinel-1 radar and Sentinel-2 optical satellite data. Maps like this help plan food security and land use where field surveys are expensive.
+
+## Constraints
+
+- **Few labels.** 1,000 labelled points, about 30% cropland.
+- **Large, messy imagery.** About 1.75 million radar rows and 5.6 million optical rows, with clouds and gaps.
+- **Two very different regions.** A model that learns one landscape can fail on the other.
+- **A team and a deadline.** Five contributors over a few weeks.
+
+## Approach
+
+I led a team of five. We aggregated the satellite rows by location and matched each labelled point to its nearest pixels with a BallTree search, falling back to rounded coordinates where coverage was thin. On top of the raw bands we computed vegetation and water indices (NDVI, NDWI, EVI, SAVI and others) and a radar ratio, then selected the 40 most informative features.
+
+We tuned RandomForest, XGBoost, LightGBM and CatBoost with Optuna, tried oversampling for the class imbalance, and stacked the models into an ensemble with a small neural network on top.
+
+## Evaluation
+
+The final comparison holds out a stratified random 20% of the labelled points, 200 of them, and scores every model on that same split. The figure that matters most is the baseline: labelling every point "non-crop" is already right 70.3% of the time.
+
+<Metrics />
+
+## Results
+
+RandomForest reached 0.745 accuracy on the held-out points, about 4 points above always guessing "non-crop". The stacked ensemble scored 0.725, below the single model it was built from.
+
+<Callout title="What I'd tell my past self">
+  Some earlier runs scored around 0.76, but they oversampled before splitting,
+  so synthetic neighbours of test points sat in training. And random splits let
+  nearby fields leak across. Both make a model look better than it is. The
+  honest figure is the modest one.
+</Callout>
+
+## Security
+
+The data is public satellite imagery and labelled coordinates, with no personal data. The project ships trained models as joblib files; anyone reusing them should load them only from a trusted copy, because joblib files can run code when loaded.
+
+## Limits
+
+<Limits />
+
+## What I'd do next
+
+- Evaluate with spatial blocks or region holdout, so the score reflects new land.
+- Oversample inside each training fold only.
+- Add seasonal features from the time series, which the notes flagged and we didn't build.
+- Report intervals, not single numbers, on a split this small.
