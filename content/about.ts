@@ -1,10 +1,10 @@
-import type { Tag } from "./tags.ts";
+import type { FocusArea, Principle } from "./schema.ts";
 
 /**
  * How I work: shared by the home page (chapter II) and /about, so the two
  * never disagree. Every rule points at something a case study shows.
  */
-export const principles = [
+export const principles: Principle[] = [
   {
     title: "Evaluate on data the model hasn't seen",
     body: "Time-ordered splits, held-out questions, and intervals instead of single numbers.",
@@ -21,13 +21,13 @@ export const principles = [
     title: "Ship with tests and security checks",
     body: "CI runs the evaluation, the secret scan and the accessibility checks on every change.",
   },
-] as const;
+];
 
 /**
  * Focus areas (docs/01 F-11). An area appears on /about only once published
  * work carries its tag, so the page never claims a domain it can't show.
  */
-export const focusAreas: { tag: Tag; title: string; body: string }[] = [
+export const focusAreas: FocusArea[] = [
   {
     tag: "fintech",
     title: "Fintech",

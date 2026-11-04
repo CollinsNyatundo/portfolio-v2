@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  aboutProblems,
   buildIndex,
   ContentError,
   demoReferenceProblems,
@@ -103,6 +104,29 @@ describe("content index", () => {
         .replace("## TEMP", "## Approach"),
     );
     expect(problemsOf(run)).toMatch(/out of order/);
+  });
+});
+
+describe("about data", () => {
+  const area = { tag: "fintech", title: "Fintech", body: "Fraud scoring." };
+  const rule = { title: "Say what isn't done", body: "Limits in every study." };
+
+  it("accepts valid focus areas and principles", () => {
+    expect(aboutProblems([area], [rule])).toEqual([]);
+  });
+
+  it("rejects empty titles and bodies", () => {
+    expect(aboutProblems([{ ...area, title: "" }], [])).not.toEqual([]);
+    expect(aboutProblems([{ ...area, body: "" }], [])).not.toEqual([]);
+    expect(aboutProblems([], [{ ...rule, body: "" }])).not.toEqual([]);
+  });
+
+  it("rejects unknown tags, extra fields and repeated tags", () => {
+    expect(aboutProblems([{ ...area, tag: "crypto" }], [])).not.toEqual([]);
+    expect(aboutProblems([{ ...area, extra: 1 }], [])).not.toEqual([]);
+    expect(aboutProblems([area, area], [])).toContain(
+      "focusAreas: each tag may appear once",
+    );
   });
 });
 

@@ -12,6 +12,7 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import matter from "gray-matter";
 import type { ZodType } from "zod";
+import { focusAreas, principles } from "../content/about.ts";
 import { certifications, experience } from "../content/experience.ts";
 import { demos, projects } from "../content/projects.ts";
 import {
@@ -20,7 +21,9 @@ import {
   certification,
   demo,
   experience as experienceSchema,
+  focusArea,
   noteFrontmatter,
+  principle,
   project,
   type CaseStudyFrontmatter,
   type Demo,
@@ -28,6 +31,17 @@ import {
 } from "../content/schema.ts";
 
 export const MAX_PUBLISHED_CASE_STUDIES = 5;
+
+/** Problems in the /about data (focus areas, principles), for buildIndex and tests. */
+export function aboutProblems(areas: unknown[], rules: unknown[]): string[] {
+  const problems: string[] = [];
+  areas.forEach((a, i) => check(focusArea, a, `focusAreas[${i}]`, problems));
+  rules.forEach((r, i) => check(principle, r, `principles[${i}]`, problems));
+  const tags = areas.map((a) => (a as { tag?: unknown }).tag);
+  if (new Set(tags).size !== tags.length)
+    problems.push("focusAreas: each tag may appear once");
+  return problems;
+}
 export const MAX_FEATURED = 3;
 
 export type ContentIndex = {
@@ -181,6 +195,7 @@ export function buildIndex(contentDir: string): ContentIndex {
   certifications.forEach((c, i) =>
     check(certification, c, `certifications[${i}] (${c.name})`, problems),
   );
+  problems.push(...aboutProblems(focusAreas, principles));
 
   const demoSlugs = new Set(demos.map((d) => d.slug));
   demos.forEach((d, i) => check(demo, d, `demos[${i}] (${d.slug})`, problems));
