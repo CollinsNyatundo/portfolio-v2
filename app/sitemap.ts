@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/demos/ml-systems-search",
     "/about",
     "/contact",
+    "/cv",
   ].map((path) => ({
     url: absoluteUrl(path),
   }));

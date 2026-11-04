@@ -147,6 +147,12 @@ export const principle = z.strictObject({
   body: z.string().min(1).max(140),
 });
 
+/** One group of technical skills on /cv, mirroring the CV PDF. */
+export const skillGroup = z.strictObject({
+  group: z.string().min(1).max(40),
+  items: z.array(z.string().min(1).max(80)).min(1).max(20),
+});
+
 export const certification = z.strictObject({
   name: z.string().min(1),
   issuer: z.string().min(1),
@@ -162,6 +168,7 @@ export type Project = z.infer<typeof project>;
 export type Demo = z.infer<typeof demo>;
 export type Experience = z.infer<typeof experience>;
 export type FocusArea = z.infer<typeof focusArea>;
+export type SkillGroup = z.infer<typeof skillGroup>;
 export type Principle = z.infer<typeof principle>;
 export type Certification = z.infer<typeof certification>;
 

@@ -22,6 +22,8 @@ describe("sitemap", () => {
       "/demos/ml-systems-search",
       "/about",
       "/contact",
+      "/cv",
+      "/cv",
     ])
       expect(urls).toContain(absoluteUrl(path));
     for (const s of publishedCaseStudies())

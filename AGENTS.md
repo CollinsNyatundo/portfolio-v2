@@ -92,7 +92,7 @@ AGENTS.md        shared agent instructions (this file)
 CLAUDE.md        imports AGENTS.md + Claude Code specifics
 app/             Next.js routes: layout (fonts, skip link, per-request rendering), page, not-found, icon
 components/      folio, colophon, theme toggle
-content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
+content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, cv.ts (skills), experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
 mdx-components.tsx  MDX component map (required by @next/mdx)
 scripts/         build-content.ts (validate + index), check-links.ts (evidence links), build_mlsys_index.py
 api/             Python Vercel Functions: demos/mlsys/search.py; _lib/ shared code; _data/ read-only index (+ manifest)
@@ -178,6 +178,7 @@ Rules for editing them:
 - 2026-11-04 — M3.8 contact page: Current state (Claude Code).
 - 2026-11-04 — M3.9 and M3.10: Current state, Stack, Layout (Claude Code).
 - 2026-11-04 — M4.5 ML Systems search: Current state, Stack, Commands, Layout (Claude Code).
+- 2026-11-04 — M4.10 /cv page: Layout (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
