@@ -6,3 +6,4 @@ private/
 docs/
 *.md
 package-lock.json
+.impeccable/

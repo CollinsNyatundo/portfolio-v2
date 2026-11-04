@@ -1,0 +1,35 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "files": [
+          "private/cv/cv.html"
+        ],
+        "createdAt": "2026-11-04T03:39:31.215Z",
+        "reason": "Claude: print CV reproducing the owner's existing CV, which is set in Inter; owner asked for minimal edits only"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "private/cv/cv.html"
+        ],
+        "createdAt": "2026-11-04T03:39:31.474Z",
+        "reason": "Claude: one-page A4 print CV matching the original's ~1.2-1.26 leading at 8.8pt; not a web reading surface"
+      },
+      {
+        "rule": "wide-tracking",
+        "value": "*",
+        "files": [
+          "private/cv/cv.html"
+        ],
+        "createdAt": "2026-11-04T03:39:31.739Z",
+        "reason": "Claude: 0.06em tracking is on short uppercase section labels (PROFILE, EXPERIENCE), copied from the original CV"
+      }
+    ]
+  }
+}

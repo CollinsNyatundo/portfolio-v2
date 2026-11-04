@@ -45,6 +45,9 @@ jobs:
           tar -xzf "${tarball}" gitleaks
           ./gitleaks git . --redact --no-banner
 
+      - name: Content (schemas, sections, cross-references)
+        run: npm run content
+
       - name: Lint
         run: npm run lint
 
@@ -56,6 +59,9 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      - name: Link and evidence check
+        run: npm run links
 
       - name: Dependency audit (high and above)
         run: npm audit --audit-level=high
