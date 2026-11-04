@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
@@ -64,6 +65,14 @@ export default async function CaseStudyPage({
                     Repository
                     <span className="sr-only"> (opens in new tab)</span>
                   </a>
+                </>
+              )}
+              {study.visibility === "private" && (
+                <>
+                  {" · "}
+                  <Link href={`/contact?topic=${study.slug}`}>
+                    Request a walkthrough
+                  </Link>
                 </>
               )}
               {study.liveUrl && (

@@ -189,7 +189,15 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                     <p className="text-muted flex flex-wrap gap-x-4 font-sans text-sm md:flex-col md:items-end">
                       <span>{p.year}</span>
                       {p.visibility === "private" ? (
-                        <span>Private work</span>
+                        <>
+                          <span>Private work</span>
+                          <Link
+                            href={`/contact?topic=${p.slug}`}
+                            className="inline-flex min-h-11 items-center md:min-h-7"
+                          >
+                            Request a walkthrough
+                          </Link>
+                        </>
                       ) : (
                         p.repoUrl && (
                           <ExternalLink href={p.repoUrl}>
