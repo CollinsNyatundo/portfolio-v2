@@ -45,7 +45,7 @@ describe("content index", () => {
 
   it("rejects a metric without its dataset (D-05)", () => {
     const run = buildWith((s) =>
-      s.replace("dataset: time-ordered holdout, ", ""),
+      s.replace(/dataset: time-ordered holdout,\s*/, ""),
     );
     expect(problemsOf(run)).toMatch(/metrics\.0\.dataset/);
   });
@@ -91,7 +91,10 @@ describe("content index", () => {
 
   it("rejects sections out of order", () => {
     const run = buildWith((s) =>
-      s.replace("## Constraints\n## Approach", "## Approach\n## Constraints"),
+      s
+        .replace("## Constraints", "## TEMP")
+        .replace("## Approach", "## Constraints")
+        .replace("## TEMP", "## Approach"),
     );
     expect(problemsOf(run)).toMatch(/out of order/);
   });

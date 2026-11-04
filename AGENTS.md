@@ -122,6 +122,7 @@ tests/unit/      Vitest      tests/e2e/   Playwright + axe
 - Copy: plain English, active voice, short sentences, numbers with their context. No "passionate", "cutting-edge" or "leveraging".
 - Check current official docs for a library or framework before writing code against its API.
 - Windows host: PowerShell is primary and Git Bash is available. Use forward slashes in scripts.
+- Chain checks and commit with `&&` (`npm run check && git commit …`), never `;`. A formatter run once rewrote an MDX fixture, two tests failed, and a `;` chain still committed and pushed.
 
 ## Shared agent memory
 
