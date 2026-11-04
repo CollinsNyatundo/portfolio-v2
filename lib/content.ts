@@ -17,6 +17,21 @@ export function publishedCaseStudies(): CaseStudyFrontmatter[] {
   return content.caseStudies.filter((c) => c.published);
 }
 
+type Evidence = CaseStudyFrontmatter["evidence"][number];
+
+/**
+ * The public evidence a study's figures can cite, or null for private work.
+ * A private study's figures come from private reports; a public link on it
+ * (such as a live app) is not their source (AGENTS.md rule 1).
+ */
+export function evidenceSource(
+  study: CaseStudyFrontmatter,
+): (Evidence & { url: string }) | null {
+  if (study.visibility === "private") return null;
+  const e = study.evidence.find((x) => x.url && !x.private);
+  return e?.url ? { ...e, url: e.url } : null;
+}
+
 export function featuredCaseStudies(): CaseStudyFrontmatter[] {
   return publishedCaseStudies().filter((c) => c.featured);
 }

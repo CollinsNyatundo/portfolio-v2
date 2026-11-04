@@ -70,6 +70,23 @@ test.describe("work index", () => {
     await expect(row.locator('a[href*="github.com"]')).toHaveCount(0);
   });
 
+  test("every headline figure shows its evidence or a Private work label", async ({
+    page,
+  }) => {
+    await page.goto("/work");
+    const rows = page.locator("#case-studies ~ ol > li");
+    for (const row of await rows.all()) {
+      const source = row.locator("[data-headline-source]");
+      if ((await row.innerText()).startsWith("Private work"))
+        await expect(source).toHaveText("Evidence: Private work");
+      else
+        await expect(source.locator("a")).toHaveAttribute(
+          "href",
+          /^https:\/\/github\.com\/CollinsNyatundo\//,
+        );
+    }
+  });
+
   test("no visible em dashes and no CSP violations", async ({ page }) => {
     const violations: string[] = [];
     page.on("console", (m) => {

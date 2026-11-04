@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { publishedCaseStudies } from "@/lib/content";
+import { evidenceSource, publishedCaseStudies } from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
+
+describe("evidenceSource", () => {
+  it("is null for private studies and public evidence otherwise", () => {
+    for (const s of publishedCaseStudies()) {
+      const source = evidenceSource(s);
+      if (s.visibility === "private") expect(source).toBeNull();
+      else {
+        expect(source?.private).toBe(false);
+        expect(source?.url).toMatch(/^https:\/\//);
+      }
+    }
+  });
+});
 
 describe("evidence ledger", () => {
   it("cites no source for figures from private case studies", () => {

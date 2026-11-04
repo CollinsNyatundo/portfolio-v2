@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
+import type { CaseStudyFrontmatter } from "@/content/schema";
 import { TAG_LABELS, type Tag } from "@/content/tags";
-import { projects, publishedCaseStudies } from "@/lib/content";
+import { evidenceSource, projects, publishedCaseStudies } from "@/lib/content";
 import { parseTag, workIndex } from "@/lib/work";
 
 export const metadata: Metadata = {
@@ -39,6 +40,31 @@ function ExternalLink({ href, children }: { href: string; children: string }) {
       {children}
       <span className="sr-only"> (opens in new tab)</span>
     </a>
+  );
+}
+
+/** The figure's source, next to the figure (AGENTS.md rule 1). */
+function HeadlineSource({ study }: { study: CaseStudyFrontmatter }) {
+  const source = evidenceSource(study);
+  return (
+    <span className="mt-1 block" data-headline-source>
+      {source ? (
+        <a
+          href={source.url}
+          rel="noopener noreferrer"
+          target="_blank"
+          className="inline-flex min-h-11 items-center md:min-h-7"
+        >
+          Evidence
+          <span className="sr-only">
+            {" "}
+            for {study.headlineMetric.label}: {source.label} (opens in new tab)
+          </span>
+        </a>
+      ) : (
+        <span className="text-muted">Evidence: Private work</span>
+      )}
+    </span>
   );
 }
 
@@ -131,6 +157,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                       <span className="text-muted mt-1 block">
                         {s.headlineMetric.context}
                       </span>
+                      <HeadlineSource study={s} />
                     </p>
                   </li>
                 ))}

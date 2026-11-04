@@ -1,4 +1,4 @@
-import { publishedCaseStudies } from "@/lib/content";
+import { evidenceSource, publishedCaseStudies } from "@/lib/content";
 
 /** One line of the evidence ledger (D-26): a real figure with its source. */
 export type LedgerEntry = {
@@ -21,12 +21,7 @@ export type LedgerEntry = {
  */
 export function ledgerEntries(): LedgerEntry[] {
   return publishedCaseStudies().flatMap((study) => {
-    // A private study's figures come from private reports. A public link on
-    // it (such as the live app) isn't their source, so never cite one.
-    const source =
-      study.visibility === "private"
-        ? null
-        : (study.evidence.find((e) => e.url && !e.private)?.url ?? null);
+    const source = evidenceSource(study)?.url ?? null;
     return study.metrics
       .filter((m) => m.ledger)
       .map((m) => ({
