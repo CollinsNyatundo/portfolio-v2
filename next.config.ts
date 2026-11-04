@@ -17,6 +17,15 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The samples endpoint is static data (docs/05 §5); serve it from public/.
+  async rewrites() {
+    return [
+      {
+        source: "/api/demos/fraud/samples",
+        destination: "/demos/fraud/samples.json",
+      },
+    ];
+  },
   async headers() {
     return [{ source: "/(.*)", headers: staticSecurityHeaders }];
   },

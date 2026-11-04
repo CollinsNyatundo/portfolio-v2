@@ -1,0 +1,44 @@
+{
+  "sampleId": "s01",
+  "label": "fraud",
+  "recordedOn": "2026-11-04",
+  "note": "Recorded on a warm local run; the live total includes the network.",
+  "result": {
+    "probability": 0.719778,
+    "calibratedProbability": 0.708525,
+    "threshold": 0.03,
+    "decision": "flag",
+    "topContributions": [
+      {
+        "feature": "V14",
+        "logOdds": 0.8959,
+        "direction": "fraud"
+      },
+      {
+        "feature": "V4",
+        "logOdds": 0.4158,
+        "direction": "fraud"
+      },
+      {
+        "feature": "V10",
+        "logOdds": 0.3921,
+        "direction": "fraud"
+      },
+      {
+        "feature": "V17",
+        "logOdds": 0.3651,
+        "direction": "fraud"
+      },
+      {
+        "feature": "V12",
+        "logOdds": 0.3103,
+        "direction": "fraud"
+      }
+    ],
+    "modelVersion": "lgbm-optimized-d501607",
+    "latencyMs": {
+      "model": 0.12,
+      "total": 1.98
+    }
+  }
+}
