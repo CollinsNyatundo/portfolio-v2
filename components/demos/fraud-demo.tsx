@@ -402,6 +402,10 @@ export function FraudDemo({
           {editing && (
             <fieldset className="border-border mt-2 grid grid-cols-2 gap-3 border-t pt-4 sm:grid-cols-3 lg:grid-cols-5">
               <legend className="sr-only">Target transaction values</legend>
+              <p className="text-muted col-span-full text-xs">
+                Time is fixed: it places this transaction after the 10 before
+                it, and the window features depend on that order.
+              </p>
               {FIELDS.map((k) => (
                 <label key={k} className="block text-xs">
                   {k}
@@ -411,6 +415,8 @@ export function FraudDemo({
                     onChange={(e) =>
                       setValues({ ...values, [k]: e.target.value })
                     }
+                    readOnly={k === "Time"}
+                    aria-readonly={k === "Time" || undefined}
                     disabled={scoring}
                     aria-invalid={Boolean(err(k))}
                     aria-describedby={err(k) ? `err-${k}` : undefined}
@@ -457,7 +463,7 @@ export function FraudDemo({
         aria-busy={scoring}
         className="mt-6"
       >
-        {status.kind === "limited" && (
+        {limited && status.kind === "limited" && (
           <p>
             Demo limit reached, try again in{" "}
             {Math.max(1, Math.ceil((status.until - now) / 60000))} min.

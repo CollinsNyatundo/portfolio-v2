@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CvLink } from "./cv-link";
-import { mailtoHref, site } from "@/content/site";
+import { site } from "@/content/site";
 import { showNotes } from "@/lib/content";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -15,6 +15,7 @@ type FolioProps = {
 
 const sections = [
   { href: "/work", label: "Work" },
+  { href: "/about", label: "About" },
   { href: "/demos", label: "Demos" },
   { href: "/notes", label: "Notes" },
 ] as const;
@@ -37,12 +38,13 @@ function FolioLinks({ currentPath }: { currentPath?: string }) {
           </li>
         ))}
       <li>
-        <a
-          href={mailtoHref}
+        <Link
+          href="/contact"
+          aria-current={currentPath === "/contact" ? "page" : undefined}
           className="inline-flex min-h-11 items-center font-medium lg:min-h-0"
         >
-          {site.primaryActionLabel}
-        </a>
+          Contact
+        </Link>
       </li>
       <li>
         <CvLink

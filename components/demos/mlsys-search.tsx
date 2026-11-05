@@ -119,6 +119,7 @@ export function MlsysSearch() {
       );
       if (res.status === 400) {
         const body = await res.json();
+        if (controller.current !== ac) return;
         setState({
           kind: "invalid",
           message: `The search ${Object.values(body.fields ?? {})[0] ?? "is invalid"}.`,
@@ -127,6 +128,7 @@ export function MlsysSearch() {
       }
       if (res.status === 429) {
         const body = await res.json();
+        if (controller.current !== ac) return;
         setState({
           kind: "limited",
           until: Date.now() + (body.retryAfterSeconds ?? 60) * 1000,
@@ -136,6 +138,7 @@ export function MlsysSearch() {
       }
       if (!res.ok) throw new Error(String(res.status));
       const body = await res.json();
+      if (controller.current !== ac) return;
       setState({ kind: "results", query: q, results: body.results });
     } catch (err) {
       // Navigating away or a newer query aborts silently (docs/03 §5).
@@ -155,6 +158,10 @@ export function MlsysSearch() {
 
   function onChange(value: string) {
     setQuery(value);
+    // Drop the request in flight now, not when the debounce fires, so its
+    // answer can't show under a query the visitor has already changed.
+    controller.current?.abort();
+    controller.current = null;
     clearTimeout(timer.current);
     timer.current = setTimeout(() => run(value), DEBOUNCE_MS);
   }
@@ -222,9 +229,7 @@ export function MlsysSearch() {
           <p className="sr-only">{state.results.length} results</p>
         )}
         {state.kind === "invalid" && <p>{state.message}</p>}
-        {state.kind === "limited" && (
-          <p>Demo limit reached, try again in {minutes} min.</p>
-        )}
+        {limited && <p>Demo limit reached, try again in {minutes} min.</p>}
         {state.kind === "unavailable" && (
           <p>
             Demo is waking up or unavailable.

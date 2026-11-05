@@ -19,7 +19,8 @@ export function recordVisitorRun(run: VisitorRun): void {
  * page crosses the reading line. Figures opt in with data-ledger-id, and only
  * ids present in `entries` (built from validated content) can appear.
  *
- * The margin copy is aria-hidden; the colophon table is the accessible version.
+ * The wide-screen margin column is aria-hidden decoration; the colophon table is
+ * the accessible version. The narrow-screen strip is a real disclosure button.
  */
 export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
   const [seen, setSeen] = useState<string[]>([]);
@@ -112,22 +113,28 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
 
       {/* Narrow screens: a collapsed strip at the bottom. */}
       {count > 0 && (
-        <div
-          aria-hidden="true"
+        <section
+          aria-label="Evidence read so far"
           className="bg-surface border-border fixed inset-x-0 bottom-0 z-40 border-t px-4 py-2 font-sans xl:hidden"
         >
           <button
             type="button"
-            tabIndex={-1}
+            aria-expanded={open}
+            aria-controls="evidence-strip-list"
             onClick={() => setOpen((v) => !v)}
             className="text-muted min-h-11 w-full text-left text-sm"
           >
-            Evidence · {count} {open ? "▾" : "▴"}
+            Evidence · {count}{" "}
+            <span aria-hidden="true">{open ? "▾" : "▴"}</span>
           </button>
-          {open && (
-            <div className="max-h-[40vh] overflow-y-auto pb-3">{list}</div>
-          )}
-        </div>
+          <div
+            id="evidence-strip-list"
+            hidden={!open}
+            className="max-h-[40vh] overflow-y-auto pb-3"
+          >
+            {list}
+          </div>
+        </section>
       )}
     </>
   );

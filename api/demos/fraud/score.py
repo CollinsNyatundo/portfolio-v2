@@ -71,6 +71,12 @@ def validate(body: object) -> tuple[dict | None, dict[str, str]]:
             errors[f"features.{key}"] = f"must be ≤ {hi:g}"
         else:
             clean[key] = float(value)
+    if not errors and sample_id in samples():
+        # The window features measure time since the previous transaction, so
+        # the target can't come before the last transaction in its history.
+        window = samples()[sample_id]["window"]
+        if window and clean["Time"] < window[-1]["Time"]:
+            errors["features.Time"] = f"must be ≥ {window[-1]['Time']:g}"
     if errors:
         return None, errors
     return {"sampleId": sample_id, "features": clean}, {}
