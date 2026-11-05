@@ -12,8 +12,12 @@ import {
   sectionProblems,
 } from "../../scripts/build-content.ts";
 import { collectLinks, isAllowedHost } from "../../scripts/check-links.ts";
+import { demos } from "../../content/projects.ts";
 
 const fixtures = join(process.cwd(), "tests", "fixtures", "content");
+// Fixture content has none of the site's case studies, so its demos are
+// offline: a live demo must point at a published study.
+const fixtureDemos = demos.map((d) => ({ ...d, status: "offline" as const }));
 const validFile = join(fixtures, "valid", "case-studies", "sample-study.mdx");
 
 /** Copy the valid fixture, apply an edit to the MDX source, and build. */
@@ -22,7 +26,7 @@ function buildWith(edit: (source: string) => string) {
   cpSync(join(fixtures, "valid"), dir, { recursive: true });
   const file = join(dir, "case-studies", "sample-study.mdx");
   writeFileSync(file, edit(readFileSync(validFile, "utf8")));
-  return () => buildIndex(dir);
+  return () => buildIndex(dir, fixtureDemos);
 }
 
 function problemsOf(run: () => unknown): string {
@@ -41,7 +45,7 @@ describe("content index", () => {
   });
 
   it("accepts a valid case study", () => {
-    const index = buildIndex(join(fixtures, "valid"));
+    const index = buildIndex(join(fixtures, "valid"), fixtureDemos);
     expect(index.caseStudies.map((c) => c.slug)).toEqual(["sample-study"]);
     expect(index.caseStudies[0].featured).toBe(false);
   });
@@ -204,7 +208,9 @@ describe("link checker", () => {
   });
 
   it("collects every evidence, repo and profile link", () => {
-    const urls = collectLinks(join(fixtures, "valid")).map((l) => l.url);
+    const urls = collectLinks(join(fixtures, "valid"), fixtureDemos).map(
+      (l) => l.url,
+    );
     expect(urls).toContain(
       "https://github.com/CollinsNyatundo/production-ai-template",
     );

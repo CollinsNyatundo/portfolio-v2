@@ -7,6 +7,7 @@ test.describe("home page chapters", () => {
       "Problem",
       "Method",
       "Work",
+      "Score a transaction",
       "Colophon",
     ]);
   });
@@ -64,12 +65,44 @@ test.describe("home page chapters", () => {
     ).toBeVisible();
   });
 
-  test("shows the demo intertitle only once the demo is live", async ({
+  test("the live demo gets its intertitle and Act IV", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByText("Now try one.")).toHaveCount(1);
+    await expect(
+      page.getByRole("combobox", { name: "Transaction" }),
+    ).toBeVisible();
+  });
+
+  test("a home-page run writes the visitor's line into the ledger", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.route("**/api/demos/fraud/score", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          probability: 0.99,
+          calibratedProbability: 0.7085,
+          threshold: 0.03,
+          decision: "flag",
+          topContributions: [
+            { feature: "V14", logOdds: 0.9, direction: "fraud" },
+            { feature: "V4", logOdds: 0.4, direction: "fraud" },
+            { feature: "V10", logOdds: 0.39, direction: "fraud" },
+            { feature: "V17", logOdds: 0.37, direction: "fraud" },
+            { feature: "V12", logOdds: 0.31, direction: "fraud" },
+          ],
+          modelVersion: "x",
+          latencyMs: { model: 0.4, total: 150 },
+        }),
+      }),
+    );
     await page.goto("/");
-    // The fraud demo ships in M4; until then there is no empty stage.
-    await expect(page.getByText("Now try one.")).toHaveCount(0);
+    await page.getByRole("button", { name: "Score" }).click();
+    await expect(page.locator("[data-visitor]").first()).toContainText(
+      "you, just now",
+    );
   });
 });
 
