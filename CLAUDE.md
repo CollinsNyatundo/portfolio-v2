@@ -16,9 +16,9 @@ added, changed or retired (trigger table in AGENTS.md).
 | Planning / process | `superpowers:writing-plans`, `superpowers:test-driven-development`, `superpowers:verification-before-completion` | Plan in `docs/06`; prove each milestone's done criteria before claiming it |
 | Home-page scroll design | `nateherk-design:scroll-craft` skill (scripts in its plugin folder: `doctor.mjs`, `workspace.mjs`, `serve.mjs`, `shoot.mjs`, `kie.mjs`, `encode.sh`) | Workspace resolves via `.scrollcraft.json` to `design/scrollcraft`. Generating assets needs `KIE_AI_API_KEY` (not set on 2026-11-03; owner adds it). Verification needs `playwright-core` in the build folder |
 | UI work | `frontend-design`, `impeccable`, `ui-ux-pro-max` | Must obey `docs/04` tokens, the scroll-craft BRIEF and banned patterns; the skills don't override them |
-| Security | `security-review`, HawkScan skill (DAST) | HawkScan needs `HAWK_API_KEY` (not set on 2026-11-03); fall back to an OWASP ZAP baseline (06, task 5.2) |
-| Vercel | Vercel MCP + `vercel:*` skills | Deploys, env vars, logs. Vercel CLI not installed yet (`npm i -g vercel` at M1) |
-| Domain | Porkbun MCP | Read-only checks are fine. **Registering, DNS changes and purchases need the owner's explicit yes** |
+| Security | `security-review`; Semgrep and OWASP ZAP through Docker (`semgrep/semgrep`, `ghcr.io/zaproxy/zaproxy:stable`) | Native Semgrep doesn't run on Windows. Scan a local `next start` with ZAP: scanning the live domain trips Vercel's bot challenge, which then blocks the scanner |
+| Vercel | Vercel CLI 50.25.4 (logged in as the owner) + `vercel api` | Project `portfolio-v2`. In Git Bash prefix `vercel api` with `MSYS_NO_PATHCONV=1`, or `/v9/...` paths are rewritten. `vercel curl` reaches protected previews |
+| Domain | Spaceship (registrar and DNS), edited through Claude in Chrome on the owner's session | **DNS changes and purchases need the owner's explicit yes** |
 | LinkedIn / signed-in sites | Claude in Chrome | The built-in browser hits LinkedIn's auth wall |
 
 ## Claude-specific rules  <!-- LIVING -->
@@ -35,3 +35,4 @@ None yet.
 
 - 2026-11-03 — Created; shared content moved to AGENTS.md and imported (Claude Code).
 - 2026-11-03 — Added the scroll-craft skill row (Claude Code).
+- 2026-11-05 — Vercel, Spaceship and Docker-based scanning rows updated at launch (Claude Code).

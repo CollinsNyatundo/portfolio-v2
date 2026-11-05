@@ -69,6 +69,9 @@ Numbers are stable. Some decisions are recorded here in general terms; the speci
 | D-27 | One primary action label everywhere: "Email Collins". The CV is a secondary text link. Replaces the header button layout of D-09. | Proposed (scroll-craft taste floor) | 2026-11-03 |
 | D-29 | **Content layer:** MDX bodies compile at build time with `@next/mdx` (no runtime eval, so the strict CSP holds); frontmatter is validated with Zod by `scripts/build-content.ts`, which writes a typed index before dev, build, typecheck and tests. Velite and content-collections were rejected because their MDX output runs through `new Function`, which needs `'unsafe-eval'`. | Proposed | 2026-11-04 |
 | D-28 | **Strict nonce-based CSP, pages rendered per request.** Static pages with SRI were tested and blocked Next.js's inline bootstrap scripts; `'unsafe-inline'` was rejected. Cost: no CDN page cache and no Partial Prerendering. | Owner | 2026-11-03 |
+| D-30 | **Hosting:** Vercel project `portfolio-v2` (Next.js, Node 24, functions in `fra1`); domain registered and DNS hosted at Spaceship (A records, `www` CNAME with a 308 to the apex, CAA `letsencrypt.org`, DNSSEC). | Owner (bought domain, asked for setup) | 2026-11-05 |
+| D-31 | **Fraud scoring without the lightgbm library at runtime:** Vercel's Python image lacks `libgomp`, so the function reads the LightGBM text model in pure Python (TreeSHAP ported from LightGBM). Parity with lightgbm is a test; lightgbm is test-only. | Proposed (fix for production 500) | 2026-11-05 |
+| D-32 | **Calibrated probability:** the score API returns `probability` = sigmoid(margin + init_score) and `calibratedProbability` (the repo's Platt calibrator); the 0.03 threshold applies to the calibrated value, which reproduces the repo's reported precision 0.867 and recall 0.750. | Proposed (verified against the repo) | 2026-11-05 |
 
 ## Glossary (one word per idea, in UI copy and in code)
 

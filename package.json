@@ -22,7 +22,8 @@
     "prebuild": "npm run content --silent",
     "pretypecheck": "npm run content --silent",
     "pretest": "npm run content --silent",
-    "test:py": "uv run --no-project --python 3.13 --with-requirements requirements.txt --with pytest==9.2.0 --with lightgbm==4.6.0 pytest tests/python -q -p no:cacheprovider"
+    "test:py": "uv run --no-project --python 3.13 --with-requirements requirements.txt --with pytest==9.2.0 --with lightgbm==4.6.0 pytest tests/python -q -p no:cacheprovider",
+    "smoke": "playwright test --config playwright.smoke.config.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",

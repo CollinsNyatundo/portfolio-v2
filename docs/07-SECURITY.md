@@ -1,6 +1,6 @@
 # 07 — Security
 
-**Version:** 0.2 · **Date:** 2026-11-03 · Source framework: *Vibe Coder Security Framework — 75 Common Vibe-Coded
+**Version:** 1.0 · **Date:** 2026-11-05 · Source framework: *Vibe Coder Security Framework — 75 Common Vibe-Coded
 Web App Vulnerabilities*.
 
 The framework's own warning applies here: an LLM review is not proof. Every "Applies" item below needs a test or a
@@ -170,3 +170,49 @@ tokens removed, and has spend alerts where offered. The detailed checklist is ke
 | Demo abused / cost spike | Set demo `status: "offline"` (static fallback shows), tighten limits, redeploy |
 | Site defaced / bad deploy | Vercel Instant Rollback to last good deployment; then investigate the commit |
 | Domain/DNS hijack | Registrar support + lock; DNSSEC keys; notify LinkedIn/GitHub followers via post |
+
+## 9. Verification record (task 5.1, 2026-11-05)
+
+Every item marked A or R in §5, with the check that proves it. "Smoke" means `tests/smoke/security.spec.ts` or
+`tests/smoke/prod.spec.ts`, run against the live site (`npm run smoke`, and every 6 hours by
+`.github/workflows/smoke.yml`). "Unit" and "e2e" are the suites in `tests/unit` and `tests/e2e`; "pytest" is
+`tests/python`. N/A items stay N/A while the site has no accounts, database, payments or LLM features.
+
+| # | Check | Result |
+|---|---|---|
+| 02, 03 | Smoke: unknown API routes return 404/405; only `samples`, `score`, `search` and `contact` answer | Pass |
+| 06, 65 | Smoke: shipped JavaScript scanned for key patterns; gitleaks on every commit and in CI | Pass |
+| 07 | gitleaks pre-commit hook and full-history CI scan | Pass |
+| 08 | pytest: SQL and FTS5 payloads (`'; DROP`, `NEAR(`, `*`, `' OR ''='`) return 200 or 400, never 500; the index survives | Pass |
+| 10, 35, 36, 57 | Semgrep (`p/python`, `p/typescript`, `p/secrets`) over `app`, `components`, `lib`, `api`, `scripts`; no shell calls with input; the only outbound fetches go to fixed hosts | See scan note below |
+| 12 | Content is MDX compiled at build time from this repository only (D-29); no external HTML is rendered | Pass (review) |
+| 13 | Smoke: `<script>` payloads in `?tag=`, `?topic=`, `?sample=` never reach the page or run | Pass |
+| 14 | One `dangerouslySetInnerHTML`: the JSON-LD data block, built from static site data with `<` escaped (unit test) | Pass |
+| 15 | Unit: cross-origin and missing-origin POSTs to `/api/contact` get 403 | Pass |
+| 18 | Owner account hardening checklist (§6) | Owner |
+| 26, 45 | Unit and pytest: 3 per hour (contact), 30 per 10 min (score), 60 per 10 min (search), then 429 with `Retry-After` | Pass |
+| 30 | Smoke: pages and functions set no cookies | Pass |
+| 31 | Smoke: a foreign `Origin` gets no `Access-Control-Allow-Origin` | Pass |
+| 32 | Unit (CSP builder), e2e (no CSP violations on every page), smoke (live `'strict-dynamic'`, no `'unsafe-inline'` for scripts) | Pass |
+| 33, 53 | Smoke: `X-Frame-Options: DENY`, `frame-ancestors 'none'`, HSTS two years with preload, `nosniff`, referrer and permissions policies, no `X-Powered-By` | Pass |
+| 34 | Smoke: `?next=`, `?redirect=`, `?url=` never redirect off-site | Pass |
+| 40 | `.vercelignore` keeps `private/`, env files and tests out of uploads; pytest: no `.pkl` under `api/_data`; smoke: `/api/_data/fraud/prep.json` returns 404 | Pass |
+| 41, 48 | pytest and unit: unknown fields return 400 naming the field; contract tests pin the exact response keys | Pass |
+| 42, 46 | pytest and smoke: `limit` outside 1–10 and queries over 200 characters return 400; bodies over 4 KB (score) and 8 KB (contact) return 413 | Pass |
+| 43 | The fraud demo's model card states the dataset's limits | Pass (review) |
+| 44 | Unit: the rate limit counts atomically (one Redis `MULTI`); the contact button is disabled while sending | Pass |
+| 49 | No personal data in URLs: `?topic=` carries an allow-listed slug only | Pass (review) |
+| 50 | Functions log only their own exceptions, never request bodies or queries; request logging is off | Pass (review) |
+| 51 | pytest and smoke: forced errors return `{"error":"internal"}` with no trace or path | Pass |
+| 52 | Smoke: the 404 page shows no stack or dev-server banner | Pass |
+| 54 | TLS 1.0 and 1.1 refused, 1.2 and 1.3 accepted (`openssl s_client`, 2026-11-05); Let's Encrypt certificate; CAA allows only `letsencrypt.org`; DNSSEC validates | Pass |
+| 55, 56 | IPs are hashed with SHA-256 and a random daily salt before they reach Redis; nonces and salts come from `crypto.randomUUID()` / `secrets` (unit and pytest check no raw IP is sent) | Pass |
+| 58 | pytest: no `pickle` or `joblib` anywhere in `api/`, no `.pkl` files; the model is a LightGBM text file read in pure Python | Pass |
+| 59 | ESLint in CI; no object merging of request bodies (strict schemas) | Pass (review) |
+| 60 | `npm audit --audit-level=high` in CI: 0; Python functions depend on numpy only | Pass |
+| 61, 62 | Pinned versions, lockfile, SHA-pinned GitHub Actions; no private package names | Pass (review) |
+| 63, 64 | Smoke: no `.map` files, `/.env`, `/.git/config` or `/private/` served | Pass |
+
+DAST (task 5.2): an OWASP ZAP baseline scan of the live domain triggered Vercel's bot protection, which then
+challenged the scanner's own requests, so the scan was repeated against the same production build served locally.
+See the scan note below.
