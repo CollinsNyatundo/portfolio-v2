@@ -136,6 +136,7 @@ tests/smoke/     live-site smoke and security checks (playwright.smoke.config.ts
 - The scroll-craft harness (`shoot.mjs`) injects an inline style, which the strict CSP blocks. Run a scratch copy with Playwright's `bypassCSP: true`; never relax the site's CSP for a test tool.
 - Every `sr-only` element must sit inside a positioned ancestor (body is `relative`; scroll regions are `relative`), or it anchors to the viewport and widens narrow pages.
 - Chain checks and commit with `&&` (`npm run check && git commit …`), never `;`. A formatter run once rewrote an MDX fixture, two tests failed, and a `;` chain still committed and pushed.
+- Never pipe a check into `tail` or `head` inside an `&&` chain (`npm run check | tail && git commit`): the pipe returns `tail`'s exit code, so a failing check still committed and pushed once. Redirect to a file instead (`npm run check > log 2>&1 && …`).
 
 ## Shared agent memory
 
@@ -190,6 +191,7 @@ Rules for editing them:
 - 2026-11-05 — Fraud function scores without lightgbm on Vercel: Stack (Claude Code).
 - 2026-11-05 — Site live; M4.9 notes drafted: Current state (Claude Code).
 - 2026-11-05 — Launch: Current state, Commands, Layout; M5 and M6 checks recorded (Claude Code).
+- 2026-11-05 — Conventions: no pipes in check-and-commit chains (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

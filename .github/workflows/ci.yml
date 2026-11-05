@@ -69,6 +69,8 @@ jobs:
 
       - name: Link and evidence check
         run: npm run links
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Dependency audit (high and above)
         run: npm audit --audit-level=high

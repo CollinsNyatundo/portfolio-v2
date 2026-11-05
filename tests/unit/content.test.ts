@@ -11,7 +11,11 @@ import {
   headings,
   sectionProblems,
 } from "../../scripts/build-content.ts";
-import { collectLinks, isAllowedHost } from "../../scripts/check-links.ts";
+import {
+  checkUrl,
+  collectLinks,
+  isAllowedHost,
+} from "../../scripts/check-links.ts";
 import { demos } from "../../content/projects.ts";
 
 const fixtures = join(process.cwd(), "tests", "fixtures", "content");
@@ -205,6 +209,20 @@ describe("link checker", () => {
     expect(isAllowedHost("http://github.com/CollinsNyatundo")).toBe(false);
     expect(isAllowedHost("https://evil.example.com")).toBe(false);
     expect(isAllowedHost("https://github.com.evil.example")).toBe(false);
+  });
+
+  it("checks bare GitHub repo and profile links through the API", () => {
+    expect(checkUrl("https://github.com/CollinsNyatundo/portfolio-v2")).toBe(
+      "https://api.github.com/repos/CollinsNyatundo/portfolio-v2",
+    );
+    expect(checkUrl("https://github.com/CollinsNyatundo")).toBe(
+      "https://api.github.com/users/CollinsNyatundo",
+    );
+    const blob = "https://github.com/CollinsNyatundo/repo/blob/abc/file.json";
+    expect(checkUrl(blob)).toBe(blob);
+    expect(checkUrl("https://tundotechsystems.com")).toBe(
+      "https://tundotechsystems.com",
+    );
   });
 
   it("collects every evidence, repo and profile link", () => {

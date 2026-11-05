@@ -38,6 +38,16 @@ export const projects: Project[] = [
     year: 2026,
   },
   {
+    slug: "tundotech-systems",
+    title: "TundoTech Systems Website and Assistant",
+    summary:
+      "A full-stack Next.js company site with a chat assistant that answers only from the company's own service and product content.",
+    tags: ["web", "llm", "retrieval", "ai-engineering"],
+    visibility: "private",
+    liveUrl: "https://tundotechsystems.com",
+    year: 2026,
+  },
+  {
     slug: "dspy-sentiment-analyzer",
     title: "Structured LLM Sentiment Analysis with DSPy",
     summary:
