@@ -93,7 +93,7 @@ test.describe("security on the deployed site", () => {
       "/.env",
       "/.env.local",
       "/.git/config",
-      "/private/",
+      "/private",
       "/api/_data/fraud/prep.json",
     ]) {
       const res = await request.get(path, { maxRedirects: 0 });
@@ -104,8 +104,9 @@ test.describe("security on the deployed site", () => {
       (m) => m[1],
     );
     expect(js.length).toBeGreaterThan(0);
+    // Not served: 404, or 403 when the platform declines the request.
     const map = await request.get(`${js[0]}.map`);
-    expect(map.status()).toBe(404);
+    expect([403, 404]).toContain(map.status());
   });
 
   test("13 reflected XSS: query input never reaches the page as markup", async ({

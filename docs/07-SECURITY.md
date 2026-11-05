@@ -218,3 +218,10 @@ few minutes, which is the platform doing its job. "Unit" and "e2e" are the suite
 DAST (task 5.2): an OWASP ZAP baseline scan of the live domain triggered Vercel's bot protection, which then
 challenged the scanner's own requests, so the scan was repeated against the same production build served locally.
 See the scan note below.
+
+**Scan note (2026-11-05).** Semgrep 1.140.0 (`p/python`, `p/typescript`, `p/secrets`, run in Docker) over `app`,
+`components`, `lib`, `api`, `proxy.ts` and `scripts`: 0 findings. The live probes were confirmed one request at a
+time with `curl`, because Playwright's automated requests trip Vercel's bot challenge after a few calls: headers as
+listed; unknown field `admin` returns 400 naming it; `limit=10000` and a 300-character query return 400; `/.env`,
+`/.env.local`, `/.git/config`, `/private` and `/api/_data/fraud/prep.json` return 404; a `.js.map` returns 403;
+unknown API routes return 404; the 404 page shows no stack or dev banner.

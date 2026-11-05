@@ -87,11 +87,19 @@ test.describe("production smoke", () => {
     expect(body.attribution.licence).toBe("CC BY-NC-SA 4.0");
   });
 
-  test("the contact API stays off until configured", async ({ request }) => {
+  test("the contact API is off (503) or, once configured, validates input", async ({
+    request,
+  }) => {
     const res = await request.post("/api/contact", {
       data: {},
       headers: { origin: "https://collinsnyagaka.com" },
     });
+    // 503 until the owner adds the four keys; then an empty body is a 400
+    // with field errors. Either way nothing is sent.
+    expect([503, 400]).toContain(res.status());
+    if (res.status() === 400)
+      expect((await res.json()).error).toBe("validation");
+  });
     expect([503, 403]).toContain(res.status());
   });
 });

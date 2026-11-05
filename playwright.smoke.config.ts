@@ -10,6 +10,9 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"]] : "list",
   use: {
     baseURL: process.env.SMOKE_URL ?? "https://collinsnyagaka.com",
+    // Requests identify themselves as this repository's monitor.
+    userAgent:
+      "collinsnyagaka-smoke/1.0 (+https://github.com/CollinsNyatundo/portfolio-v2)",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });
