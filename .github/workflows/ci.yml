@@ -64,7 +64,7 @@ jobs:
         # The runner's Python 3; dependencies pinned in requirements.txt.
         run: |
           python3 -m venv /tmp/pyenv
-          /tmp/pyenv/bin/pip install --quiet -r requirements.txt pytest==9.2.0
+          /tmp/pyenv/bin/pip install --quiet -r requirements.txt pytest==9.2.0 lightgbm==4.6.0
           /tmp/pyenv/bin/pytest tests/python -q -p no:cacheprovider
 
       - name: Link and evidence check
