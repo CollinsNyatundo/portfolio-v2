@@ -42,8 +42,11 @@ def main(checkout: Path) -> None:
 
     corpus = Corpus(checkout / "skills" / "machine-learning-systems")
     # The demo searches section chunks only; drop the other tables.
-    for table in ("artifacts", "artifact_fts", "cheat", "cheat_fts"):
-        corpus.db.execute(f"DROP TABLE {table}")
+    # Literal statements: table names can't be bound parameters.
+    corpus.db.executescript(
+        "DROP TABLE artifacts; DROP TABLE artifact_fts;"
+        " DROP TABLE cheat; DROP TABLE cheat_fts;"
+    )
     corpus.db.execute("CREATE TABLE chapters(file TEXT PRIMARY KEY, title TEXT)")
     corpus.db.executemany(
         "INSERT INTO chapters(file, title) VALUES (?, ?)",

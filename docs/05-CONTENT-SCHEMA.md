@@ -144,7 +144,8 @@ window data.
 Response `200`:
 ```json
 {
-  "probability": 0.913,
+  "probability": 0.997,
+  "calibratedProbability": 0.709,
   "threshold": "<from optimal_threshold_v2.json>",
   "decision": "flag",
   "topContributions": [{ "feature": "V14", "logOdds": 1.82, "direction": "fraud" }],
@@ -156,7 +157,10 @@ Errors: `400 { error: "validation", fields: { "features.Amount": "must be ≤ 30
 `415` wrong content type, `429 { error: "rate_limited", retryAfterSeconds }`, `500 { error: "internal" }` (no stack
 trace, no model path).
 `topContributions` has exactly 5 items, sorted by absolute contribution, in log-odds (margin) units.
-`probability` = `sigmoid(raw_margin + init_score)` (focal-loss model). The threshold, `init_score` and model version
+`probability` = `sigmoid(raw_margin + init_score)` (focal-loss model). `calibratedProbability` applies the repo's
+Platt calibrator (logistic regression fitted on the validation split, exported as two numbers) to that value; the
+threshold and `decision` use the calibrated value, which is how the repo's reported metrics were produced (verified:
+precision 0.867, recall 0.750 on the test split). The threshold, `init_score` and model version
 come from `optimal_threshold_v2.json` and the model file. Task 0.9 confirms which threshold produced the repo's
 reported metrics (F1 0.80, precision 0.87, recall 0.75 on the time-ordered holdout) before any are quoted.
 
