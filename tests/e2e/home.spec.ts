@@ -68,6 +68,8 @@ test.describe("home page chapters", () => {
   test("the live demo gets its intertitle and Act IV", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByText("Now try one.")).toHaveCount(1);
+    // The demo's code loads as Act IV comes near.
+    await page.locator("#demo").scrollIntoViewIfNeeded();
     await expect(
       page.getByRole("combobox", { name: "Transaction" }),
     ).toBeVisible();
@@ -99,6 +101,7 @@ test.describe("home page chapters", () => {
       }),
     );
     await page.goto("/");
+    await page.locator("#demo").scrollIntoViewIfNeeded();
     await page.getByRole("button", { name: "Score" }).click();
     await expect(page.locator("[data-visitor]").first()).toContainText(
       "you, just now",
