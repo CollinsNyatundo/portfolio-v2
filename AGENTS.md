@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** Live at https://collinsnyagaka.com since 2026-11-05 (Vercel project `portfolio-v2`; DNS, CAA and DNSSEC at Spaceship). M0–M6 done except owner tasks: 0.5, 0.6, 0.8, 4.7 video, real-device and NVDA checks (5.3, 5.4), copy sign-off (5.5), 5.6, 6.4 old-deployment redirects, LinkedIn and GitHub profile links (6.5), Search Console (6.6), spend limit (6.7). The contact form turns on when its four keys are set in Vercel.
+- **Phase:** Live at https://collinsnyagaka.com since 2026-11-05 (Vercel project `portfolio-v2`; DNS, CAA and DNSSEC at Spaceship). M0–M6 done except owner tasks: 0.5, 0.6, 0.8, 4.7 video, real-device and NVDA checks (5.3, 5.4), copy sign-off (5.5), 5.6, retiring `v9-theta.vercel.app`, which is in another Vercel account (6.4), LinkedIn and the GitHub profile README (6.5), Search Console (6.6), spend limit (6.7). The contact form turns on when its four keys are set in Vercel.
 - **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -192,6 +192,7 @@ Rules for editing them:
 - 2026-11-05 — Site live; M4.9 notes drafted: Current state (Claude Code).
 - 2026-11-05 — Launch: Current state, Commands, Layout; M5 and M6 checks recorded (Claude Code).
 - 2026-11-05 — Conventions: no pipes in check-and-commit chains (Claude Code).
+- 2026-11-05 — Old-deployment redirects and profile links: Current state (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
