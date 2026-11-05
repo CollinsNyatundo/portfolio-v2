@@ -45,7 +45,7 @@ metrics:
   - name: PR-AUC
     value: "0.77"
     dataset: Time-ordered holdout, after Platt calibration
-    caveat: The stricter score for rare fraud. The pre-calibration value isn't recorded in the repo.
+    caveat: The stricter score for rare fraud. Platt scaling is monotonic, so it leaves PR-AUC unchanged.
   - name: ROC-AUC
     value: "0.98"
     dataset: Time-ordered holdout
@@ -57,6 +57,12 @@ metrics:
     ledger: true
     ledgerLabel: p95 in-process inference
 evidence:
+  - label: Rebuild with training-only statistics and the validation-block control (scripts/fraud_corrected_eval.py)
+    url: https://github.com/CollinsNyatundo/portfolio-v2/blob/acb41f8a9a8a0993d28bfac97ac7e3ee310c487b/scripts/fraud_corrected_eval.py
+    private: false
+  - label: Results of that rebuild (scripts/fraud_corrected_eval.results.json)
+    url: https://github.com/CollinsNyatundo/portfolio-v2/blob/acb41f8a9a8a0993d28bfac97ac7e3ee310c487b/scripts/fraud_corrected_eval.results.json
+    private: false
   - label: Holdout metrics and latency (reports/end_to_end_optimized_results.json)
     url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/reports/end_to_end_optimized_results.json
     private: false
@@ -79,7 +85,8 @@ evidence:
     url: https://github.com/CollinsNyatundo/creditcard-fraud/blob/d5016073f702b75a8c27934003e32f85d0a6689e/app/main.py
     private: false
 limits:
-  - The scaler and the amount statistics behind three features (overall z-score and the 1st and 99th percentile flags) were computed over data that includes later transactions, not the training block alone. The split by time is real, but this is look-ahead in preprocessing. The metrics here come from that pipeline and will be re-measured with training-only fitting; until then, read them as optimistic.
+  - "The published run fitted the scaler, the time and amount normalisation and three amount features on data that included later transactions. I rebuilt the pipeline with every statistic taken from the training block only and re-ran it. The holdout result is the same within noise: F1 0.80 (0.81 before), precision 0.87, recall 0.75."
+  - "The published model also trained on the validation block and chose its threshold on that block. Trained on the training block alone, the same rule for a recall of 0.85 lands on the lowest threshold and F1 falls to 0.57 (precision 0.46, recall 0.75). The headline depends on that threshold choice, and the holdout holds only 52 frauds."
   - The data is a 2013 European card dataset with PCA-anonymised features. It says nothing about Kenyan card traffic.
   - These numbers come from the repository's own evaluation script. A rerun from a clean clone, with only tracked files, is still to do.
   - Tuning reached F1 0.96 on its validation objective, far above the 0.80 on the holdout. The validation setup flattered the model.
@@ -87,7 +94,7 @@ limits:
 featured: true
 order: 2
 published: true
-updated: "2026-11-04"
+updated: "2026-11-05"
 ---
 
 ## Problem
@@ -106,7 +113,7 @@ Card fraud is rare and expensive. In this dataset it's 0.17% of payments, so a m
   <FraudPipeline />
 </Figure>
 
-I split the data by time, 70/15/15: training on the earliest transactions, tuning and calibrating on the next block, and holding out the last 42,722 for the final test. Not all preprocessing respects that split: see the first limit below.
+I split the data by time, 70/15/15: training on the earliest transactions, tuning and calibrating on the next block, and holding out the last 42,722 for the final test. The published run did not fit every statistic on the training block alone; the first limit below says what that changed.
 
 Beyond the 28 PCA components and the amount, the model sees 50 engineered features. Most describe how a transaction compares with the transactions just before it in time. The dataset has no card identifier, so these windows run over the whole time-ordered stream, not one card's history: rolling means, spreads and z-scores of the amount over the previous 3, 5 and 10 transactions, the time since the last one, and cumulative spending.
 
@@ -142,7 +149,7 @@ The scoring API checks an API key on every route except health and docs, and rat
 
 ## What I'd do next
 
-- Fit the scaler and every population statistic on the training block only, retrain, and re-measure the holdout.
+- Tune on a time-ordered validation block with the threshold chosen out of sample, so the headline no longer depends on the validation block also training the model.
 - Rerun the evaluation from a clean clone and replace these numbers with that run.
 - Measure end-to-end API latency under load, not just the model call.
 - Move the tuning objective onto a time-ordered validation block, so tuning stops overestimating the model.
