@@ -67,7 +67,7 @@ def test_probabilities_match_the_repo_on_1000_test_rows():
     worst = 0.0
     for r in FIXTURE:
         f = fraud.features(r["target"], r["window"], r["priorSum"], r["priorCount"])
-        raw = float(score_fn.booster().predict(fraud.vector(f), raw_score=True)[0])
+        raw = score_fn.booster().raw(fraud.vector(f)[0].tolist())
         worst = max(worst, abs(fraud.calibrated(raw) - r["expected"]["probability"]))
     assert len(FIXTURE) == 1000
     assert worst < 1e-9
@@ -86,6 +86,27 @@ def test_features_match_the_repo():
             assert math.isclose(f[k], v, rel_tol=1e-5, abs_tol=1e-5), (k, f[k], v)
         checked += 1
     assert checked == 100
+
+
+def test_pure_python_scorer_matches_lightgbm():
+    # lightgbm is the reference here only; the function never imports it.
+    lgb = pytest.importorskip("lightgbm")
+    import numpy as np
+
+    ref = lgb.Booster(model_file=str(fraud.DATA_DIR / "model.txt"))
+    model = score_fn.booster()
+    assert model.feature_names == ref.feature_name()
+    for r in FIXTURE[:150]:
+        x = fraud.vector(fraud.features(r["target"], r["window"], r["priorSum"], r["priorCount"]))
+        assert abs(model.raw(x[0].tolist()) - float(ref.predict(x, raw_score=True)[0])) < 1e-9
+        np.testing.assert_allclose(
+            model.contributions(x[0].tolist()), ref.predict(x, pred_contrib=True)[0], atol=1e-9
+        )
+
+
+def test_function_does_not_import_lightgbm():
+    text = (API / "demos" / "fraud" / "score.py").read_text(encoding="utf-8")
+    assert "import lightgbm" not in text
 
 
 def test_model_file_matches_its_recorded_hash():

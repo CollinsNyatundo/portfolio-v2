@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from _lib import fraud  # noqa: E402
+from _lib import fraud, gbdt  # noqa: E402
 from _lib.http import client_ip, rate_limited, send_json  # noqa: E402
 
 MAX_BYTES = 4 * 1024
@@ -31,10 +31,9 @@ RANGES = {
 
 
 @lru_cache(maxsize=1)
-def booster():
-    import lightgbm as lgb  # imported lazily: keeps validation errors fast
-
-    return lgb.Booster(model_file=str(fraud.DATA_DIR / "model.txt"))
+def booster() -> gbdt.Model:
+    # Pure-Python reader: Vercel's image lacks libgomp, which lightgbm needs.
+    return gbdt.load(fraud.DATA_DIR / "model.txt")
 
 
 @lru_cache(maxsize=1)
@@ -81,12 +80,12 @@ def score(sample_id: str, target: dict[str, float]) -> dict:
     started = time.perf_counter()
     s = samples()[sample_id]
     f = fraud.features(target, s["window"], s["priorSum"], s["priorCount"])
-    x = fraud.vector(f)
+    x = fraud.vector(f)[0].tolist()
     b = booster()
     t0 = time.perf_counter()
-    raw = float(b.predict(x, raw_score=True)[0])
+    raw = b.raw(x)
     model_ms = (time.perf_counter() - t0) * 1000
-    contrib = b.predict(x, pred_contrib=True)[0][:-1]  # last column is the bias
+    contrib = b.contributions(x)[:-1]  # last value is the bias
     names = fraud.prep().model_features
     order = sorted(range(len(names)), key=lambda i: -abs(contrib[i]))[:5]
     p = fraud.prep()

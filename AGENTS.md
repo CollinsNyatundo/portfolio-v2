@@ -53,7 +53,7 @@ Content (M2): `@next/mdx` 16.4.5 + `@mdx-js/react` 3.1.1, remark-frontmatter 5, 
 
 Analytics (3.9): `@vercel/analytics` 2.0.1 (cookieless; custom events record only on a Vercel plan that supports them).
 
-Demo functions (4.5, 4.2): Python 3.13 Vercel Functions in `api/` (`.python-version`; search is stdlib only, scoring needs `requirements.txt`: numpy 2.4.6, scipy 1.17.1, lightgbm 4.6.0), `vercel.json` (region `fra1`, bundled files). Tests: pytest 9.2.0 via `uv` locally, `pipx` in CI.
+Demo functions (4.5, 4.2): Python 3.13 Vercel Functions in `api/` (`.python-version`; search is stdlib only, scoring needs only numpy 2.4.6 from `requirements.txt` and reads the LightGBM text model in pure Python, `api/_lib/gbdt.py`, because Vercel's image lacks libgomp; lightgbm 4.6.0 is a test-only reference), `vercel.json` (region `fra1`, bundled files). Tests: pytest 9.2.0 via `uv` locally, `pipx` in CI.
 
 Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash are called over their REST APIs (no SDKs). The form and the Turnstile CSP host switch on only when `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` are all set; rate limits use Upstash when `UPSTASH_REDIS_REST_*` are set, else an in-process window.
 
@@ -183,6 +183,7 @@ Rules for editing them:
 - 2026-11-04 — M4.8 contact form (off until keys): Stack (Claude Code).
 - 2026-11-04 — M4.1–4.4 fraud demo: Current state, Stack, Commands, Layout (Claude Code).
 - 2026-11-05 — M4.6 case studies 4–5 drafted (Claude Code).
+- 2026-11-05 — Fraud function scores without lightgbm on Vercel: Stack (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
