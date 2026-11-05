@@ -1,6 +1,6 @@
 # portfolio-v2
 
-Source of [collinsnyagaka.com](https://collinsnyagaka.com) (in progress): an evidence-first portfolio for Collins
+Source of [collinsnyagaka.com](https://collinsnyagaka.com): an evidence-first portfolio for Collins
 Nyagaka, AI & Machine Learning Engineer, Nairobi.
 
 - Planning documents: [`docs/`](docs/00-README.md)
