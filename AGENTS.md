@@ -77,6 +77,7 @@ Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash ar
 | Link + evidence check (network) | `npm run links` |
 | Python demo-function tests | `npm run test:py` (needs `uv`) |
 | Smoke tests against the live site (or `SMOKE_URL`) | `npm run smoke` |
+| Live security probes (by hand; can trip Vercel's bot challenge for a few minutes) | `npm run smoke:security` |
 | Rebuild the fraud demo data | `python scripts/build_fraud_demo.py <creditcard-fraud checkout at the pinned commit>` (after the repo's own pipeline; see the script) |
 | Rebuild the ML Systems index | `python scripts/build_mlsys_index.py <plugin checkout at the pinned commit>` |
 

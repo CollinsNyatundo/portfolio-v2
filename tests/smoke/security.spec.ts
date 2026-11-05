@@ -43,6 +43,49 @@ test.describe("security on the deployed site", () => {
     }
   });
 
+  test("06, 65 shipped JavaScript holds no secrets", async ({ request }) => {
+    const html = await (await request.get("/")).text();
+    const js = [...html.matchAll(/src="(\/_next\/static\/[^"]+\.js)"/g)].map(
+      (m) => m[1],
+    );
+    for (const src of js) {
+      const body = await (await request.get(src)).text();
+      expect(body, src).not.toMatch(
+        /(sk_live_|re_[A-Za-z0-9]{20,}|TURNSTILE_SECRET|UPSTASH_REDIS_REST_TOKEN|-----BEGIN [A-Z ]*PRIVATE KEY)/,
+      );
+    }
+  });
+
+  test("41, 48, 51 functions reject unknown fields and hide internals", async ({
+    request,
+  }) => {
+    const res = await request.post("/api/demos/fraud/score", {
+      data: { sampleId: "s01", features: {}, admin: true },
+    });
+    expect(res.status()).toBe(400);
+    const text = await res.text();
+    expect(text).not.toMatch(/Traceback|\/var\/task|\.py"|File "/);
+    expect(JSON.parse(text).fields.admin).toBe("is not allowed");
+  });
+
+  test("42, 46 search limits are enforced, long queries refused", async ({
+    request,
+  }) => {
+    expect(
+      (
+        await request.get("/api/demos/mlsys/search?q=drift&limit=10000")
+      ).status(),
+    ).toBe(400);
+    expect(
+      (
+        await request.get(`/api/demos/mlsys/search?q=${"a".repeat(500)}`)
+      ).status(),
+    ).toBe(400);
+  });
+
+  // Probe-like requests (/.env, script payloads, unknown routes) can make
+  // Vercel's bot protection challenge this IP, so they run last, and this
+  // file runs by hand (npm run smoke:security), not on a schedule.
   test("63, 64 no source maps, env files or git metadata are served", async ({
     request,
   }) => {
@@ -63,19 +106,6 @@ test.describe("security on the deployed site", () => {
     expect(js.length).toBeGreaterThan(0);
     const map = await request.get(`${js[0]}.map`);
     expect(map.status()).toBe(404);
-  });
-
-  test("06, 65 shipped JavaScript holds no secrets", async ({ request }) => {
-    const html = await (await request.get("/")).text();
-    const js = [...html.matchAll(/src="(\/_next\/static\/[^"]+\.js)"/g)].map(
-      (m) => m[1],
-    );
-    for (const src of js) {
-      const body = await (await request.get(src)).text();
-      expect(body, src).not.toMatch(
-        /(sk_live_|re_[A-Za-z0-9]{20,}|TURNSTILE_SECRET|UPSTASH_REDIS_REST_TOKEN|-----BEGIN [A-Z ]*PRIVATE KEY)/,
-      );
-    }
   });
 
   test("13 reflected XSS: query input never reaches the page as markup", async ({
@@ -117,33 +147,6 @@ test.describe("security on the deployed site", () => {
       const res = await request.get(path, { maxRedirects: 0 });
       expect([404, 405], path).toContain(res.status());
     }
-  });
-
-  test("41, 48, 51 functions reject unknown fields and hide internals", async ({
-    request,
-  }) => {
-    const res = await request.post("/api/demos/fraud/score", {
-      data: { sampleId: "s01", features: {}, admin: true },
-    });
-    expect(res.status()).toBe(400);
-    const text = await res.text();
-    expect(text).not.toMatch(/Traceback|\/var\/task|\.py"|File "/);
-    expect(JSON.parse(text).fields.admin).toBe("is not allowed");
-  });
-
-  test("42, 46 search limits are enforced, long queries refused", async ({
-    request,
-  }) => {
-    expect(
-      (
-        await request.get("/api/demos/mlsys/search?q=drift&limit=10000")
-      ).status(),
-    ).toBe(400);
-    expect(
-      (
-        await request.get(`/api/demos/mlsys/search?q=${"a".repeat(500)}`)
-      ).status(),
-    ).toBe(400);
   });
 
   test("52 no debug or framework banners in production", async ({

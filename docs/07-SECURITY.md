@@ -174,8 +174,10 @@ tokens removed, and has spend alerts where offered. The detailed checklist is ke
 ## 9. Verification record (task 5.1, 2026-11-05)
 
 Every item marked A or R in §5, with the check that proves it. "Smoke" means `tests/smoke/security.spec.ts` or
-`tests/smoke/prod.spec.ts`, run against the live site (`npm run smoke`, and every 6 hours by
-`.github/workflows/smoke.yml`). "Unit" and "e2e" are the suites in `tests/unit` and `tests/e2e`; "pytest" is
+`tests/smoke/prod.spec.ts`, run against the live site. `npm run smoke` (the page and function checks) also runs
+every 6 hours from `.github/workflows/smoke.yml`. `npm run smoke:security` runs by hand, one request at a time:
+its probes (`/.env`, script payloads, unknown routes) make Vercel's bot protection challenge the caller's IP for a
+few minutes, which is the platform doing its job. "Unit" and "e2e" are the suites in `tests/unit` and `tests/e2e`; "pytest" is
 `tests/python`. N/A items stay N/A while the site has no accounts, database, payments or LLM features.
 
 | # | Check | Result |
