@@ -1,0 +1,42 @@
+---
+slug: scoring-lightgbm-without-lightgbm
+title: Scoring a LightGBM model without the LightGBM library
+summary: The fraud demo's first deploy failed on a missing system library. Reading the model file directly fixed it, and tests show the scores didn't change.
+published: "2026-11-05"
+tags: [ml, mlops, evaluation]
+caseStudy: creditcard-fraud
+draft: false
+---
+
+The fraud demo on this site worked on my machine and returned `500` on its first deploy. The function log said why:
+
+```text
+OSError: libgomp.so.1: cannot open shared object file: No such file or directory
+```
+
+The `lightgbm` Python package ships a compiled library that expects the OpenMP runtime, `libgomp`, to be on the system. Vercel's Python image doesn't include it, and a serverless function can't install system packages.
+
+## The options
+
+I could have moved the demo to a container, or tried to bundle `libgomp` and load it by hand. Both add moving parts to keep a 2-second demo alive. The third option was smaller: the model is already saved as LightGBM's plain-text format, and scoring a tree ensemble is simple arithmetic.
+
+This model only uses numerical splits with no missing values, so each tree is a series of "is this feature at or below this threshold" questions ending in a leaf value. The raw score is the sum of the leaves the transaction lands in, across 304 trees. The loader refuses any model that uses categorical splits or missing-value rules, rather than scoring it wrongly.
+
+## The harder part: the reasons
+
+The demo also shows the five features that pushed a score up or down. LightGBM computes those with TreeSHAP when you ask for `pred_contrib`. I ported LightGBM's own implementation (`Tree::TreeSHAP` and its three helpers) line for line, using each node's training count as its weight, so the numbers would match the library rather than a textbook variant.
+
+## How I know it's the same model
+
+A port is only useful if it agrees with the original, so the tests keep `lightgbm` as a reference and the function never imports it. For 150 held-out transactions, the test checks that the raw score and every one of the 79 contributions match LightGBM to within one billionth. A second test checks that the function file doesn't import `lightgbm` at all.
+
+That sits on top of the earlier check: the site's feature code reproduces the original training pipeline's probabilities on 1,000 held-out rows.
+
+## What it cost
+
+The pure-Python version is slower at the reasons, because TreeSHAP walks every path in every tree. Locally, a score with all its reasons takes about 136 ms. The model call alone is far quicker: one production call reported 0.38 ms, inside a function that took 154 ms end to end. That's well inside the demo's 2-second budget, and the function's bundle no longer carries `lightgbm` or `scipy`.
+
+## Evidence
+
+- [The model reader and TreeSHAP port (api/\_lib/gbdt.py)](https://github.com/CollinsNyatundo/portfolio-v2/blob/f51d4517ed669ad90618635f3ce7661143d92950/api/_lib/gbdt.py)
+- [The parity tests against LightGBM (tests/python/test_fraud.py)](https://github.com/CollinsNyatundo/portfolio-v2/blob/f51d4517ed669ad90618635f3ce7661143d92950/tests/python/test_fraud.py)
