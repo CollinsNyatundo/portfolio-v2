@@ -225,3 +225,14 @@ time with `curl`, because Playwright's automated requests trip Vercel's bot chal
 listed; unknown field `admin` returns 400 naming it; `limit=10000` and a 300-character query return 400; `/.env`,
 `/.env.local`, `/.git/config`, `/private` and `/api/_data/fraud/prep.json` return 404; a `.js.map` returns 403;
 unknown API routes return 404; the 404 page shows no stack or dev banner.
+
+**ZAP baseline (2026-11-05).** OWASP ZAP 2.17.0 `zap-baseline.py` (Docker, 2-minute spider) against `next start` of
+the production build on a local port: **0 FAIL, 5 WARN, 63 PASS**, no High or Medium risk. The warnings, and why each
+stays:
+
+| ZAP rule | Where | Decision |
+|---|---|---|
+| 10038 CSP header not set, 10019 Content-Type missing | `/api` and `/api/` only | Local artefact: the Python functions run only on Vercel, so locally `/api` is an empty response outside `proxy.ts`. Every page carries the nonce CSP |
+| 10027 Suspicious comments | `public/vendor/scrollcraft/scrollcraft.js` | Developer comments in the vendored engine, which is never edited (rule 12); no secrets or internals |
+| 10049 Non-storable content | Pages | Intended: every page renders per request for its CSP nonce (D-28) |
+| 90004 Cross-Origin-Embedder-Policy missing | Pages | Accepted: the site needs no cross-origin isolation, and `frame-ancestors 'none'` plus `X-Frame-Options: DENY` already block framing |

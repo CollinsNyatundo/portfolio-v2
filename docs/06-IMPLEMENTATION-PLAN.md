@@ -86,7 +86,7 @@ Order follows dependencies: pages that others link to first.
 | # | Task | Owner | Definition of done |
 |---|---|---|---|
 | 5.1 | **Done 2026-11-05** (07 §9) Run the 07 checklist end to end; record evidence per applicable item | A | Every "Applies" row has a passing test or a written verification |
-| 5.2 | **Done 2026-11-05** (ZAP baseline on the production build; Semgrep 0 findings; 07 §9) DAST scan of preview (HawkScan / OWASP ZAP baseline) | A | No High/Critical findings |
+| 5.2 | **Done 2026-11-05** (ZAP baseline on the production build: 0 FAIL, 5 accepted WARN; Semgrep 0 findings; 07 §9) DAST scan of preview (HawkScan / OWASP ZAP baseline) | A | No High/Critical findings |
 | 5.3 | **Lab done 2026-11-05** (real-device check is the owner's) Lighthouse CI budgets + real-device check (mid-range Android on 4G and an iPhone over `serve.mjs --lan`, stopped afterwards) | A | 02 §8 targets met |
 | 5.3b | **Harness done 2026-11-05** (no dead scroll at desktop, 390 × 844, reduced motion; the felt check is the owner's) Scroll-craft Step 5: harness at desktop, 390 × 844 and reduced motion; read `sheet.png`; **feel check** (scroll cold, one word per act, diff against the BRIEF curve; fix the page, not the brief) | A + O | Report in the build folder; peak reads as the peak; ending resolves |
 | 5.4 | **Automated done 2026-11-05** (axe 0 on every sitemap URL at 375 and 1440 px; NVDA pass is the owner's) Accessibility: axe on all routes + manual keyboard + NVDA pass on Home, case study, fraud demo | O+A | 0 violations; manual issues fixed |
