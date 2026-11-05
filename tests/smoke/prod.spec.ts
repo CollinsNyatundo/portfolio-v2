@@ -100,6 +100,4 @@ test.describe("production smoke", () => {
     if (res.status() === 400)
       expect((await res.json()).error).toBe("validation");
   });
-    expect([503, 403]).toContain(res.status());
-  });
 });
