@@ -47,7 +47,7 @@ test.describe("case study page", () => {
       as.map((a) => a.getAttribute("href")),
     )) {
       expect(href).toMatch(
-        /^https:\/\/github\.com\/CollinsNyatundo\/creditcard-fraud\/blob\/[0-9a-f]{40}\//,
+        /^https:\/\/github\.com\/CollinsNyatundo\/(creditcard-fraud|portfolio-v2)\/blob\/[0-9a-f]{40}\//,
       );
     }
   });
