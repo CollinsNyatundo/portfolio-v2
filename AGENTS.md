@@ -182,6 +182,7 @@ Rules for editing them:
 - 2026-11-04 — M4.10 /cv page: Layout (Claude Code).
 - 2026-11-04 — M4.8 contact form (off until keys): Stack (Claude Code).
 - 2026-11-04 — M4.1–4.4 fraud demo: Current state, Stack, Commands, Layout (Claude Code).
+- 2026-11-05 — M4.6 case studies 4–5 drafted (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
