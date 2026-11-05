@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import sys
+import traceback
 import time
 from functools import lru_cache
 from http.server import BaseHTTPRequestHandler
@@ -142,6 +143,8 @@ class handler(BaseHTTPRequestHandler):
                 return
             send_json(self, 200, score(req["sampleId"], req["features"]))
         except Exception:
+            # Server-side log only: the error, never the request body.
+            traceback.print_exc(file=sys.stderr)
             # No stack trace or model path leaves the function (07 item 23).
             send_json(self, 500, {"error": "internal"})
 

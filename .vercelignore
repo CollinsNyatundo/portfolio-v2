@@ -1,0 +1,12 @@
+# Never upload owner-only or local material (AGENTS.md rules 5 and 11).
+private/
+.env*
+.remember/
+design/
+tests/
+test-results/
+playwright-report/
+.lighthouseci/
+.impeccable/
+__pycache__/
+*.pyc
