@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import traceback
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -38,6 +39,8 @@ class handler(BaseHTTPRequestHandler):
                 return
             send_json(self, 200, {"results": search(text, count), "attribution": ATTRIBUTION})
         except Exception:
+            # Server-side log only: the error, never the request body.
+            traceback.print_exc(file=sys.stderr)
             # No stack trace or file path leaves the function (07 item 23).
             send_json(self, 500, {"error": "internal"})
 
