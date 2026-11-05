@@ -35,9 +35,12 @@ export function isAllowedHost(url: string): boolean {
   );
 }
 
-export function collectLinks(contentDir: string): Link[] {
+export function collectLinks(
+  contentDir: string,
+  demoList?: Parameters<typeof buildIndex>[1],
+): Link[] {
   const links: Link[] = [];
-  const { caseStudies } = buildIndex(contentDir);
+  const { caseStudies } = buildIndex(contentDir, demoList);
   for (const c of caseStudies) {
     const where = `case-studies/${c.slug}`;
     if (c.repoUrl) links.push({ url: c.repoUrl, where });

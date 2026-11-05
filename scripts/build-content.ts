@@ -145,7 +145,14 @@ function mdxFiles(dir: string): string[] {
   }
 }
 
-export function buildIndex(contentDir: string): ContentIndex {
+/**
+ * Validate content and build the index. Demos come from content/projects.ts
+ * unless a caller (a test with fixture content) passes its own list.
+ */
+export function buildIndex(
+  contentDir: string,
+  demoList: Demo[] = demos,
+): ContentIndex {
   const problems: string[] = [];
   const caseStudies: CaseStudyFrontmatter[] = [];
   const notes: NoteFrontmatter[] = [];
@@ -210,9 +217,11 @@ export function buildIndex(contentDir: string): ContentIndex {
   problems.push(...aboutProblems(focusAreas, principles));
   problems.push(...skillProblems(skills));
 
-  const demoSlugs = new Set(demos.map((d) => d.slug));
-  demos.forEach((d, i) => check(demo, d, `demos[${i}] (${d.slug})`, problems));
-  problems.push(...demoReferenceProblems(demos, caseStudies));
+  const demoSlugs = new Set(demoList.map((d) => d.slug));
+  demoList.forEach((d, i) =>
+    check(demo, d, `demos[${i}] (${d.slug})`, problems),
+  );
+  problems.push(...demoReferenceProblems(demoList, caseStudies));
   for (const c of caseStudies) {
     if (c.demo && !demoSlugs.has(c.demo))
       problems.push(

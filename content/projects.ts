@@ -81,7 +81,11 @@ export const projects: Project[] = [
   },
 ];
 
-/** Live demos (D-08). Both are offline until their functions ship in M4. */
+/**
+ * Live demos (D-08). The fraud demo is live, which also shows home Act IV.
+ * The search demo works on its page, but stays "offline" here: a live demo
+ * must point at a published case study, and the MCP server is a project card.
+ */
 export const demos: Demo[] = [
   {
     slug: "fraud",
@@ -89,7 +93,7 @@ export const demos: Demo[] = [
     summary:
       "Score a real credit-card transaction and see the decision and its five strongest reasons.",
     endpoint: "/api/demos/fraud/score",
-    status: "offline",
+    status: "live",
     caseStudy: "creditcard-fraud",
     modelCard: {
       data: "ULB credit-card transactions (284,807 rows, 0.17% fraud), PCA-anonymised, CC BY-NC-SA 4.0",
