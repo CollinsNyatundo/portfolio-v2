@@ -66,6 +66,15 @@ const components: MDXComponents = {
     <ol className="mt-5 max-w-[62ch] list-decimal space-y-2 pl-6" {...props} />
   ),
   a: A,
+  // Code blocks scroll inside themselves (focusable for keyboard users)
+  // instead of widening the page.
+  pre: (props) => (
+    <pre
+      tabIndex={0}
+      className="bg-surface-2 relative my-6 max-w-[62ch] overflow-x-auto rounded-sm p-4 font-mono text-sm"
+      {...props}
+    />
+  ),
   code: (props) => (
     <code
       className="bg-surface-2 rounded-sm px-1 text-[0.9em] [overflow-wrap:anywhere]"

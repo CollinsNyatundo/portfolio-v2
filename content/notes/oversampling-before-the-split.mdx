@@ -1,0 +1,45 @@
+---
+slug: oversampling-before-the-split
+title: Oversampling before the split made my model look better than it was
+summary: On a cropland project, SMOTE ran before the train-test split. The score dropped once I measured on untouched points, and the baseline put it in context.
+published: "2026-11-05"
+tags: [ml, evaluation, data]
+caseStudy: geo-ai-cropland-mapping
+draft: false
+---
+
+On the GEO-AI cropland challenge, our team had 1,000 labelled points, 297 of them cropland. That imbalance pushed us to SMOTE, which invents new minority-class points between real ones. In the run that looked best, the order was:
+
+1. oversample the whole dataset with SMOTE,
+2. then split it into training and test sets.
+
+RandomForest scored 0.759 accuracy on that test set.
+
+## Why that number was wrong
+
+SMOTE builds each synthetic point from a real point and its neighbours. Once you split after oversampling, the test set holds synthetic points whose parents sit in the training set, and training holds synthetic copies built from test points. The model is partly graded on near-copies of what it studied.
+
+The fix is to split first, then oversample only inside the training data.
+
+## The honest number
+
+In the final comparison, every model was scored on the same 200 real, labelled points held out from the 1,000. RandomForest reached 0.745 accuracy.
+
+That still sounds fine until you check the baseline. 703 of the 1,000 points are non-cropland, so a "model" that always answers "not cropland" scores 0.703. The real gain over doing nothing was about 4 points of accuracy.
+
+The stacked ensemble we built on top, with a small neural network as the last layer, scored 0.725 on the same points: below the single RandomForest it was built from.
+
+## The second leak I didn't fix in time
+
+The split was also random. Nearby fields look alike, so a random split puts a field's neighbour in training and the field in test. A spatial split, holding out whole blocks of land, measures what the model would do on ground it hasn't seen. The project notes said spatial validation was essential. We didn't do it, so even 0.745 is probably optimistic.
+
+## What I do now
+
+- Split first. Every resampling, scaling or feature-selection step is fitted on training data only.
+- Report a trivial baseline next to every score.
+- Match the split to how the model will be used: by time for fraud, by place for maps.
+
+## Evidence
+
+- [The notebook, with every run and its output (index.ipynb)](https://github.com/CollinsNyatundo/phase5/blob/8b5f0d49bfb16ce7b436f692e2fcf409d5e28d84/index.ipynb)
+- [The case study, with the limits stated](/work/geo-ai-cropland-mapping)

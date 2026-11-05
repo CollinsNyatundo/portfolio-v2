@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { publishedCaseStudies } from "@/lib/content";
+import { publishedCaseStudies, publishedNotes, showNotes } from "@/lib/content";
 import { absoluteUrl } from "@/lib/seo";
 
 /** Every public page; filtered views (?tag=, ?topic=) are left out. */
@@ -20,5 +20,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: absoluteUrl(`/work/${s.slug}`),
     lastModified: s.updated,
   }));
-  return [...pages, ...studies];
+  const notes = showNotes()
+    ? [
+        { url: absoluteUrl("/notes") },
+        ...publishedNotes().map((n) => ({
+          url: absoluteUrl(`/notes/${n.slug}`),
+          lastModified: n.updated ?? n.published,
+        })),
+      ]
+    : [];
+  return [...pages, ...studies, ...notes];
 }

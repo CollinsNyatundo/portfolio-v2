@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CvLink } from "./cv-link";
 import { mailtoHref, site } from "@/content/site";
+import { showNotes } from "@/lib/content";
 import { ThemeToggle } from "./theme-toggle";
 
 type FolioProps = {
@@ -21,17 +22,20 @@ const sections = [
 function FolioLinks({ currentPath }: { currentPath?: string }) {
   return (
     <ul className="flex flex-col gap-1 font-sans text-sm">
-      {sections.map((section) => (
-        <li key={section.href}>
-          <Link
-            href={section.href}
-            aria-current={section.href === currentPath ? "page" : undefined}
-            className="text-text inline-flex min-h-11 items-center no-underline hover:underline lg:min-h-0"
-          >
-            {section.label}
-          </Link>
-        </li>
-      ))}
+      {sections
+        // Notes appears only once at least two exist (docs/03 §2).
+        .filter((section) => section.href !== "/notes" || showNotes())
+        .map((section) => (
+          <li key={section.href}>
+            <Link
+              href={section.href}
+              aria-current={section.href === currentPath ? "page" : undefined}
+              className="text-text inline-flex min-h-11 items-center no-underline hover:underline lg:min-h-0"
+            >
+              {section.label}
+            </Link>
+          </li>
+        ))}
       <li>
         <a
           href={mailtoHref}

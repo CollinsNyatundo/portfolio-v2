@@ -33,11 +33,11 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** M3 done. M4: 4.5 search, 4.8 contact form (off until keys) and 4.10 `/cv` merged. Branch `feat/m4-fraud-demo`: 4.1–4.4 fraud demo (parity-tested export, Python scoring function, `/demos/fraud`, home Act IV). Act IV shows once `demos.fraud.status` is not `offline` (set after the first deploy). Open: 1.5 Vercel (owner).
+- **Phase:** Live at https://collinsnyagaka.com (Vercel project `portfolio-v2`, DNS at Spaceship with CAA and DNSSEC). M3 and M4 merged except 4.7 (owner video). Branch `feat/m4-notes`: 4.9 two notes and the `/notes` pages, awaiting owner approval. Next: M5 quality pass, 6.4 old-deployment redirects (owner).
 - **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
-- **Known gaps:** `/notes` returns 404 until the notes ship (4.9). Python functions run only on Vercel; locally the demo pages show their recorded example. The CV at `/cv/Collins_Nyagaka_CV.pdf` is the phone-free public copy; its HTML source and the owner's copy (with phone) are in `private/cv/` (`node private/cv/render.mjs` prints both).
+- **Known gaps:** Python functions run only on Vercel; locally the demo pages show their recorded example. The CV at `/cv/Collins_Nyagaka_CV.pdf` is the phone-free public copy; its HTML source and the owner's copy (with phone) are in `private/cv/` (`node private/cv/render.mjs` prints both).
 - **Waiting on owner:** M0 tasks 0.4–0.8 and follow-ups (details in `private/planning/`); 1.5 Vercel link; domain purchase at M6.
 - **Last updated:** 2026-11-04
 
@@ -184,6 +184,7 @@ Rules for editing them:
 - 2026-11-04 — M4.1–4.4 fraud demo: Current state, Stack, Commands, Layout (Claude Code).
 - 2026-11-05 — M4.6 case studies 4–5 drafted (Claude Code).
 - 2026-11-05 — Fraud function scores without lightgbm on Vercel: Stack (Claude Code).
+- 2026-11-05 — Site live; M4.9 notes drafted: Current state (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

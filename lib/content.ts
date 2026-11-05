@@ -47,6 +47,10 @@ export function publishedNotes(): NoteFrontmatter[] {
 }
 
 /** The Notes section only appears once at least two notes exist (docs/03 §2). */
+export function noteBySlug(slug: string): NoteFrontmatter | undefined {
+  return publishedNotes().find((n) => n.slug === slug);
+}
+
 export function showNotes(): boolean {
   return publishedNotes().length >= 2;
 }
