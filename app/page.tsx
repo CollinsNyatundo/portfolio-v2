@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { headers } from "next/headers";
-import { Suspense } from "react";
-import { FraudDemo } from "@/components/demos/fraud-demo";
+import { LazyFraudDemo } from "@/components/home/lazy-fraud-demo";
 import { principles } from "@/content/about";
 import { jsonLdHtml, personJsonLd } from "@/lib/seo";
 import Link from "next/link";
@@ -290,9 +289,7 @@ export default async function Home() {
                     before it. Score it, change it, score it again.
                   </p>
                   <div className="mt-8">
-                    <Suspense fallback={null}>
-                      <FraudDemo writesLedger />
-                    </Suspense>
+                    <LazyFraudDemo />
                   </div>
                 </div>
               </section>
