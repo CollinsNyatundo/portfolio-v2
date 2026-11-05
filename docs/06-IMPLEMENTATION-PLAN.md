@@ -1,6 +1,6 @@
 # 06 — Implementation Plan
 
-**Version:** 0.4 · **Date:** 2026-11-04 · Depends on: 01–05, 07, 08
+**Version:** 1.0 · **Date:** 2026-11-05 · Depends on: 01–05, 07, 08
 
 Rule for every milestone: **before moving on, run the site, verify that milestone's acceptance criteria, and record
 any unresolved issue** in the private review notes (`private/planning/reviews/`, git-ignored) and in the shared agent memory (`agent-memory/projects/portfolio/`).
@@ -31,7 +31,7 @@ Owners: **O** = Collins (owner), **A** = coding agent (Claude Code / Codex), **O
 | 1.2 | **Done 2026-11-03** Scaffold Next.js 16 (App Router, TS strict, ESLint, Prettier, Tailwind v4) — confirm versions with `ctx7` first | A | App skeleton | `npm run build` passes; Node 24 pinned in `engines` and `.nvmrc` |
 | 1.3 | **Done 2026-11-03** Tooling: Vitest, Playwright, axe, Lighthouse CI, gitleaks pre-commit (husky), `.gitignore` incl. `.env*`, `.remember/`, `.vercel/` | A | Configs | Each script runs locally and in CI |
 | 1.4 | **Done 2026-11-03** GitHub Actions CI (all checks listed in 02 §9) | A | `.github/workflows/ci.yml` | Green on an empty app |
-| 1.5 | Vercel project linked; preview deploys on PR; Deployment Protection on previews | O+A | Vercel project | PR shows preview URL |
+| 1.5 | **Done 2026-11-05** (project `portfolio-v2`, previews protected) Vercel project linked; preview deploys on PR; Deployment Protection on previews | O+A | Vercel project | PR shows preview URL |
 | 1.6 | **Done 2026-11-03** Security headers in `next.config.ts` + per-request nonce CSP in `proxy.ts` (07 §4, D-28) | A | Config + test | `curl -I` shows all headers; Playwright test asserts them |
 | 1.7 | **Done 2026-11-03** Design tokens (04 §4, `--sc-*` aliases), Newsreader + Geist fonts, base layout (folio, colophon, skip link, theme toggle); vendor the scroll-craft engine unmodified | A | Layout | Renders at 320/768/1280 px; axe 0 violations; engine files byte-identical to the plugin's |
 
@@ -61,8 +61,8 @@ Order follows dependencies: pages that others link to first.
 | 3.6 | **Done 2026-11-04** Work index with filters | A | `/work` | `?tag=` works with back button |
 | 3.7 | **Done 2026-11-04 (owner approved narrative)** About + experience timeline + certifications | O+A | `/about` | Owner approves narrative |
 | 3.8 | **Done 2026-11-04** Contact page (no form yet) | A | `/contact` | Copy-email works; freelance link to TundoTech |
-| 3.9 | CV PDF in `public/cv/` + download event | O+A | PDF | AC-2 |
-| 3.10 | SEO: metadata, `next/og` images, JSON-LD, sitemap, robots | A | — | Rich-results test passes; LinkedIn Post Inspector preview correct |
+| 3.9 | **Done 2026-11-04** CV PDF in `public/cv/` + download event | O+A | PDF | AC-2 |
+| 3.10 | **Done 2026-11-04** (rich-results and LinkedIn inspector checks are the owner's, on the live URL) SEO: metadata, `next/og` images, JSON-LD, sitemap, robots | A | — | Rich-results test passes; LinkedIn Post Inspector preview correct |
 
 **Checkpoint M3:** J1 and J2 (without demo) work end to end on preview.
 
@@ -70,43 +70,43 @@ Order follows dependencies: pages that others link to first.
 
 | # | Task | Owner | Output | Definition of done |
 |---|---|---|---|---|
-| 4.1 | Export fraud preprocessor params, amount-bin edges, cluster centroids, threshold and `init_score` to JSON; reimplement window features; verify probabilities equal the repo pipeline on 1 000 test rows (max abs diff < 1e-9) | A | `demos/fraud/prep.json`, parity test | pytest green |
-| 4.2 | Python function `/api/demos/fraud/score` (no pickle; `pred_contrib`), Pydantic validation, rate limit | A | Function | Contract tests for 200/400/413/415/429; p95 warm < 2 s on preview |
-| 4.3 | Samples endpoint (each with its 10-transaction window) + recorded example JSON + dataset attribution | A | Static JSON | 20 samples, label-balanced; licence credit shown |
-| 4.4 | Fraud demo UI (03 §5 states), also mounted as the pinned Act IV peak on the home page; writes the visitor's run to the ledger | A | `/demos/fraud` + home Act IV | Keyboard-only run works; axe 0; Act IV has the largest span on the contact sheet |
-| 4.5 | ML Systems search function (FTS5, bound params) + UI + attribution | A | `/demos/ml-systems-search` | Injection test strings return 200/empty, never 500 |
-| 4.6 | Case studies 4–5: **Production AI Reference Template**, **GEO-AI Cropland Mapping** | O+A | MDX | Same rules as 3.3 |
+| 4.1 | **Done 2026-11-04** (parity 2e-18 on 1 000 rows) Export fraud preprocessor params, amount-bin edges, cluster centroids, threshold and `init_score` to JSON; reimplement window features; verify probabilities equal the repo pipeline on 1 000 test rows (max abs diff < 1e-9) | A | `demos/fraud/prep.json`, parity test | pytest green |
+| 4.2 | **Done 2026-11-05** (pure-Python scorer, D-31) Python function `/api/demos/fraud/score` (no pickle; `pred_contrib`), Pydantic validation, rate limit | A | Function | Contract tests for 200/400/413/415/429; p95 warm < 2 s on preview |
+| 4.3 | **Done 2026-11-04** Samples endpoint (each with its 10-transaction window) + recorded example JSON + dataset attribution | A | Static JSON | 20 samples, label-balanced; licence credit shown |
+| 4.4 | **Done 2026-11-05** Fraud demo UI (03 §5 states), also mounted as the pinned Act IV peak on the home page; writes the visitor's run to the ledger | A | `/demos/fraud` + home Act IV | Keyboard-only run works; axe 0; Act IV has the largest span on the contact sheet |
+| 4.5 | **Done 2026-11-04** ML Systems search function (FTS5, bound params) + UI + attribution | A | `/demos/ml-systems-search` | Injection test strings return 200/empty, never 500 |
+| 4.6 | **Done 2026-11-05 (owner approved wording)** Case studies 4–5: **Production AI Reference Template**, **GEO-AI Cropland Mapping** | O+A | MDX | Same rules as 3.3 |
 | 4.7 | LegalAI walkthrough video (demo tenant only — no client data on screen) + captions | O | MP4 + VTT | Captions accurate; no PII visible |
-| 4.8 | Contact form (Turnstile, honeypot, rate limit, Resend) — P1 | A | `/api/contact` | 07 checks for items 15, 17, 45, 50 pass |
-| 4.9 | Notes (2) — P0 (D-22) | O+A | MDX | Both published at launch |
-| 4.10 | `/cv` HTML page — P1 | A | Page | Print preview fits 2 pages |
+| 4.8 | **Built 2026-11-04, off until the owner adds the keys** Contact form (Turnstile, honeypot, rate limit, Resend) — P1 | A | `/api/contact` | 07 checks for items 15, 17, 45, 50 pass |
+| 4.9 | **Done 2026-11-05 (owner approved wording)** Notes (2) — P0 (D-22) | O+A | MDX | Both published at launch |
+| 4.10 | **Done 2026-11-04** `/cv` HTML page — P1 | A | Page | Print preview fits 2 pages |
 
 ## Milestone 5 — Quality
 
 | # | Task | Owner | Definition of done |
 |---|---|---|---|
-| 5.1 | Run the 07 checklist end to end; record evidence per applicable item | A | Every "Applies" row has a passing test or a written verification |
-| 5.2 | DAST scan of preview (HawkScan / OWASP ZAP baseline) | A | No High/Critical findings |
-| 5.3 | Lighthouse CI budgets + real-device check (mid-range Android on 4G and an iPhone over `serve.mjs --lan`, stopped afterwards) | A | 02 §8 targets met |
-| 5.3b | Scroll-craft Step 5: harness at desktop, 390 × 844 and reduced motion; read `sheet.png`; **feel check** (scroll cold, one word per act, diff against the BRIEF curve; fix the page, not the brief) | A + O | Report in the build folder; peak reads as the peak; ending resolves |
-| 5.4 | Accessibility: axe on all routes + manual keyboard + NVDA pass on Home, case study, fraud demo | O+A | 0 violations; manual issues fixed |
-| 5.5 | Copy edit (plain English, numbers with context, no banned words from 04 §1) | O+A | Owner sign-off |
+| 5.1 | **Done 2026-11-05** (07 §9) Run the 07 checklist end to end; record evidence per applicable item | A | Every "Applies" row has a passing test or a written verification |
+| 5.2 | **Done 2026-11-05** (ZAP baseline on the production build; Semgrep 0 findings; 07 §9) DAST scan of preview (HawkScan / OWASP ZAP baseline) | A | No High/Critical findings |
+| 5.3 | **Lab done 2026-11-05** (real-device check is the owner's) Lighthouse CI budgets + real-device check (mid-range Android on 4G and an iPhone over `serve.mjs --lan`, stopped afterwards) | A | 02 §8 targets met |
+| 5.3b | **Harness done 2026-11-05** (no dead scroll at desktop, 390 × 844, reduced motion; the felt check is the owner's) Scroll-craft Step 5: harness at desktop, 390 × 844 and reduced motion; read `sheet.png`; **feel check** (scroll cold, one word per act, diff against the BRIEF curve; fix the page, not the brief) | A + O | Report in the build folder; peak reads as the peak; ending resolves |
+| 5.4 | **Automated done 2026-11-05** (axe 0 on every sitemap URL at 375 and 1440 px; NVDA pass is the owner's) Accessibility: axe on all routes + manual keyboard + NVDA pass on Home, case study, fraud demo | O+A | 0 violations; manual issues fixed |
+| 5.5 | **Lint done 2026-11-05** (`tests/unit/copy.test.ts`; owner sign-off pending) Copy edit (plain English, numbers with context, no banned words from 04 §1) | O+A | Owner sign-off |
 | 5.6 | Cross-check CV, LinkedIn, site, GitHub README for consistency | O | Same title, roles, metrics everywhere |
 
 ## Milestone 6 — Release
 
 | # | Task | Owner | Definition of done |
 |---|---|---|---|
-| 6.1 | Buy domain `collinsnyagaka.com` (D-15) at Porkbun — **owner approves the purchase** | O | Domain registered, auto-renew on, WHOIS privacy on |
-| 6.2 | DNS → Vercel, DNSSEC, CAA; HTTPS issued; `www` → apex | O+A | SSL Labs A+; HSTS header present |
-| 6.3 | Production deploy; smoke tests against prod | A | Playwright smoke green on prod URL |
+| 6.1 | **Done 2026-11-05** (owner bought it at Spaceship) Buy domain `collinsnyagaka.com` (D-15) at Porkbun — **owner approves the purchase** | O | Domain registered, auto-renew on, WHOIS privacy on |
+| 6.2 | **Done 2026-11-05** (DNSSEC on, CAA set, TLS 1.2+ only) DNS → Vercel, DNSSEC, CAA; HTTPS issued; `www` → apex | O+A | SSL Labs A+; HSTS header present |
+| 6.3 | **Done 2026-11-05** (`npm run smoke`, 28 checks) Production deploy; smoke tests against prod | A | Playwright smoke green on prod URL |
 | 6.4 | Redirect old deployments (`collins-nyagaka-portfolio.vercel.app`, `portfolio-collins-nyagakas-projects.vercel.app`, `v9-theta`, `v11-two`) via `vercel.ts` redirects in those projects, or retire them | O+A | Each returns 308 to the new domain (or 404 if retired) |
-| 6.5 | Update LinkedIn website + Featured, GitHub profile `websiteUrl` + README, CV header link | O | All point to the new domain |
+| 6.5 | **Partly done 2026-11-05** (CV header links the site; LinkedIn and GitHub profile are the owner's) Update LinkedIn website + Featured, GitHub profile `websiteUrl` + README, CV header link | O | All point to the new domain |
 | 6.6 | Search Console + Bing Webmaster verification, submit sitemap | O | Sitemap accepted |
-| 6.7 | Monitoring: Vercel uptime check on `/` and demo health routes; spend limit / alerts; weekly link-check cron | O+A | Alert reaches owner email in a test |
-| 6.8 | Rollback rehearsal: promote previous deployment and back | A | Done in < 2 min |
-| 6.8b | Append the build's row to `design/scrollcraft/FINGERPRINTS.md` (all six dimensions + world) | A | Row present |
-| 6.9 | Retro + update docs, `AGENTS.md` and `CLAUDE.md` to "as built"; vault handoff | A | `log.md` entry; docs version 1.0; AGENTS.md Commands table has no _TBD_ |
+| 6.7 | **Partly done 2026-11-05** (`smoke.yml` every 6 h; spend limit and alerts are the owner's) Monitoring: Vercel uptime check on `/` and demo health routes; spend limit / alerts; weekly link-check cron | O+A | Alert reaches owner email in a test |
+| 6.8 | **Done 2026-11-05** (rollback and restore in 31 s) Rollback rehearsal: promote previous deployment and back | A | Done in < 2 min |
+| 6.8b | **Done 2026-11-05** Append the build's row to `design/scrollcraft/FINGERPRINTS.md` (all six dimensions + world) | A | Row present |
+| 6.9 | **Done 2026-11-05** Retro + update docs, `AGENTS.md` and `CLAUDE.md` to "as built"; vault handoff | A | `log.md` entry; docs version 1.0; AGENTS.md Commands table has no _TBD_ |
 
 ## Indicative timeline (part-time, ~10 h/week)
 

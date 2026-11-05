@@ -1,6 +1,6 @@
 # 05 — Content & Data Schema
 
-**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [02-TRD](02-TRD.md), [03-APP-FLOW](03-APP-FLOW.md)
+**Version:** 1.0 · **Date:** 2026-11-05 · Depends on: [02-TRD](02-TRD.md), [03-APP-FLOW](03-APP-FLOW.md)
 
 The template calls this "Backend Schema". v1 has **no database** (D-03), so this document defines the stored data
 that does exist: typed content files in Git, demo request/response contracts, and the only server-side state

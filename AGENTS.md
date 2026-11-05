@@ -33,7 +33,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
-- **Phase:** Live at https://collinsnyagaka.com (Vercel project `portfolio-v2`, DNS at Spaceship with CAA and DNSSEC). M3 and M4 merged except 4.7 (owner video). Branch `feat/m4-notes`: 4.9 two notes and the `/notes` pages, awaiting owner approval. Next: M5 quality pass, 6.4 old-deployment redirects (owner).
+- **Phase:** Live at https://collinsnyagaka.com since 2026-11-05 (Vercel project `portfolio-v2`; DNS, CAA and DNSSEC at Spaceship). M0–M6 done except owner tasks: 0.5, 0.6, 0.8, 4.7 video, real-device and NVDA checks (5.3, 5.4), copy sign-off (5.5), 5.6, 6.4 old-deployment redirects, LinkedIn and GitHub profile links (6.5), Search Console (6.6), spend limit (6.7). The contact form turns on when its four keys are set in Vercel.
 - **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
@@ -76,6 +76,8 @@ Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash ar
 | Validate content and write the index | `npm run content` (runs automatically before dev, build, typecheck and tests) |
 | Link + evidence check (network) | `npm run links` |
 | Python demo-function tests | `npm run test:py` (needs `uv`) |
+| Smoke tests against the live site (or `SMOKE_URL`) | `npm run smoke` |
+| Live security probes (by hand; can trip Vercel's bot challenge for a few minutes) | `npm run smoke:security` |
 | Rebuild the fraud demo data | `python scripts/build_fraud_demo.py <creditcard-fraud checkout at the pinned commit>` (after the repo's own pipeline; see the script) |
 | Rebuild the ML Systems index | `python scripts/build_mlsys_index.py <plugin checkout at the pinned commit>` |
 
@@ -101,8 +103,10 @@ lib/             security-headers.ts (CSP builder), content.ts (typed content), 
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe      tests/python/   pytest (demo functions)
+tests/smoke/     live-site smoke and security checks (playwright.smoke.config.ts)
 .github/workflows/ci.yml     CI: gitleaks, content, lint, typecheck, format, unit, links, audit, build, e2e, Lighthouse
 .github/workflows/links.yml  nightly link check
+.github/workflows/smoke.yml  production smoke every 6 hours
 ```
 
 ## Hard rules (do not break without a new decision in docs/00-README.md)
@@ -185,6 +189,7 @@ Rules for editing them:
 - 2026-11-05 — M4.6 case studies 4–5 drafted (Claude Code).
 - 2026-11-05 — Fraud function scores without lightgbm on Vercel: Stack (Claude Code).
 - 2026-11-05 — Site live; M4.9 notes drafted: Current state (Claude Code).
+- 2026-11-05 — Launch: Current state, Commands, Layout; M5 and M6 checks recorded (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

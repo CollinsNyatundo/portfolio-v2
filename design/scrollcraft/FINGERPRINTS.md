@@ -28,9 +28,8 @@ changes only grammar and world will fail it.
 
 | Build | Grammar | Nav treatment | Hero device | Act-sequence shape | Close pattern | Signature move | World | Port |
 |---|---|---|---|---|---|---|---|---|
+| portfolio-home (collinsnyagaka.com, shipped 2026-11-05) | 2.2 Chaptered editorial | Folio in the outer margin (slim top line on mobile), no fixed bar | Static title page: staggered type set over technical-drawing depth planes, no scrub | 7 acts, calm to one peak to calm: title, Problem, Method, Work, intertitle, IV live demo (the only pin), colophon | Ledger becomes the colophon table, then one running-text "Email Collins" | Evidence ledger: real figures register as they pass the reading line, and the visitor's own demo run is written in | Technical drawing on paper, distinct scenes | Next.js 16, Vercel |
 
-*(empty: your first build has nothing to clear, so build whatever the interview
-points at. From the second onwards, this table is the constraint.)*
 
 ---
 

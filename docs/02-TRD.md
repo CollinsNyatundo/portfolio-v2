@@ -1,6 +1,6 @@
 # 02 — Technical Requirements Document (TRD)
 
-**Version:** 0.3 · **Date:** 2026-11-03 · Depends on: [01-PRD](01-PRD.md)
+**Version:** 1.0 · **Date:** 2026-11-05 · Depends on: [01-PRD](01-PRD.md)
 
 ## 1. Platforms
 
