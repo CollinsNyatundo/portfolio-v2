@@ -46,10 +46,15 @@ describe("workIndex", () => {
   });
 
   it("shows everything when the tag is known but unused", () => {
-    // "web" is on the allow-list; nothing published uses it yet.
-    const index = workIndex(studies, projects, "web");
+    // Every allow-listed tag is in use today, so drop the "web" items to get
+    // a known tag that nothing in this set uses.
+    const tag = "web";
+    const someStudies = studies.filter((c) => !c.tags.includes(tag));
+    const someProjects = projects.filter((p) => !p.tags.includes(tag));
+    const index = workIndex(someStudies, someProjects, tag);
     expect(index.active).toBeNull();
-    expect(index.caseStudies.length).toBe(studies.length);
+    expect(index.caseStudies.length).toBe(someStudies.length);
+    expect(index.projects.length).toBe(someProjects.length);
   });
 
   it("leaves archived projects out", () => {
