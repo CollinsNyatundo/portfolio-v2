@@ -192,6 +192,13 @@ def test_validation_errors_name_the_field(mutate, field):
     assert field in body["fields"]
 
 
+def test_time_before_the_history_window_is_rejected():
+    req = a_sample()
+    req["features"]["Time"] = 0.0
+    code, body, _ = call(req)
+    assert code == 400 and "features.Time" in body["fields"]
+
+
 def test_non_finite_numbers_are_rejected():
     raw = json.dumps(a_sample()).replace('"Amount": ', '"Amount": NaN, "x": ', 1).encode()
     code, body, _ = call(None, raw=raw)

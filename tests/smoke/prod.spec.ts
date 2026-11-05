@@ -101,3 +101,19 @@ test.describe("production smoke", () => {
       expect((await res.json()).error).toBe("validation");
   });
 });
+
+test.describe("malformed paths", () => {
+  for (const path of [
+    "/work%5C",
+    "/about%5C",
+    "/demos%5C",
+    "/notes%5C",
+    "/%5C",
+    "/work%2F",
+  ]) {
+    test(`${path} is a 404, not a server error`, async ({ request }) => {
+      const res = await request.get(path, { maxRedirects: 0 });
+      expect(res.status()).toBe(404);
+    });
+  }
+});

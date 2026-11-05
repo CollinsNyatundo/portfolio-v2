@@ -5,6 +5,7 @@ import { principles } from "@/content/about";
 import { jsonLdHtml, personJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
+import { CvLink } from "@/components/cv-link";
 import { Folio } from "@/components/folio";
 import { EvidenceLedger } from "@/components/home/evidence-ledger";
 import { ScrollEngine } from "@/components/home/scroll-engine";
@@ -96,6 +97,45 @@ export default async function Home() {
               <p className="mt-6 max-w-[40ch] text-xl lg:text-2xl">
                 {site.positioning}
               </p>
+              <p className="text-muted mt-6 font-sans text-sm">
+                {site.availabilityNote} · {site.location} ·{" "}
+                {site.utcOffsetLabel}
+              </p>
+              <ul
+                aria-label="Start here"
+                className="mt-3 flex flex-wrap gap-x-6 gap-y-1 font-sans text-sm"
+              >
+                <li>
+                  <Link
+                    href="/work"
+                    className="inline-flex min-h-11 items-center font-medium"
+                  >
+                    See the work
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/demos/fraud"
+                    className="inline-flex min-h-11 items-center"
+                  >
+                    Score a transaction
+                  </Link>
+                </li>
+                <li>
+                  <CvLink
+                    from="hero"
+                    className="inline-flex min-h-11 items-center"
+                  />
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className="inline-flex min-h-11 items-center"
+                  >
+                    Contact
+                  </Link>
+                </li>
+              </ul>
               <div
                 aria-hidden="true"
                 className="title-page__rule"
