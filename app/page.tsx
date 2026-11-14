@@ -234,31 +234,36 @@ export default async function Home() {
             <div className="mt-10">
               <h3 className="font-display text-xl">More projects</h3>
               <ul className="mt-4 grid gap-4 md:grid-cols-2">
-                {projects.slice(0, 4).map((p) => (
-                  <li
-                    key={p.slug}
-                    className="bg-surface border-border rounded-[2px] border p-5"
-                  >
-                    <p className="font-display text-lg">
-                      {p.repoUrl ? (
-                        <a
-                          href={p.repoUrl}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                          className="text-text"
-                        >
-                          {p.title}
-                          <span className="sr-only"> (opens in new tab)</span>
-                        </a>
-                      ) : (
-                        p.title
-                      )}
-                    </p>
-                    <p className="text-muted mt-2 font-serif text-base">
-                      {p.summary}
-                    </p>
-                  </li>
-                ))}
+                {projects.slice(0, 4).map((p) => {
+                  // Public projects link to the repository; private ones, which
+                  // have no repository, link to their live site instead.
+                  const href = p.repoUrl ?? p.liveUrl;
+                  return (
+                    <li
+                      key={p.slug}
+                      className="bg-surface border-border rounded-[2px] border p-5"
+                    >
+                      <p className="font-display text-lg">
+                        {href ? (
+                          <a
+                            href={href}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            className="text-text"
+                          >
+                            {p.title}
+                            <span className="sr-only"> (opens in new tab)</span>
+                          </a>
+                        ) : (
+                          p.title
+                        )}
+                      </p>
+                      <p className="text-muted mt-2 font-serif text-base">
+                        {p.summary}
+                      </p>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </section>
