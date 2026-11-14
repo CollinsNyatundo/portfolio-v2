@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { headers } from "next/headers";
 import { LazyFraudDemo } from "@/components/home/lazy-fraud-demo";
 import { principles } from "@/content/about";
@@ -172,7 +171,7 @@ export default async function Home() {
             ))}
           </section>
 
-          {/* II · Method: the portrait plate and four working rules. */}
+          {/* II · Method: four working rules, two columns. */}
           <section
             aria-labelledby="method"
             className="chapter px-4 sm:px-6 lg:px-16"
@@ -183,36 +182,24 @@ export default async function Home() {
                 Method
               </h2>
             </div>
-            <div className="mx-auto grid max-w-5xl gap-12 pb-28 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-16">
-              <figure className="plate" data-sc-act="flow">
-                <div
-                  className="plate__frame"
-                  aria-hidden="true"
-                  data-sc-parallax="-0.5"
-                />
-                <div className="plate__photo" data-sc-parallax="0.4">
-                  <Image
-                    src="/images/collins.jpg"
-                    alt="Collins Nyagaka, smiling, in a black shirt against a grey studio background"
-                    width={1200}
-                    height={1200}
-                    sizes="(min-width: 768px) 360px, 90vw"
-                    className="h-auto w-full"
-                  />
-                </div>
-                <figcaption className="text-muted mt-4 font-sans text-sm">
-                  Collins Nyagaka, Nairobi. AI and machine-learning engineer.
-                </figcaption>
-              </figure>
-              <ol className="space-y-10" data-sc-in data-sc-stagger="70">
-                {principles.map((p) => (
+            <div className="mx-auto max-w-5xl pb-28">
+              <ol
+                className="grid gap-x-12 gap-y-10 md:grid-cols-2"
+                data-sc-in
+                data-sc-stagger="70"
+              >
+                {principles.map((p, i) => (
                   <li key={p.title} className="border-border border-t pt-5">
-                    <div>
-                      <p className="font-serif text-2xl leading-snug font-medium">
-                        {p.title}
-                      </p>
-                      <p className="text-muted mt-2">{p.body}</p>
-                    </div>
+                    <p
+                      aria-hidden="true"
+                      className="text-muted font-mono text-sm tabular-nums"
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <p className="mt-2 font-serif text-2xl leading-snug font-medium">
+                      {p.title}
+                    </p>
+                    <p className="text-muted mt-2">{p.body}</p>
                   </li>
                 ))}
               </ol>

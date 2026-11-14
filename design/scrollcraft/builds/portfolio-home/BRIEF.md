@@ -55,7 +55,7 @@ job, not the title page's.
 |---|---|---|
 | 0 Title page | Calm curiosity | A quiet printed title page: name, one sentence, a folio. Nothing moves until they do |
 | I Problem | Recognition, slight unease | Three short failures named plainly, each landing on a hard ground change |
-| II Method | Trust | The headshot plate and four working principles, set like a magazine profile |
+| II Method | Trust | Four numbered working principles in two columns, with no photograph (the portrait lives on /about) |
 | III Work | Confidence | Case-study spreads where real figures settle into place and each one enters the ledger |
 | — Intertitle | Anticipation (**authored silence**) | A nearly empty page: one line, "Now try one." Then a wipe |
 | IV Demo | **Delight, then conviction (PEAK)** | The page stops. The visitor picks a transaction, scores it, and the decision and its five reasons arrive in milliseconds. Their own result is written into the ledger |
@@ -134,7 +134,7 @@ Rules:
 |---|---|---|---|---|---|
 | 0 Title page | — | `in` (staggered type set) + typographic depth planes | 1.0 | lead | A printed page arriving, not a film starting |
 | I Problem | Problem | `reveal` (hard ground cut per failure) | 1.4 | trail | Each failure is a change of state, and editorial wants hard cuts |
-| II Method | Method | `parallax` in the media column (layered headshot plate) | 1.6 | split | Intimacy needs a near/far relationship; depth sits in the plate, not under text |
+| II Method | Method | `in` (staggered four-principle grid, no parallax media column) | 1.6 | split | Four numbered working principles in two columns with no photograph (the portrait lives on /about) |
 | III Work | Work | `flow` + `count` (real figures in prose) | 3.0 | lead/trail alternating | Spreads read like a feature; figures settle and enter the ledger |
 | Intertitle | — | `reveal` (wipe on a near-empty page) | 0.8 | centre (only centred act) | Authored silence before the peak |
 | IV Demo | Demo | `pin` (the live demo holds while the visitor operates it) | **3.4** | split | The page stops moving and starts responding. Largest span by a visible margin |
@@ -156,7 +156,7 @@ Reasons:
 **Realism rule:**
 - Diagrams that carry facts (architecture, data flow) are **hand-authored SVG** from the repos, never generated.
 - Generated plates are texture and atmosphere only (chapter-opener ink studies), using the preamble below, with no text in the image.
-- The headshot is the one photograph. It's a captioned portrait plate, graded to the paper and ink palette so it sits with the drawings.
+- The headshot is the one photograph, and it lives on /about rather than in a portrait plate on the home page.
 
 **Style preamble** (verbatim in every generated prompt):
 
@@ -199,7 +199,7 @@ the page ships and is verified.
 
 ## Build notes (2026-11-04, M3.1)
 
-- Built: title page (paper, drawing and rule planes at different parallax rates), I Problem (three hard-cut grounds with `reveal`), II Method (photo plate with frame and photo at different rates, principles via `in`), III Work (case-study spreads whose ledger figures carry `data-ledger-id`, plus project cards), V Colophon (ledger table and totals, running-text CTA).
+- Built: title page (paper, drawing and rule planes at different parallax rates), I Problem (three hard-cut grounds with `reveal`), II Method (four numbered working principles in two columns via `in`, with no photograph; the portrait lives on /about), III Work (case-study spreads whose ledger figures carry `data-ledger-id`, plus project cards), V Colophon (ledger table and totals, running-text CTA).
 - Deferred to M4: the intertitle and Act IV render only when the fraud demo is live, so the page never shows an empty stage. Current length 6.2 vh; the scored 12.4 vh includes the pinned demo.
 - Harness (scratch copy with `bypassCSP`, since the site's CSP blocks its injected style): no dead scroll and no contrast failures at 1440 × 900, 390 × 844 and reduced motion. The 404s it logs are folio prefetches of routes built later in M3.
 - Feel check not run yet: it needs the peak (Act IV) to exist.
