@@ -26,12 +26,12 @@ function H2({ children }: ComponentPropsWithoutRef<"h2">) {
   return (
     <h2
       id={id}
-      className="group mt-20 scroll-mt-24 font-serif text-[1.75rem] leading-tight font-medium tracking-[-0.01em] lg:text-[2.125rem]"
+      className="font-display group mt-14 scroll-mt-24 text-2xl leading-tight lg:text-3xl"
     >
       {children}
       <a
         href={`#${id}`}
-        className="text-muted ml-3 font-sans text-base no-underline opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+        className="text-muted ml-3 font-sans text-base font-normal no-underline opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
       >
         #<span className="sr-only">Link to this section</span>
       </a>
@@ -56,14 +56,14 @@ function A({ href = "", children, ...rest }: ComponentPropsWithoutRef<"a">) {
 const components: MDXComponents = {
   h2: H2,
   h3: (props) => (
-    <h3 className="mt-10 font-sans text-lg font-semibold" {...props} />
+    <h3 className="font-display mt-8 text-xl leading-snug" {...props} />
   ),
-  p: (props) => <p className="mt-5 max-w-[62ch]" {...props} />,
+  p: (props) => <p className="mt-5 max-w-[65ch]" {...props} />,
   ul: (props) => (
-    <ul className="mt-5 max-w-[62ch] list-disc space-y-2 pl-6" {...props} />
+    <ul className="mt-5 max-w-[65ch] list-disc space-y-2 pl-6" {...props} />
   ),
   ol: (props) => (
-    <ol className="mt-5 max-w-[62ch] list-decimal space-y-2 pl-6" {...props} />
+    <ol className="mt-5 max-w-[65ch] list-decimal space-y-2 pl-6" {...props} />
   ),
   a: A,
   // Code blocks scroll inside themselves (focusable for keyboard users)
@@ -71,13 +71,13 @@ const components: MDXComponents = {
   pre: (props) => (
     <pre
       tabIndex={0}
-      className="bg-surface-2 relative my-6 max-w-[62ch] overflow-x-auto rounded-sm p-4 font-mono text-sm"
+      className="bg-surface-2 relative my-6 max-w-[65ch] overflow-x-auto rounded-[2px] p-4 font-mono text-sm"
       {...props}
     />
   ),
   code: (props) => (
     <code
-      className="bg-surface-2 rounded-sm px-1 text-[0.9em] [overflow-wrap:anywhere]"
+      className="bg-surface-2 rounded-[2px] px-1 text-[0.9em] [overflow-wrap:anywhere]"
       {...props}
     />
   ),

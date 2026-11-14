@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { LedgerEntry } from "@/lib/ledger";
 
-/** The visitor's own demo run (BRIEF: the peak writes to the ledger). */
+/** The visitor's own demo run (writes to the ledger after scoring). */
 export type VisitorRun = { value: string; label: string };
 export const VISITOR_EVENT = "ledger:visitor";
 
@@ -15,11 +15,11 @@ export function recordVisitorRun(run: VisitorRun): void {
 }
 
 /**
- * The signature move (D-26): a line is added each time a real figure on the
- * page crosses the reading line. Figures opt in with data-ledger-id, and only
- * ids present in `entries` (built from validated content) can appear.
+ * A line is added each time a real figure on the page crosses the reading line.
+ * Figures opt in with data-ledger-id, and only ids present in `entries` (built
+ * from validated content) can appear.
  *
- * The wide-screen margin column is aria-hidden decoration; the colophon table is
+ * The wide-screen margin column is aria-hidden decoration; the evidence table is
  * the accessible version. The narrow-screen strip is a real disclosure button.
  */
 export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
@@ -78,7 +78,9 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
     <ol className="space-y-3">
       {lines.map((e) => (
         <li key={e.id} className="ledger-line">
-          <span className="figure text-text block text-sm">{e.value}</span>
+          <span className="figure text-text block text-sm font-semibold">
+            {e.value}
+          </span>
           <span className="text-muted block text-xs">
             {e.label} · {e.project}
           </span>
@@ -86,7 +88,7 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
       ))}
       {visitor && (
         <li key="visitor" className="ledger-line" data-visitor>
-          <span className="figure text-primary block text-sm">
+          <span className="figure text-primary block text-sm font-semibold">
             {visitor.value}
           </span>
           <span className="text-primary block text-xs">
@@ -103,9 +105,9 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
       {/* Wide screens: a ruled column in the right margin. */}
       <aside
         aria-hidden="true"
-        className="border-border fixed top-10 right-8 bottom-10 hidden w-52 overflow-y-auto border-l pl-5 font-sans xl:block"
+        className="border-border fixed top-10 right-6 bottom-10 hidden w-52 overflow-y-auto border-l pl-4 font-sans xl:block"
       >
-        <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
+        <p className="text-muted text-xs font-medium">
           Evidence read · {count}
         </p>
         <div className="mt-4">{list}</div>

@@ -8,10 +8,10 @@ import { site } from "@/content/site";
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
 
-const PAPER = "#F3F4F1";
-const INK = "#14181A";
-const MUTED = "#4E5A55";
-const ACCENT = "#1E6B52";
+const PAPER = "#C9CCC6";
+const INK = "#15191A";
+const MUTED = "#3D4742";
+const ACCENT = "#16533F";
 
 export function ogImage({
   eyebrow,

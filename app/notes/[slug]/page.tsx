@@ -34,7 +34,7 @@ export async function generateMetadata({
   };
 }
 
-/** One note (docs/03 §2): an editorial article page sharing the folio. */
+/** One note (docs/03 §2): long-form reading on a sheet in Literata. */
 export default async function NotePage({ params }: PageProps<"/notes/[slug]">) {
   const note = noteBySlug((await params).slug);
   if (!note) notFound();
@@ -45,9 +45,9 @@ export default async function NotePage({ params }: PageProps<"/notes/[slug]">) {
 
   return (
     <>
-      <Folio marker="Note" title={note.title} />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
+      <Folio title={note.title} />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
           <header>
             <p className="text-muted font-sans text-sm">
               <Link href="/notes">Notes</Link> ·{" "}
@@ -55,16 +55,18 @@ export default async function NotePage({ params }: PageProps<"/notes/[slug]">) {
                 {formatDate(note.published)}
               </time>
             </p>
-            <h1 className="mt-4 max-w-[22ch] font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] [overflow-wrap:break-word] sm:text-[2.5rem] lg:text-[3.5rem]">
+            <h1 className="font-display mt-3 max-w-[24ch] text-3xl leading-[1.08] [overflow-wrap:break-word] sm:text-4xl lg:text-5xl">
               {note.title}
             </h1>
-            <p className="mt-6 max-w-[62ch] text-xl">{note.summary}</p>
+            <p className="mt-4 max-w-[62ch] font-serif text-xl">
+              {note.summary}
+            </p>
           </header>
-          <article className="mt-4">
+          <article className="bg-surface border-border mt-8 rounded-[2px] border p-6 font-serif sm:p-10">
             <Body />
           </article>
           {study && (
-            <p className="border-border mt-16 border-t pt-6 font-sans text-sm">
+            <p className="border-border mt-10 border-t pt-6 font-sans text-sm">
               Related case study:{" "}
               <Link href={`/work/${study.slug}`}>{study.title}</Link>
             </p>

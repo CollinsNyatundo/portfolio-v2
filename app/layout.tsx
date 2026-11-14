@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Geist, Geist_Mono, Newsreader } from "next/font/google";
+import { Archivo, Geist_Mono, Literata } from "next/font/google";
 import { connection } from "next/server";
 import { site } from "@/content/site";
 import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
   style: ["normal", "italic"],
+  axes: ["wdth"],
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const literata = Literata({
+  variable: "--font-literata",
   subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({
@@ -42,8 +44,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f4f1" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f1312" },
+    { media: "(prefers-color-scheme: light)", color: "#c9ccc6" },
+    { media: "(prefers-color-scheme: dark)", color: "#131615" },
   ],
 };
 
@@ -53,7 +55,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${archivo.variable} ${literata.variable} ${geistMono.variable} antialiased`}
     >
       <body className="bg-bg text-text min-h-dvh">
         <a

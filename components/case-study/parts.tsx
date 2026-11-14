@@ -40,11 +40,13 @@ export function MetricTable({ metrics }: { metrics: Metric[] }) {
               <th scope="row" className="py-3 pr-4 text-left font-medium">
                 {m.name}
               </th>
-              <td className="figure py-3 pr-4 text-right whitespace-nowrap">
+              <td className="figure py-3 pr-4 text-right font-semibold whitespace-nowrap">
                 {m.value}
               </td>
               <td className="text-muted py-3 pr-4">{m.dataset}</td>
-              <td className="text-muted py-3">{m.caveat}</td>
+              <td className="py-3">
+                <span className="caveat-note">{m.caveat}</span>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -55,9 +57,11 @@ export function MetricTable({ metrics }: { metrics: Metric[] }) {
 
 export function LimitsList({ limits }: { limits: string[] }) {
   return (
-    <ul className="my-6 list-disc space-y-2 pl-6">
+    <ul className="my-6 max-w-[65ch] list-disc space-y-2.5 pl-6">
       {limits.map((limit) => (
-        <li key={limit}>{limit}</li>
+        <li key={limit}>
+          <span className="caveat-note">{limit}</span>
+        </li>
       ))}
     </ul>
   );
@@ -79,7 +83,7 @@ export function EvidenceList({ evidence }: { evidence: Evidence[] }) {
             </a>
           ) : (
             <span>
-              {e.label} <span className="text-muted">(Private work)</span>
+              {e.label} <span className="caveat">(Private work)</span>
             </span>
           )}
         </li>
@@ -99,11 +103,14 @@ export function Callout({
 }) {
   return (
     <aside
-      className={`my-8 border-l-2 py-1 pl-5 ${kind === "security" ? "border-primary" : "border-warning"}`}
+      className={`my-8 max-w-[65ch] border-l-2 py-1 pl-5 ${kind === "security" ? "border-primary" : "border-border"}`}
     >
       <p className="font-sans text-sm font-semibold">
-        {kind === "security" ? "Security · " : "Caveat · "}
-        {title}
+        {kind === "security" ? (
+          <>Security · {title}</>
+        ) : (
+          <span className="caveat">Caveat · {title}</span>
+        )}
       </p>
       <div className="mt-2 [&>p]:mt-0">{children}</div>
     </aside>

@@ -21,23 +21,26 @@ export default function DemosPage() {
   const listed = demos.filter((d) => pages[d.slug]);
   return (
     <>
-      <Folio marker="Index" title="Demos" currentPath="/demos" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
-          <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+      <Folio title="Demos" currentPath="/demos" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
+          <h1 className="font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             Demos
           </h1>
-          <p className="mt-6 max-w-[62ch] text-xl">
+          <p className="mt-4 max-w-[62ch] font-serif text-xl">
             Small working pieces of the projects. Each runs in its own sandboxed
             function, stores nothing you enter, and calls no paid model.
           </p>
-          <ul className="border-border mt-12 border-t">
+          <ul className="mt-10 grid gap-5 md:grid-cols-2">
             {listed.map((d) => (
-              <li key={d.slug} className="border-border border-b py-8">
-                <h2 className="font-serif text-2xl font-medium">
+              <li
+                key={d.slug}
+                className="bg-surface border-border rounded-[2px] border p-6"
+              >
+                <h2 className="font-display text-2xl leading-snug">
                   <Link href={pages[d.slug]}>{d.title}</Link>
                 </h2>
-                <p className="mt-2 max-w-[62ch]">{d.summary}</p>
+                <p className="mt-2 max-w-[62ch] font-serif">{d.summary}</p>
               </li>
             ))}
           </ul>

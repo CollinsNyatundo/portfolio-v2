@@ -10,12 +10,12 @@ const repoUrl = "https://github.com/CollinsNyatundo/portfolio-v2";
  */
 export function Colophon({ updated }: { updated: string }) {
   return (
-    <footer className="border-border text-muted mt-36 border-t pt-10 pb-16 font-sans text-sm">
+    <footer className="border-border text-muted mt-24 border-t pt-8 pb-14 font-sans text-sm">
       <p className="text-text font-serif text-lg">
         <a href={mailtoHref}>{site.primaryActionLabel}</a> at {site.email}, or
         read the <CvLink from="colophon">CV (PDF)</CvLink>.
       </p>
-      <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+      <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
         <li>
           <Link href="/about">About</Link>
         </li>
@@ -40,7 +40,11 @@ export function Colophon({ updated }: { updated: string }) {
           </a>
         </li>
       </ul>
-      <p className="mt-6">
+      <p className="mt-5 max-w-[65ch]">
+        Object photographs on this site are generated illustrations. Every
+        figure, chart and diagram comes from the linked repositories.
+      </p>
+      <p className="mt-3">
         {site.location}, {site.utcOffsetLabel}. Last updated{" "}
         <time dateTime={updated}>{updated}</time>.
       </p>

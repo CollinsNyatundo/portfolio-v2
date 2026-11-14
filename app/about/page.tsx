@@ -41,8 +41,7 @@ function formatMonth(value: string): string {
   });
 }
 
-const h2 =
-  "font-serif text-[1.75rem] leading-tight font-medium lg:text-[2.125rem]";
+const h2 = "font-display text-2xl leading-tight lg:text-3xl";
 
 /** About (docs/03 §2, docs/04 §7): narrative, focus, method, experience, education. */
 export default function AboutPage() {
@@ -57,14 +56,14 @@ export default function AboutPage() {
 
   return (
     <>
-      <Folio marker="Profile" title="About" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
-          <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+      <Folio title="About" currentPath="/about" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
+          <h1 className="font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             About
           </h1>
 
-          <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] md:gap-16">
+          <div className="bg-surface border-border mt-8 grid gap-8 rounded-[2px] border p-6 sm:p-8 md:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] md:gap-12">
             <figure>
               <Image
                 src="/images/collins.jpg"
@@ -72,16 +71,16 @@ export default function AboutPage() {
                 width={1200}
                 height={1200}
                 sizes="(min-width: 768px) 300px, 90vw"
-                className="h-auto w-full max-w-[20rem]"
+                className="h-auto w-full max-w-[20rem] rounded-[2px]"
                 priority
               />
               <figcaption className="text-muted mt-3 font-sans text-sm">
                 {site.title}. {site.location}, {site.utcOffsetLabel}.
               </figcaption>
             </figure>
-            <div className="text-lg [&>p+p]:mt-5" data-narrative>
+            <div className="font-serif text-lg [&>p+p]:mt-5" data-narrative>
               <Narrative />
-              <p className="font-sans text-base">
+              <p className="mt-6 font-sans text-base">
                 <a href={mailtoHref}>{site.primaryActionLabel}</a> ·{" "}
                 <CvLink from="about">CV (PDF)</CvLink>
               </p>
@@ -89,17 +88,20 @@ export default function AboutPage() {
           </div>
 
           {areas.length > 0 && (
-            <section aria-labelledby="focus" className="mt-24">
+            <section aria-labelledby="focus" className="mt-16">
               <h2 id="focus" className={h2}>
                 Focus areas
               </h2>
-              <ul className="mt-8 grid gap-8 md:grid-cols-2">
+              <ul className="mt-6 grid gap-5 md:grid-cols-2">
                 {areas.map((a) => (
-                  <li key={a.tag} className="border-border border-t pt-5">
-                    <h3 className="font-serif text-2xl font-medium">
+                  <li
+                    key={a.tag}
+                    className="bg-surface border-border rounded-[2px] border p-5 sm:p-6"
+                  >
+                    <h3 className="font-display text-xl leading-snug">
                       {a.title}
                     </h3>
-                    <p className="mt-2 max-w-[48ch]">{a.body}</p>
+                    <p className="mt-2 max-w-[54ch] font-serif">{a.body}</p>
                     <p className="mt-3 font-sans text-sm">
                       <Link href={`/work?tag=${a.tag}`}>
                         See the {a.title.toLowerCase()} work
@@ -111,31 +113,34 @@ export default function AboutPage() {
             </section>
           )}
 
-          <section aria-labelledby="method" className="mt-24">
+          <section aria-labelledby="method" className="mt-16">
             <h2 id="method" className={h2}>
               How I work
             </h2>
-            <ol className="mt-8 grid gap-8 md:grid-cols-2">
+            <ul className="mt-6 grid gap-5 md:grid-cols-2">
               {principles.map((p) => (
-                <li key={p.title} className="border-border border-t pt-5">
-                  <h3 className="font-serif text-2xl leading-snug font-medium">
+                <li
+                  key={p.title}
+                  className="bg-surface border-border rounded-[2px] border p-5 sm:p-6"
+                >
+                  <h3 className="font-display text-xl leading-snug">
                     {p.title}
                   </h3>
-                  <p className="text-muted mt-2">{p.body}</p>
+                  <p className="text-muted mt-2 font-serif">{p.body}</p>
                 </li>
               ))}
-            </ol>
+            </ul>
           </section>
 
-          <section aria-labelledby="experience" className="mt-24">
+          <section aria-labelledby="experience" className="mt-16">
             <h2 id="experience" className={h2}>
               Experience
             </h2>
-            <ol className="border-border mt-8 border-t">
+            <ol className="bg-surface border-border divide-border mt-6 divide-y rounded-[2px] border px-6">
               {visibleExperience().map((e) => (
                 <li
                   key={`${e.org}-${e.start}`}
-                  className="border-border grid gap-2 border-b py-6 md:grid-cols-[11rem_1fr] md:gap-10"
+                  className="grid gap-2 py-6 md:grid-cols-[11rem_1fr] md:gap-10"
                 >
                   <p className="text-muted font-sans text-sm">
                     <time dateTime={e.start}>{formatMonth(e.start)}</time> to{" "}
@@ -146,13 +151,11 @@ export default function AboutPage() {
                     )}
                   </p>
                   <div>
-                    <h3 className="font-sans text-lg font-semibold">
-                      {e.role}
-                    </h3>
+                    <h3 className="font-display text-lg">{e.role}</h3>
                     <p className="text-muted font-sans text-sm">
                       {e.org} · {typeLabel[e.type]} · {e.location}
                     </p>
-                    <ul className="mt-3 max-w-[62ch] list-disc space-y-2 pl-5">
+                    <ul className="mt-3 max-w-[65ch] list-disc space-y-2 pl-5 font-serif">
                       {e.bullets.map((b) => (
                         <li key={b}>{b}</li>
                       ))}
@@ -164,21 +167,21 @@ export default function AboutPage() {
           </section>
 
           {recognition.length > 0 && (
-            <section aria-labelledby="recognition" className="mt-24">
+            <section aria-labelledby="recognition" className="mt-16">
               <h2 id="recognition" className={h2}>
                 Recognition
               </h2>
-              <ul className="border-border mt-8 border-t">
+              <ul className="bg-surface border-border divide-border mt-6 divide-y rounded-[2px] border px-6">
                 {recognition.map((r) => (
                   <li
                     key={r.url}
-                    className="border-border grid gap-2 border-b py-6 md:grid-cols-[11rem_1fr] md:gap-10"
+                    className="grid gap-2 py-6 md:grid-cols-[11rem_1fr] md:gap-10"
                   >
                     <p className="text-muted font-sans text-sm">
                       <time dateTime={r.awarded}>{formatMonth(r.awarded)}</time>
                     </p>
                     <div>
-                      <h3 className="font-sans text-lg font-semibold">
+                      <h3 className="font-display text-lg">
                         <a
                           href={r.url}
                           rel="noopener noreferrer"
@@ -188,7 +191,9 @@ export default function AboutPage() {
                           <span className="sr-only"> (opens in new tab)</span>
                         </a>
                       </h3>
-                      <p className="mt-2 max-w-[62ch]">{r.summary}</p>
+                      <p className="mt-2 max-w-[65ch] font-serif">
+                        {r.summary}
+                      </p>
                       {r.caseStudy && (
                         <p className="mt-3 font-sans text-sm">
                           <Link href={`/work/${r.caseStudy}`}>
@@ -203,20 +208,20 @@ export default function AboutPage() {
             </section>
           )}
 
-          <section aria-labelledby="education" className="mt-24">
+          <section aria-labelledby="education" className="mt-16">
             <h2 id="education" className={h2}>
               Education and certifications
             </h2>
-            <ul className="border-border mt-8 border-t">
+            <ul className="bg-surface border-border divide-border mt-6 divide-y rounded-[2px] border px-6">
               {[...degrees, ...certificates].map((c) => (
                 <li
                   key={c.name}
-                  className="border-border grid gap-1 border-b py-4 md:grid-cols-[11rem_1fr] md:gap-10"
+                  className="grid gap-1 py-4 md:grid-cols-[11rem_1fr] md:gap-10"
                 >
                   <p className="text-muted font-sans text-sm">
                     <time dateTime={c.issued}>{formatMonth(c.issued)}</time>
                   </p>
-                  <p>
+                  <p className="font-serif">
                     {c.credentialUrl ? (
                       <a
                         href={c.credentialUrl}

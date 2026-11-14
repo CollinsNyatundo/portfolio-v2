@@ -15,34 +15,37 @@ export const metadata: Metadata = {
   alternates: { canonical: "/demos/fraud" },
 };
 
-const h2 = "font-sans text-sm font-semibold tracking-wide uppercase";
+const h2 = "font-display text-xl leading-snug";
 
 /** Demo page (docs/04 §7): what it does, the surface, how it works, model card. */
 export default function FraudDemoPage() {
   return (
     <>
-      <Folio marker="Demo" title={demo.title} currentPath="/demos" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
+      <Folio title={demo.title} currentPath="/demos" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
           <p className="text-muted font-sans text-sm">
             <Link href="/demos">Demos</Link>
           </p>
-          <h1 className="mt-4 font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+          <h1 className="font-display mt-3 text-3xl leading-[1.05] sm:text-4xl lg:text-5xl">
             {demo.title}
           </h1>
-          <p className="mt-6 max-w-[62ch] text-xl">{demo.summary}</p>
+          <p className="mt-4 max-w-[62ch] font-serif text-xl">{demo.summary}</p>
 
-          <section aria-label="Demo" className="mt-12">
+          <section
+            aria-label="Demo"
+            className="bg-surface border-border mt-8 rounded-[2px] border p-5 sm:p-6"
+          >
             <Suspense fallback={null}>
               <FraudDemo />
             </Suspense>
           </section>
 
-          <details className="border-border mt-16 border-t pt-6">
-            <summary className="cursor-pointer font-serif text-2xl font-medium">
+          <details className="bg-surface border-border mt-8 rounded-[2px] border p-5 sm:p-6">
+            <summary className="font-display cursor-pointer text-xl">
               How it works
             </summary>
-            <div className="mt-4 max-w-[62ch] space-y-4">
+            <div className="mt-4 max-w-[65ch] space-y-4 font-serif">
               <p>
                 The function rebuilds the model&apos;s 79 inputs from the
                 transaction you send and the 10 transactions before it, exactly
@@ -66,7 +69,7 @@ export default function FraudDemoPage() {
 
           <section
             aria-labelledby="card"
-            className="border-border mt-10 border-t pt-6"
+            className="bg-surface border-border mt-8 rounded-[2px] border p-5 sm:p-6"
           >
             <h2 id="card" className={h2}>
               Model card
@@ -86,9 +89,11 @@ export default function FraudDemoPage() {
               </dd>
               <dt className="text-muted font-sans text-sm">Limits</dt>
               <dd>
-                <ul className="list-disc space-y-1 pl-5">
+                <ul className="list-disc space-y-1.5 pl-5">
                   {demo.modelCard.limits.map((l) => (
-                    <li key={l}>{l}</li>
+                    <li key={l}>
+                      <span className="caveat-note">{l}</span>
+                    </li>
                   ))}
                 </ul>
               </dd>

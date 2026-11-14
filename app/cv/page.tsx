@@ -37,8 +37,7 @@ function formatMonth(value: string): string {
   });
 }
 
-const h2 =
-  "border-border mt-10 border-b pb-1 font-sans text-sm font-semibold tracking-wide uppercase print:mt-4";
+const h2 = "border-border font-display mt-8 border-b pb-1.5 text-xl print:mt-4";
 
 /**
  * The CV as a web page (task 4.10, P1). Built from the same content data as
@@ -50,18 +49,20 @@ export default function CvPage() {
   return (
     <>
       <div className="print:hidden">
-        <Folio marker="Record" title="CV" />
+        <Folio title="CV" />
       </div>
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16 print:m-0 print:p-0">
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12 print:m-0 print:p-0">
         <main
           id="main"
-          className="mx-auto max-w-4xl pt-20 lg:pt-32 print:max-w-none print:pt-0 print:text-[9.5pt] print:leading-snug"
+          className="bg-surface border-border mx-auto mt-10 max-w-4xl rounded-[2px] border p-6 sm:p-10 lg:mt-14 print:mt-0 print:max-w-none print:border-0 print:bg-transparent print:p-0 print:text-[9.5pt] print:leading-snug"
         >
           <header>
-            <h1 className="font-serif text-[2.25rem] leading-tight font-medium sm:text-[2.5rem] print:text-[20pt]">
+            <h1 className="font-display text-3xl leading-tight sm:text-4xl print:text-[20pt]">
               {site.fullName}
             </h1>
-            <p className="mt-1 text-lg print:text-[11pt]">{site.title}</p>
+            <p className="mt-1 font-sans text-lg print:text-[11pt]">
+              {site.title}
+            </p>
             <p className="text-muted mt-2 font-sans text-sm [overflow-wrap:anywhere] print:text-[8.5pt]">
               {site.location} · <a href={mailtoHref}>{site.email}</a> ·{" "}
               <a href={site.links.linkedin}>
@@ -79,7 +80,9 @@ export default function CvPage() {
             <h2 id="profile" className={h2}>
               Profile
             </h2>
-            <p className="mt-3 max-w-[70ch] print:mt-1">{site.positioning}</p>
+            <p className="mt-3 max-w-[70ch] font-serif print:mt-1">
+              {site.positioning}
+            </p>
           </section>
 
           <section aria-labelledby="skills">
@@ -92,7 +95,7 @@ export default function CvPage() {
                   <dt className="font-sans text-sm font-semibold print:text-[9pt]">
                     {g.group}
                   </dt>
-                  <dd>{g.items.join(", ")}</dd>
+                  <dd className="font-serif">{g.items.join(", ")}</dd>
                 </div>
               ))}
             </dl>
@@ -106,9 +109,9 @@ export default function CvPage() {
               {visibleExperience().map((e) => (
                 <li key={`${e.org}-${e.start}`} className="break-inside-avoid">
                   <div className="flex flex-wrap justify-between gap-x-4">
-                    <h3 className="font-semibold">
+                    <h3 className="font-display text-lg">
                       {e.role}{" "}
-                      <span className="text-muted font-normal italic">
+                      <span className="text-muted font-sans text-base font-normal">
                         · {e.org}
                       </span>
                     </h3>
@@ -117,7 +120,7 @@ export default function CvPage() {
                       {typeLabel[e.type]} · {e.location}
                     </p>
                   </div>
-                  <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                  <ul className="mt-1 list-disc space-y-0.5 pl-5 font-serif">
                     {e.bullets.map((b) => (
                       <li key={b}>{b}</li>
                     ))}
@@ -134,15 +137,15 @@ export default function CvPage() {
             <ul className="mt-3 space-y-3 print:mt-1 print:space-y-1">
               {studies.map((s) => (
                 <li key={s.slug} className="break-inside-avoid">
-                  <h3 className="font-semibold">
+                  <h3 className="font-display text-lg">
                     <Link href={`/work/${s.slug}`}>{s.title}</Link>{" "}
                     {s.visibility === "private" && (
-                      <span className="text-muted font-sans text-xs font-normal">
+                      <span className="caveat text-xs font-normal">
                         (Private work)
                       </span>
                     )}
                   </h3>
-                  <p>
+                  <p className="font-serif">
                     {s.outcome}{" "}
                     <span className="text-muted font-sans text-sm print:text-[8.5pt]">
                       {(() => {
@@ -150,7 +153,7 @@ export default function CvPage() {
                         return e ? (
                           <a href={e.url}>Evidence</a>
                         ) : (
-                          "Evidence: Private work"
+                          <span className="caveat">Evidence: Private work</span>
                         );
                       })()}
                     </span>
@@ -169,14 +172,14 @@ export default function CvPage() {
                 {recognition.map((r) => (
                   <li key={r.url} className="break-inside-avoid">
                     <div className="flex flex-wrap justify-between gap-x-4">
-                      <h3 className="font-semibold">
+                      <h3 className="font-display text-lg">
                         <a href={r.url}>{r.title}</a>
                       </h3>
                       <p className="text-muted font-sans text-sm print:text-[8.5pt]">
                         {formatMonth(r.awarded)}
                       </p>
                     </div>
-                    <p>
+                    <p className="font-serif">
                       {r.summary}
                       {r.caseStudy && (
                         <>
@@ -203,7 +206,7 @@ export default function CvPage() {
               {certifications.map((c) => (
                 <li
                   key={c.name}
-                  className="flex flex-wrap justify-between gap-x-4"
+                  className="flex flex-wrap justify-between gap-x-4 font-serif"
                 >
                   <span>
                     <span className="font-semibold">{c.name}</span>

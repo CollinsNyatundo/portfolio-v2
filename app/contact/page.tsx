@@ -31,9 +31,9 @@ function External({ href, children }: { href: string; children: string }) {
   );
 }
 
-const h2 = "font-sans text-sm font-semibold tracking-wide uppercase";
+const h2 = "font-display text-xl leading-snug";
 
-/** Contact (docs/03 §2, docs/04 §7). No form yet: email first (D-27). */
+/** Contact (docs/03 §2, docs/04 §7). Email first (D-27). */
 export default async function ContactPage({
   searchParams,
 }: PageProps<"/contact">) {
@@ -45,13 +45,13 @@ export default async function ContactPage({
 
   return (
     <>
-      <Folio marker="Reply" title="Contact" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
-          <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+      <Folio title="Contact" currentPath="/contact" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
+          <h1 className="font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             Contact
           </h1>
-          <p className="mt-6 max-w-[62ch] text-xl">
+          <p className="mt-4 max-w-[62ch] font-serif text-xl">
             {topic ? (
               <>
                 You&apos;d like a walkthrough of{" "}
@@ -65,13 +65,18 @@ export default async function ContactPage({
             )}
           </p>
 
-          <section aria-labelledby="email" className="mt-12">
+          <section
+            aria-labelledby="email"
+            className="bg-surface border-border mt-8 rounded-[2px] border p-6"
+          >
             <h2 id="email" className={h2}>
               Email
             </h2>
-            <p className="mt-3 font-serif text-2xl [overflow-wrap:anywhere] lg:text-3xl">
+            <p className="font-display mt-3 text-2xl [overflow-wrap:anywhere] lg:text-3xl">
               <a href={contactMailto(topic)}>{site.primaryActionLabel}</a>{" "}
-              <span className="text-muted">at {site.email}</span>
+              <span className="text-muted font-sans text-xl font-normal">
+                at {site.email}
+              </span>
             </p>
             <div className="mt-4">
               <CopyEmail email={site.email} />
@@ -79,7 +84,10 @@ export default async function ContactPage({
           </section>
 
           {contactFormEnabled() && (
-            <section aria-labelledby="form" className="mt-16">
+            <section
+              aria-labelledby="form"
+              className="bg-surface border-border mt-8 rounded-[2px] border p-6"
+            >
               <h2 id="form" className={h2}>
                 Or send a message
               </h2>
@@ -93,21 +101,21 @@ export default async function ContactPage({
             </section>
           )}
 
-          <dl className="border-border mt-16 grid gap-8 border-t pt-8 md:grid-cols-3">
-            <div>
+          <dl className="mt-8 grid gap-6 md:grid-cols-3">
+            <div className="bg-surface border-border rounded-[2px] border p-5">
               <dt className={h2}>Time zone</dt>
-              <dd className="mt-3">
+              <dd className="mt-2 font-serif">
                 {site.location}, {site.utcOffsetLabel} (EAT). I reply within 2
                 working days.
               </dd>
             </div>
-            <div>
+            <div className="bg-surface border-border rounded-[2px] border p-5">
               <dt className={h2}>Availability</dt>
-              <dd className="mt-3">{site.availabilityNote}.</dd>
+              <dd className="mt-2 font-serif">{site.availabilityNote}.</dd>
             </div>
-            <div>
+            <div className="bg-surface border-border rounded-[2px] border p-5">
               <dt className={h2}>Elsewhere</dt>
-              <dd className="mt-3 flex flex-col">
+              <dd className="mt-2 flex flex-col font-sans text-sm">
                 <External href={site.links.linkedin}>LinkedIn</External>
                 <External href={site.links.github}>GitHub</External>
                 <CvLink
@@ -122,12 +130,12 @@ export default async function ContactPage({
 
           <section
             aria-labelledby="freelance"
-            className="border-border mt-16 border-t pt-8"
+            className="bg-surface border-border mt-8 rounded-[2px] border p-6"
           >
             <h2 id="freelance" className={h2}>
               Freelance or company work?
             </h2>
-            <p className="mt-3 max-w-[62ch]">
+            <p className="mt-2 max-w-[62ch] font-serif">
               Projects for businesses go through my company,{" "}
               <External href={site.links.company}>TundoTech Systems</External>.
             </p>

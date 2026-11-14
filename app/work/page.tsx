@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BenchObject } from "@/components/bench-object";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
 import type { CaseStudyFrontmatter } from "@/content/schema";
@@ -63,7 +64,7 @@ function HeadlineSource({ study }: { study: CaseStudyFrontmatter }) {
           </span>
         </a>
       ) : (
-        <span className="text-muted">Evidence: Private work</span>
+        <span className="caveat">Evidence: Private work</span>
       )}
     </span>
   );
@@ -85,10 +86,10 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
           href={tag ? `/work?tag=${tag}` : "/work"}
           scroll={false}
           aria-current={on ? "true" : undefined}
-          className={`inline-flex min-h-11 items-center rounded-full border px-4 font-sans text-sm no-underline lg:min-h-9 ${
+          className={`inline-flex min-h-11 items-center rounded-[2px] border px-3.5 font-sans text-sm no-underline lg:min-h-9 ${
             on
-              ? "border-text text-text font-semibold"
-              : "border-border text-muted hover:border-text hover:text-text"
+              ? "bg-surface border-text text-text font-semibold"
+              : "bg-surface/60 border-border text-muted hover:border-text hover:text-text"
           }`}
         >
           {label}
@@ -101,19 +102,19 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
 
   return (
     <>
-      <Folio marker="Index" title="Work" currentPath="/work" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
-          <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+      <Folio title="Work" currentPath="/work" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-6xl pt-12 lg:pt-16">
+          <h1 className="font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             Work
           </h1>
-          <p className="mt-6 max-w-[62ch] text-xl">
+          <p className="mt-4 max-w-[62ch] font-serif text-xl">
             Case studies show how each system was tested and where it falls
-            short. Every figure comes with the data it was measured on, or a
-            Private work label.
+            short. Every figure comes with the data it was measured on, or a{" "}
+            <span className="caveat">Private work</span> label.
           </p>
 
-          <nav aria-label="Filter by tag" className="mt-10">
+          <nav aria-label="Filter by tag" className="mt-8">
             <ul className="flex flex-wrap gap-2">
               {chip(null, "All")}
               {index.tags.map((t) => chip(t, TAG_LABELS[t]))}
@@ -125,37 +126,44 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
           </p>
 
           {index.caseStudies.length > 0 && (
-            <section aria-labelledby="case-studies" className="mt-16">
+            <section aria-labelledby="case-studies" className="mt-12">
               <h2
                 id="case-studies"
-                className="font-serif text-[1.75rem] leading-tight font-medium lg:text-[2.125rem]"
+                className="font-display text-2xl leading-tight lg:text-3xl"
               >
                 Case studies
               </h2>
-              <ol className="border-border mt-6 border-t">
+              <ol className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {index.caseStudies.map((s) => (
                   <li
                     key={s.slug}
-                    className="border-border grid gap-4 border-b py-8 md:grid-cols-[1fr_14rem] md:gap-10"
+                    className="bg-surface border-border flex flex-col justify-between rounded-[2px] border p-5"
                   >
                     <div>
-                      <p className="text-muted font-sans text-sm">
-                        {visibilityLabel[s.visibility]}
+                      <BenchObject slug={s.slug} />
+                      <p className="text-muted mt-4 font-sans text-xs">
+                        {s.visibility === "private" ? (
+                          <span className="caveat">
+                            {visibilityLabel[s.visibility]}
+                          </span>
+                        ) : (
+                          visibilityLabel[s.visibility]
+                        )}
                       </p>
-                      <h3 className="mt-2 font-serif text-2xl leading-snug font-medium [overflow-wrap:break-word]">
+                      <h3 className="font-display mt-2 text-2xl leading-snug [overflow-wrap:break-word]">
                         <Link href={`/work/${s.slug}`}>{s.title}</Link>
                       </h3>
-                      <p className="mt-3 max-w-[62ch]">{s.outcome}</p>
+                      <p className="mt-2 font-serif text-base">{s.outcome}</p>
                       <TagList tags={s.tags} />
                     </div>
-                    <p className="font-sans text-sm md:text-right">
-                      <span className="figure text-text block text-2xl">
+                    <p className="border-border mt-6 border-t pt-4 font-sans text-sm">
+                      <span className="figure text-text block text-2xl font-semibold">
                         {s.headlineMetric.value}
                       </span>
                       <span className="text-text block">
                         {s.headlineMetric.label}
                       </span>
-                      <span className="text-muted mt-1 block">
+                      <span className="text-muted mt-1 block text-xs">
                         {s.headlineMetric.context}
                       </span>
                       <HeadlineSource study={s} />
@@ -167,31 +175,31 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
           )}
 
           {index.projects.length > 0 && (
-            <section aria-labelledby="projects" className="mt-20">
+            <section aria-labelledby="projects" className="mt-16">
               <h2
                 id="projects"
-                className="font-serif text-[1.75rem] leading-tight font-medium lg:text-[2.125rem]"
+                className="font-display text-2xl leading-tight lg:text-3xl"
               >
                 Other projects
               </h2>
-              <ul className="border-border mt-6 border-t">
+              <ul className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {index.projects.map((p) => (
                   <li
                     key={p.slug}
-                    className="border-border grid gap-2 border-b py-6 md:grid-cols-[1fr_auto] md:gap-10"
+                    className="bg-surface border-border flex flex-col justify-between rounded-[2px] border p-5"
                   >
                     <div>
-                      <h3 className="font-sans text-lg font-semibold">
+                      <h3 className="font-display text-xl leading-snug">
                         {p.title}
                       </h3>
-                      <p className="mt-2 max-w-[62ch]">{p.summary}</p>
+                      <p className="mt-2 font-serif text-base">{p.summary}</p>
                       <TagList tags={p.tags} />
                     </div>
-                    <p className="text-muted flex flex-wrap gap-x-4 font-sans text-sm md:flex-col md:items-end">
-                      <span>{p.year}</span>
+                    <p className="border-border text-muted mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 border-t pt-4 font-sans text-sm">
+                      <span className="figure">{p.year}</span>
                       {p.visibility === "private" ? (
                         <>
-                          <span>Private work</span>
+                          <span className="caveat">Private work</span>
                           <Link
                             href={`/contact?topic=${p.slug}`}
                             className="inline-flex min-h-11 items-center md:min-h-7"
@@ -210,7 +218,9 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                         <ExternalLink href={p.liveUrl}>Live app</ExternalLink>
                       )}
                       {p.liveUrl && p.sleeps && (
-                        <span>May take about 30 s to wake</span>
+                        <span className="caveat">
+                          May take about 30 s to wake
+                        </span>
                       )}
                     </p>
                   </li>
@@ -219,7 +229,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
             </section>
           )}
         </main>
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <Colophon updated="2026-11-04" />
         </div>
       </div>

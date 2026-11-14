@@ -71,7 +71,7 @@ export function Pipeline({
           );
         })}
       </g>
-      <g fill="currentColor" fontFamily="var(--font-geist-sans), sans-serif">
+      <g fill="currentColor" fontFamily="var(--font-archivo), sans-serif">
         {steps.map((step, i) => {
           const y = 10 + i * (BOX_H + GAP);
           return (

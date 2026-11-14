@@ -1,14 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("home page chapters", () => {
-  test("has the chapters in BRIEF order", async ({ page }) => {
+  test("has the bench sections in order", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("main h2.chapter__title")).toHaveText([
-      "Problem",
-      "Method",
-      "Work",
+    await expect(page.locator("main h2")).toHaveText([
       "Score a transaction",
-      "Colophon",
+      "Work",
+      "Method",
+      "Evidence ledger",
     ]);
   });
 
@@ -58,11 +57,9 @@ test.describe("home page chapters", () => {
     expect(ids.every((id) => id && id.includes(":"))).toBe(true);
   });
 
-  test("the live demo gets its intertitle and Act IV", async ({ page }) => {
+  test("the live demo is on the first screen", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("Now try one.")).toHaveCount(1);
-    // The demo's code loads as Act IV comes near.
-    await page.locator("#demo").scrollIntoViewIfNeeded();
+    await expect(page.locator("#demo")).toBeVisible();
     await expect(
       page.getByRole("combobox", { name: "Transaction" }),
     ).toBeVisible();

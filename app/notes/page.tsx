@@ -28,28 +28,31 @@ export default function NotesPage() {
   const notes = publishedNotes();
   return (
     <>
-      <Folio marker="Index" title="Notes" currentPath="/notes" />
-      <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
-        <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
-          <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">
+      <Folio title="Notes" currentPath="/notes" />
+      <div className="px-4 sm:px-6 lg:ml-56 lg:px-12">
+        <main id="main" className="mx-auto max-w-5xl pt-12 lg:pt-16">
+          <h1 className="font-display text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
             Notes
           </h1>
-          <p className="mt-6 max-w-[62ch] text-xl">
+          <p className="mt-4 max-w-[62ch] font-serif text-xl">
             Short write-ups of things I learned building the projects, with the
             numbers and the code behind them.
           </p>
-          <ol className="border-border mt-12 border-t">
+          <ol className="mt-10 grid gap-5">
             {notes.map((n) => (
-              <li key={n.slug} className="border-border border-b py-8">
+              <li
+                key={n.slug}
+                className="bg-surface border-border rounded-[2px] border p-6"
+              >
                 <p className="text-muted font-sans text-sm">
                   <time dateTime={n.published}>{formatDate(n.published)}</time>
                   {" · "}
                   {n.tags.map((t) => TAG_LABELS[t]).join(", ")}
                 </p>
-                <h2 className="mt-2 font-serif text-2xl leading-snug font-medium">
+                <h2 className="font-display mt-2 text-2xl leading-snug">
                   <Link href={`/notes/${n.slug}`}>{n.title}</Link>
                 </h2>
-                <p className="mt-2 max-w-[62ch]">{n.summary}</p>
+                <p className="mt-2 max-w-[62ch] font-serif">{n.summary}</p>
               </li>
             ))}
           </ol>
