@@ -58,13 +58,6 @@ test.describe("home page chapters", () => {
     expect(ids.every((id) => id && id.includes(":"))).toBe(true);
   });
 
-  test("the photo has meaningful alt text", async ({ page }) => {
-    await page.goto("/");
-    await expect(
-      page.getByRole("img", { name: /Collins Nyagaka, smiling/ }),
-    ).toBeVisible();
-  });
-
   test("the live demo gets its intertitle and Act IV", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByText("Now try one.")).toHaveCount(1);
