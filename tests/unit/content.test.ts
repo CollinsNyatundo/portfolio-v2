@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   aboutProblems,
+  recognitionProblems,
   skillProblems,
   buildIndex,
   ContentError,
@@ -16,6 +17,7 @@ import {
   collectLinks,
   isAllowedHost,
 } from "../../scripts/check-links.ts";
+import { recognition } from "../../content/experience.ts";
 import { demos } from "../../content/projects.ts";
 
 const fixtures = join(process.cwd(), "tests", "fixtures", "content");
@@ -157,6 +159,51 @@ describe("cv skills", () => {
   });
 });
 
+describe("recognition", () => {
+  const ok = {
+    title: "Selected for an index",
+    issuer: "Example",
+    awarded: "2026-11",
+    url: "https://hub.xerj.org/contributors/CollinsNyatundo",
+    summary: "One commit was selected for an open index.",
+    caseStudy: "sample-study",
+  };
+  const known = ["sample-study"];
+
+  it("accepts a valid entry", () => {
+    expect(recognitionProblems([ok], known)).toEqual([]);
+  });
+
+  it("rejects a missing or non-https link, a year-only date and extra fields", () => {
+    expect(recognitionProblems([{ ...ok, url: undefined }], known)).not.toEqual(
+      [],
+    );
+    expect(
+      recognitionProblems([{ ...ok, url: "http://hub.xerj.org/x" }], known),
+    ).not.toEqual([]);
+    expect(
+      recognitionProblems([{ ...ok, awarded: "2026" }], known),
+    ).not.toEqual([]);
+    expect(recognitionProblems([{ ...ok, rank: 1 }], known)).not.toEqual([]);
+  });
+
+  it("rejects repeats and unknown case studies", () => {
+    expect(recognitionProblems([ok, ok], known)).toContain(
+      "recognition: each link may appear once",
+    );
+    expect(recognitionProblems([ok], [])).toContain(
+      `recognition: caseStudy "sample-study" doesn't exist`,
+    );
+  });
+
+  it("links an allowed host and uses no em dash in the site's own entries", () => {
+    for (const r of recognition) {
+      expect(isAllowedHost(r.url)).toBe(true);
+      expect(`${r.title} ${r.summary}`).not.toContain("\u2014");
+    }
+  });
+});
+
 describe("demo references", () => {
   const studies = [
     { slug: "creditcard-fraud", published: true },
@@ -233,6 +280,7 @@ describe("link checker", () => {
       "https://github.com/CollinsNyatundo/production-ai-template",
     );
     expect(urls).toContain("https://github.com/CollinsNyatundo");
+    for (const r of recognition) expect(urls).toContain(r.url);
     expect(urls.every((u) => u.startsWith("https://"))).toBe(true);
   });
 });

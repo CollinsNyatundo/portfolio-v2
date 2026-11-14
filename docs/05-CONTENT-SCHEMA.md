@@ -16,6 +16,7 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `demo` | `content/demos.ts` (array) | A live demo's metadata and status |
 | `experience` | `content/experience.ts` (array) | One role |
 | `certification` | `content/certifications.ts` (array) | One certificate or degree |
+| `recognition` | `content/experience.ts` (array) | Outside recognition of public work, with its public proof link |
 | `note` | `content/notes/<slug>.mdx` | A technical article (P1) |
 | `evidence` | Inline in `caseStudy` frontmatter | A link backing a claim |
 | `rateLimitCounter` | Upstash Redis key | Requests per hashed IP per window |
@@ -101,6 +102,12 @@ The independent role's title must match on the CV, LinkedIn and the site (task 0
 Certificate (2024-07); Complete AI & ML Bootcamp, Zero To Mastery (2024-05); Python Data Wrangling, Great Learning
 (2025-01). Lower-signal items (job simulations, short courses) stay on LinkedIn only.
 
+### `recognition`
+
+`title` (max 80), `issuer`, `awarded` YYYY-MM, `url` (https, a public page that shows the recognition), `summary`
+(max 220), `caseStudy?` (slug of the study the work belongs to). An entry needs a public page as proof (D-05); each
+link appears once. Shown on `/about` and `/cv`, and checked by the link checker.
+
 ### `note`
 
 `slug`, `title`, `summary` (≤ 160), `published` date, `updated?`, `tags[]`, `caseStudy?`, `draft` boolean.
@@ -183,7 +190,7 @@ input is never rendered as HTML.
 - All content: Zod at build; CI fails on violations.
 - All demo/contact input: schema validation server-side (Pydantic for Python, Zod for Node). Client validation is UX only.
 - Strings: trimmed, length-limited, control characters stripped; output escaped by React/Jinja-free JSON.
-- URLs in content: must be `https://`; external hosts from an allow-list (`github.com`, `*.vercel.app`, `*.streamlit.app`, `tundotechsystems.com`, `huggingface.co`, `linkedin.com`, `zindi.africa`).
+- URLs in content: must be `https://`; external hosts from an allow-list (`github.com`, `*.vercel.app`, `*.streamlit.app`, `tundotechsystems.com`, `huggingface.co`, `linkedin.com`, `zindi.africa`, `hub.xerj.org`).
 
 ## 7. Server-side state, retention and deletion
 

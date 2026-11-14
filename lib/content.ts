@@ -4,7 +4,7 @@
  * so anything read here has already passed the Zod schemas.
  */
 import index from "@/content/.generated/index.json";
-import { certifications, experience } from "@/content/experience";
+import { certifications, experience, recognition } from "@/content/experience";
 import { demos, projects } from "@/content/projects";
 import type { CaseStudyFrontmatter, NoteFrontmatter } from "@/content/schema";
 
@@ -59,4 +59,4 @@ export function visibleExperience() {
   return experience.filter((e) => e.visible);
 }
 
-export { certifications, demos, projects };
+export { certifications, demos, projects, recognition };

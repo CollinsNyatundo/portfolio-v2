@@ -12,6 +12,7 @@ test.describe("about page", () => {
       "Focus areas",
       "How I work",
       "Experience",
+      "Recognition",
       "Education and certifications",
     ]);
     await expect(page.locator("[data-narrative]")).toContainText("Nairobi");

@@ -7,6 +7,7 @@
  *   node scripts/check-links.ts
  */
 import { join } from "node:path";
+import { recognition } from "../content/experience.ts";
 import { projects } from "../content/projects.ts";
 import { site } from "../content/site.ts";
 import { buildIndex } from "./build-content.ts";
@@ -18,6 +19,7 @@ export const ALLOWED_HOSTS = [
   "linkedin.com",
   "www.linkedin.com",
   "zindi.africa",
+  "hub.xerj.org",
 ];
 const ALLOWED_SUFFIXES = [".vercel.app", ".streamlit.app", ".mintlify.app"];
 
@@ -58,6 +60,8 @@ export function collectLinks(
         sleeps: p.sleeps,
       });
   }
+  for (const r of recognition)
+    links.push({ url: r.url, where: `recognition "${r.title}"` });
   for (const [name, url] of Object.entries(site.links))
     links.push({ url, where: `site.links.${name}` });
   return links;
