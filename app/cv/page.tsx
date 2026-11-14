@@ -10,6 +10,7 @@ import {
   certifications,
   evidenceSource,
   publishedCaseStudies,
+  recognition,
   visibleExperience,
 } from "@/lib/content";
 
@@ -159,6 +160,41 @@ export default function CvPage() {
             </ul>
           </section>
 
+          {recognition.length > 0 && (
+            <section aria-labelledby="recognition">
+              <h2 id="recognition" className={h2}>
+                Recognition
+              </h2>
+              <ul className="mt-3 space-y-3 print:mt-1 print:space-y-1">
+                {recognition.map((r) => (
+                  <li key={r.url} className="break-inside-avoid">
+                    <div className="flex flex-wrap justify-between gap-x-4">
+                      <h3 className="font-semibold">
+                        <a href={r.url}>{r.title}</a>
+                      </h3>
+                      <p className="text-muted font-sans text-sm print:text-[8.5pt]">
+                        {formatMonth(r.awarded)}
+                      </p>
+                    </div>
+                    <p>
+                      {r.summary}
+                      {r.caseStudy && (
+                        <>
+                          {" "}
+                          <span className="font-sans text-sm print:text-[8.5pt]">
+                            <Link href={`/work/${r.caseStudy}`}>
+                              Read the case study
+                            </Link>
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           <section aria-labelledby="education">
             <h2 id="education" className={h2}>
               Education and certifications
@@ -182,7 +218,7 @@ export default function CvPage() {
           </section>
         </main>
         <div className="mx-auto max-w-4xl print:hidden">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated="2026-11-14" />
         </div>
       </div>
     </>

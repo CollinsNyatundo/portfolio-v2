@@ -162,6 +162,21 @@ export const certification = z.strictObject({
   kind: z.enum(["degree", "certificate"]),
 });
 
+/**
+ * Outside recognition of public work. The link must be a public page that
+ * shows it (D-05); no public page, no entry.
+ */
+export const recognition = z.strictObject({
+  title: z.string().min(1).max(80),
+  issuer: z.string().min(1).max(60),
+  /** YYYY-MM the recognition became public. */
+  awarded: yearMonth,
+  url: https,
+  summary: z.string().min(1).max(220),
+  /** The case study the recognised work belongs to. */
+  caseStudy: slug.optional(),
+});
+
 export type CaseStudyFrontmatter = z.infer<typeof caseStudyFrontmatter>;
 export type NoteFrontmatter = z.infer<typeof noteFrontmatter>;
 export type Project = z.infer<typeof project>;
@@ -171,6 +186,7 @@ export type FocusArea = z.infer<typeof focusArea>;
 export type SkillGroup = z.infer<typeof skillGroup>;
 export type Principle = z.infer<typeof principle>;
 export type Certification = z.infer<typeof certification>;
+export type Recognition = z.infer<typeof recognition>;
 
 /** Body sections every case study must have, in this order (docs/05 §2). */
 export const CASE_STUDY_SECTIONS = [

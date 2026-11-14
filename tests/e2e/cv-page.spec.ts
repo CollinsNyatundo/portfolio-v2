@@ -11,6 +11,7 @@ test.describe("CV page", () => {
       "Technical skills",
       "Experience",
       "Selected work",
+      "Recognition",
       "Education and certifications",
     ]);
     const text = await page.locator("main").innerText();

@@ -14,7 +14,11 @@ import matter from "gray-matter";
 import type { ZodType } from "zod";
 import { focusAreas, principles } from "../content/about.ts";
 import { skills } from "../content/cv.ts";
-import { certifications, experience } from "../content/experience.ts";
+import {
+  certifications,
+  experience,
+  recognition as recognitionList,
+} from "../content/experience.ts";
 import { demos, projects } from "../content/projects.ts";
 import {
   CASE_STUDY_SECTIONS,
@@ -26,6 +30,7 @@ import {
   noteFrontmatter,
   principle,
   project,
+  recognition,
   skillGroup,
   type CaseStudyFrontmatter,
   type Demo,
@@ -41,6 +46,24 @@ export function skillProblems(groups: unknown[]): string[] {
   const names = groups.map((g) => (g as { group?: unknown }).group);
   if (new Set(names).size !== names.length)
     problems.push("skills: each group may appear once");
+  return problems;
+}
+
+/** Problems in the recognition list: schema, one entry per link, known case study. */
+export function recognitionProblems(
+  items: unknown[],
+  caseStudySlugs: string[],
+): string[] {
+  const problems: string[] = [];
+  items.forEach((r, i) => check(recognition, r, `recognition[${i}]`, problems));
+  const urls = items.map((r) => (r as { url?: unknown }).url);
+  if (new Set(urls).size !== urls.length)
+    problems.push("recognition: each link may appear once");
+  for (const r of items) {
+    const study = (r as { caseStudy?: unknown }).caseStudy;
+    if (typeof study === "string" && !caseStudySlugs.includes(study))
+      problems.push(`recognition: caseStudy "${study}" doesn't exist`);
+  }
   return problems;
 }
 
@@ -249,6 +272,11 @@ if (import.meta.main) {
   const root = join(import.meta.dirname, "..");
   try {
     const index = buildIndex(join(root, "content"));
+    const recognitionIssues = recognitionProblems(
+      recognitionList,
+      index.caseStudies.map((c) => c.slug),
+    );
+    if (recognitionIssues.length) throw new ContentError(recognitionIssues);
     if (!process.argv.includes("--check")) {
       const out = join(root, "content", ".generated");
       mkdirSync(out, { recursive: true });

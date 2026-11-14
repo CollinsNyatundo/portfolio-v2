@@ -12,6 +12,7 @@ import {
   certifications,
   projects,
   publishedCaseStudies,
+  recognition,
   visibleExperience,
 } from "@/lib/content";
 
@@ -162,6 +163,46 @@ export default function AboutPage() {
             </ol>
           </section>
 
+          {recognition.length > 0 && (
+            <section aria-labelledby="recognition" className="mt-24">
+              <h2 id="recognition" className={h2}>
+                Recognition
+              </h2>
+              <ul className="border-border mt-8 border-t">
+                {recognition.map((r) => (
+                  <li
+                    key={r.url}
+                    className="border-border grid gap-2 border-b py-6 md:grid-cols-[11rem_1fr] md:gap-10"
+                  >
+                    <p className="text-muted font-sans text-sm">
+                      <time dateTime={r.awarded}>{formatMonth(r.awarded)}</time>
+                    </p>
+                    <div>
+                      <h3 className="font-sans text-lg font-semibold">
+                        <a
+                          href={r.url}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          {r.title}
+                          <span className="sr-only"> (opens in new tab)</span>
+                        </a>
+                      </h3>
+                      <p className="mt-2 max-w-[62ch]">{r.summary}</p>
+                      {r.caseStudy && (
+                        <p className="mt-3 font-sans text-sm">
+                          <Link href={`/work/${r.caseStudy}`}>
+                            Read the case study
+                          </Link>
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           <section aria-labelledby="education" className="mt-24">
             <h2 id="education" className={h2}>
               Education and certifications
@@ -196,7 +237,7 @@ export default function AboutPage() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated="2026-11-14" />
         </div>
       </div>
     </>

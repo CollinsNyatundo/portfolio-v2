@@ -1,4 +1,4 @@
-import type { Certification, Experience } from "./schema.ts";
+import type { Certification, Experience, Recognition } from "./schema.ts";
 
 /**
  * Roles, newest first (D-16). Employer roles list generic duties only (D-20).
@@ -136,5 +136,18 @@ export const certifications: Certification[] = [
     issuer: "Zero To Mastery Academy",
     issued: "2024-05",
     kind: "certificate",
+  },
+];
+
+/** Outside recognition, newest first. Each entry links the public page that shows it (D-05). */
+export const recognition: Recognition[] = [
+  {
+    title: "Selected for the XERJ Corpus Hub",
+    issuer: "XERJ",
+    awarded: "2026-11",
+    url: "https://hub.xerj.org/contributors/CollinsNyatundo",
+    summary:
+      "The commit that made the fraud evaluation reproducible was selected for the hub, an open index of reference code that AI coding agents search before they write their own.",
+    caseStudy: "creditcard-fraud",
   },
 ];
