@@ -11,8 +11,7 @@ import { ScrollEngine } from "@/components/home/scroll-engine";
 import { mailtoHref, site } from "@/content/site";
 import { demos, featuredCaseStudies, projects } from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
-
-const BUILD_DATE = "2026-11-04";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 const failures = [
   {
@@ -430,7 +429,7 @@ export default async function Home() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-16">
-          <Colophon updated={BUILD_DATE} />
+          <Colophon updated={PAGE_UPDATED["/"]} />
         </div>
       </div>
     </>

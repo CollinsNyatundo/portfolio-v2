@@ -5,6 +5,7 @@ import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
 import { TAG_LABELS } from "@/content/tags";
 import { publishedNotes, showNotes } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "Notes",
@@ -55,7 +56,7 @@ export default function NotesPage() {
           </ol>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-05" />
+          <Colophon updated={PAGE_UPDATED["/notes"]} />
         </div>
       </div>
     </>
