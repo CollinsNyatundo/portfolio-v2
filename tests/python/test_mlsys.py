@@ -180,7 +180,16 @@ O, C = mlsys.MARK_OPEN, mlsys.MARK_CLOSE
         ("\n## Monitoring `psi_score` with \\(\\mathbf{x}_t\\)", "Monitoring psi_score with x_t"),
         ("Cites [12] and costs $5 to run; 3 * 4 = 12", "Cites [12] and costs $5 to run; 3 * 4 = 12"),
         ("\\[p_i = \\frac{e^{z_i}}{\\sum_{j} e^{z_j}}\\]", "p_i = (e^z_i)/(Σ_j e^z_j)"),
-        ("2\\times to 10\\times; FP32 | 32 | \\sim 10^{-38}", "2× to 10×; FP32 · 32 · ~ 10^-38"),
+        ("2\\times to 10\\times", "2× to 10×"),
+        ("| Format | Bits |\n|---|:---:|\n| FP32 | 32 |", "Format · Bits FP32 · 32"),
+        ("cut mid-row: FP16 | 16 |\nnext line", "cut mid-row: FP16 · 16 next line"),
+        # Reviewer cases (PR #34): pipes in maths are not table syntax.
+        ("Alert when |Z| > 3 or |Δ%| > 50%", "Alert when |Z| > 3 or |Δ%| > 50%"),
+        ("the shift in \\(P(Y | X)\\)", "the shift in P(Y | X)"),
+        ("\\(\\frac{QK^T}{\\sqrt{d_k}}\\)", "(QK^T)/(√(d_k))"),
+        # A snippet can stop before the braces close.
+        ("Where \\sqrt{d", "Where √d"),
+        ("427.3\\text{ KB", "427.3 KB"),
         ("<sup>1</sup> keep snake_case_names intact", "1 keep snake_case_names intact"),
     ],
 )
