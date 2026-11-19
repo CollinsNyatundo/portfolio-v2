@@ -183,9 +183,10 @@ html:not(.sc-ready) :is([data-sc-in], [data-sc-stagger] > *) {
 }
 
 /*
- * Printing, saving as PDF and full-page captures don't scroll, so the
- * engine's scroll-driven reveals would leave sections blank. On paper,
- * show everything at rest. The !important beats the engine's inline styles.
+ * Printing and saving as PDF don't scroll, so the engine's scroll-driven
+ * reveals would leave sections blank on paper. Show everything at rest there.
+ * (Screen-media full-page screenshots are not covered: they still need a
+ * scroll first.) The !important beats the engine's inline styles.
  */
 @media print {
   :is([data-sc-in], [data-sc-stagger] > *, [data-sc-reveal], [data-sc-cue]) {

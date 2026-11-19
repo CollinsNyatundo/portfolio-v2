@@ -111,20 +111,43 @@ _TEX_SYMBOLS = {
     "mu": "μ", "pi": "π", "sigma": "σ", "tau": "τ", "phi": "φ", "omega": "ω",
     "quad": " ", "qquad": " ", "left": "", "right": "", "log": "log",
     "exp": "exp", "max": "max", "min": "min", "hat": "", "bar": "",
+    # Cut-off formulas: a snippet can end before the braces close.
+    "sqrt": "√", "frac": "",
+    "text": "", "textbf": "", "textit": "", "mathbf": "", "mathrm": "",
+    "mathit": "", "mathcal": "", "operatorname": "", "emph": "",
 }
 _TEX_CMD = re.compile(r"\\([a-zA-Z]+)")
 _SCRIPT = re.compile(r"([_^])\{([^{}]*)\}")
 _TEX_SPACE = re.compile(r"\\[ ,;!]")
-_TABLE_RULE = re.compile(r"\|?\s*:?-{3,}:?\s*(?=\|)")
-_PIPES = re.compile(r"\s*\|[\s|]*")
+# A Markdown table row: two or more pipes, and the line starts or ends with
+# one (FTS5 snippets can cut a row mid-way). Pipes in prose and maths, such
+# as |Z| > 3 or P(Y | X), are not table syntax and are left alone.
+_TABLE_SEP_ROW = re.compile(r"^[ \t]*\|?[ \t]*:?-{3,}:?[ \t]*(\|[ \t]*:?-{3,}:?[ \t]*)*\|?[ \t]*$", re.M)
+_TABLE_CELL_SEP = re.compile(r"[ \t]*\|[ \t]*")
+
+
+def _table_rows(s: str) -> str:
+    def row(line: str) -> str:
+        t = line.strip()
+        if t.count("|") >= 2 and (t.startswith("|") or t.endswith("|")):
+            return _TABLE_CELL_SEP.sub(" · ", t.strip("|").strip())
+        return line
+
+    s = _TABLE_SEP_ROW.sub("", s)
+    return "\n".join(row(line) for line in s.split("\n"))
 
 
 def _tex(s: str) -> str:
-    # Flatten sub- and superscripts first, so \frac and \sqrt see flat args.
-    for _ in range(3):
+    # Innermost first: flatten scripts, roots and fractions until nothing
+    # changes, so \frac{QK^T}{\sqrt{d_k}} keeps its division.
+    for _ in range(6):
+        before = s
         s = _SCRIPT.sub(r"\1\2", s)
-    s = _FRAC.sub(r"(\1)/(\2)", s)
-    s = _SQRT.sub(r"√(\1)", s)
+        s = _TEX_WRAP.sub(r"\1", s)
+        s = _SQRT.sub(r"√(\1)", s)
+        s = _FRAC.sub(r"(\1)/(\2)", s)
+        if s == before:
+            break
     s = _TEX_SPACE.sub(" ", s)
     s = _TEX_CMD.sub(lambda m: _TEX_SYMBOLS.get(m.group(1), m.group(0)), s)
     return s.replace("{", "").replace("}", "")
@@ -141,8 +164,7 @@ def plain_snippet(snip: str) -> str:
     s = _TEX_WRAP.sub(r"\1", s)
     s = _MATH_DELIM.sub("", s)
     s = _tex(s)
-    s = _TABLE_RULE.sub("", s)
-    s = _PIPES.sub(" · ", s).strip(" ·")
+    s = _table_rows(s)
     s = _STRONG.sub("", s)
     s = _EM.sub(r"\1", s)
     s = _CODE.sub("", s)
