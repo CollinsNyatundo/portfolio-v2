@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { publishedCaseStudies, publishedNotes, showNotes } from "@/lib/content";
+import { PAGE_UPDATED, type FixedPage } from "@/lib/pages";
 import { absoluteUrl } from "@/lib/seo";
 
 /** Every public page; filtered views (?tag=, ?topic=) are left out. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = [
+  const fixed: FixedPage[] = [
     "/",
     "/work",
     "/demos",
@@ -13,8 +14,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/contact",
     "/cv",
-  ].map((path) => ({
+  ];
+  const pages = fixed.map((path) => ({
     url: absoluteUrl(path),
+    lastModified: PAGE_UPDATED[path],
   }));
   const studies = publishedCaseStudies().map((s) => ({
     url: absoluteUrl(`/work/${s.slug}`),
@@ -22,7 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
   const notes = showNotes()
     ? [
-        { url: absoluteUrl("/notes") },
+        { url: absoluteUrl("/notes"), lastModified: PAGE_UPDATED["/notes"] },
         ...publishedNotes().map((n) => ({
           url: absoluteUrl(`/notes/${n.slug}`),
           lastModified: n.updated ?? n.published,

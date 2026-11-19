@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
+import { JsonLd } from "@/components/json-ld";
 import { caseStudyBySlug, noteBySlug } from "@/lib/content";
+import { breadcrumbJsonLd, noteJsonLd } from "@/lib/seo";
 
 function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -45,6 +47,14 @@ export default async function NotePage({ params }: PageProps<"/notes/[slug]">) {
 
   return (
     <>
+      <JsonLd data={noteJsonLd(note)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Notes", path: "/notes" },
+          { name: note.title, path: `/notes/${note.slug}` },
+        ])}
+      />
       <Folio marker="Note" title={note.title} />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">

@@ -6,6 +6,7 @@ import type { CaseStudyFrontmatter } from "@/content/schema";
 import { TAG_LABELS, type Tag } from "@/content/tags";
 import { evidenceSource, projects, publishedCaseStudies } from "@/lib/content";
 import { parseTag, workIndex } from "@/lib/work";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -220,7 +221,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
           )}
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated={PAGE_UPDATED["/work"]} />
         </div>
       </div>
     </>

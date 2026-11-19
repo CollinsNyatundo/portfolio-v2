@@ -8,6 +8,7 @@ import { site } from "@/content/site";
 import { projects, publishedCaseStudies } from "@/lib/content";
 import { contactMailto, contactTopic } from "@/lib/contact";
 import { contactFormEnabled } from "@/lib/contact-form";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -134,7 +135,7 @@ export default async function ContactPage({
           </section>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated={PAGE_UPDATED["/contact"]} />
         </div>
       </div>
     </>

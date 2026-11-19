@@ -15,6 +15,7 @@ import {
   recognition,
   visibleExperience,
 } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "About",
@@ -237,7 +238,7 @@ export default function AboutPage() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-14" />
+          <Colophon updated={PAGE_UPDATED["/about"]} />
         </div>
       </div>
     </>

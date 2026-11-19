@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 import { site } from "@/content/site";
-import { publishedCaseStudies } from "@/lib/content";
+import { publishedCaseStudies, publishedNotes } from "@/lib/content";
 import {
   SITE_URL,
   absoluteUrl,
+  breadcrumbJsonLd,
+  caseStudyJsonLd,
   evidenceLabel,
   jsonLdHtml,
+  noteJsonLd,
   personJsonLd,
 } from "@/lib/seo";
 
@@ -70,5 +73,42 @@ describe("Person JSON-LD", () => {
     const html = jsonLdHtml({ name: "</script><script>alert(1)</script>" });
     expect(html).not.toContain("<");
     expect(JSON.parse(html).name).toBe("</script><script>alert(1)</script>");
+  });
+});
+
+describe("sitemap dates", () => {
+  it("gives every entry a lastModified date", () => {
+    for (const e of sitemap()) {
+      expect(e.lastModified, e.url).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+});
+
+describe("article structured data", () => {
+  it("describes a case study with only dates on record", () => {
+    const study = publishedCaseStudies()[0];
+    const a = caseStudyJsonLd(study);
+    expect(a["@type"]).toBe("Article");
+    expect(a.headline).toBe(study.title);
+    expect(a.dateModified).toBe(study.updated);
+    expect(a).not.toHaveProperty("datePublished");
+    expect(a.author.name).toBe(site.name);
+  });
+
+  it("dates a note from its front matter", () => {
+    for (const note of publishedNotes()) {
+      const a = noteJsonLd(note);
+      expect(a.datePublished).toBe(note.published);
+      expect(a.dateModified).toBe(note.updated ?? note.published);
+    }
+  });
+
+  it("numbers breadcrumbs from 1 with absolute URLs", () => {
+    const b = breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Work", path: "/work" },
+    ]);
+    expect(b.itemListElement.map((i) => i.position)).toEqual([1, 2]);
+    expect(b.itemListElement[1].item).toBe(absoluteUrl("/work"));
   });
 });

@@ -8,7 +8,9 @@ import {
   LimitsList,
   MetricTable,
 } from "@/components/case-study/parts";
+import { JsonLd } from "@/components/json-ld";
 import { caseStudyBySlug } from "@/lib/content";
+import { breadcrumbJsonLd, caseStudyJsonLd } from "@/lib/seo";
 
 const visibilityLabel = {
   public: "Public code",
@@ -59,6 +61,14 @@ export default async function CaseStudyPage({
 
   return (
     <>
+      <JsonLd data={caseStudyJsonLd(study)} />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Work", path: "/work" },
+          { name: study.title, path: `/work/${study.slug}` },
+        ])}
+      />
       <Folio marker="Work" title={study.title} />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">

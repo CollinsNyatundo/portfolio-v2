@@ -43,6 +43,71 @@ export function personJsonLd() {
   };
 }
 
+/** The author block shared by every article. */
+function author() {
+  return { "@type": "Person", name: site.name, url: SITE_URL };
+}
+
+/**
+ * schema.org Article for a case study. Only dates on record are used: a case
+ * study has an `updated` date but no publication date (rule 14).
+ */
+export function caseStudyJsonLd(study: {
+  slug: string;
+  title: string;
+  outcome: string;
+  updated: string;
+}) {
+  const url = absoluteUrl(`/work/${study.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: study.title,
+    description: study.outcome,
+    url,
+    mainEntityOfPage: url,
+    dateModified: study.updated,
+    author: author(),
+    image: absoluteUrl(`/work/${study.slug}/opengraph-image`),
+  };
+}
+
+/** schema.org Article for a note, with its publication date. */
+export function noteJsonLd(note: {
+  slug: string;
+  title: string;
+  summary: string;
+  published: string;
+  updated?: string;
+}) {
+  const url = absoluteUrl(`/notes/${note.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: note.title,
+    description: note.summary,
+    url,
+    mainEntityOfPage: url,
+    datePublished: note.published,
+    dateModified: note.updated ?? note.published,
+    author: author(),
+  };
+}
+
+/** schema.org BreadcrumbList from the home page down to the current page. */
+export function breadcrumbJsonLd(trail: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map((step, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: step.name,
+      item: absoluteUrl(step.path),
+    })),
+  };
+}
+
 /**
  * JSON for a `<script type="application/ld+json">` data block. `<` is escaped
  * so no string in the data can close the element (Next.js JSON-LD guide).

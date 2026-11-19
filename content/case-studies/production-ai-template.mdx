@@ -60,7 +60,7 @@ limits:
 featured: false
 order: 4
 published: true
-updated: "2026-11-05"
+updated: "2026-11-19"
 ---
 
 ## Problem
@@ -81,6 +81,10 @@ A FastAPI service answers queries through a ReAct-style loop: it routes the ques
 The API ignores any tenant, user or session scope the caller sends where identity matters. Those values are set from the authenticated principal, and ingestion records, collections, cache entries, memories and sessions are all scoped by tenant.
 
 Calls to the model and to search sit behind circuit breakers, so repeated failures open the breaker and the agent gets a clear "blocked" result instead of retrying. Input and output filters, upload limits and URL checks against private addresses guard the edges. OpenTelemetry hooks trace each step.
+
+<Figure caption="One query's path. Scope comes from the login, never the request, and the loop can't run past five turns.">
+  <ProductionTemplatePipeline />
+</Figure>
 
 ## Evaluation
 

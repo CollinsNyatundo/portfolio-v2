@@ -5,6 +5,7 @@ import { Colophon } from "@/components/colophon";
 import { FraudDemo } from "@/components/demos/fraud-demo";
 import { Folio } from "@/components/folio";
 import { caseStudyBySlug, demos } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 const demo = demos.find((d) => d.slug === "fraud")!;
 const study = caseStudyBySlug(demo.caseStudy);
@@ -135,7 +136,7 @@ export default function FraudDemoPage() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated={PAGE_UPDATED["/demos/fraud"]} />
         </div>
       </div>
     </>

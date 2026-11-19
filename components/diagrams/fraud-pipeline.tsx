@@ -95,3 +95,67 @@ export function ComplianceGuardPipeline() {
     />
   );
 }
+
+/** GEO-AI cropland mapping's modelling path (facts: the case study's Approach). */
+export function GeoAiPipeline() {
+  return (
+    <Pipeline
+      id="geo-ai-pipeline"
+      title="How a labelled point becomes a prediction"
+      description="Satellite rows are aggregated by location, and each labelled point is matched to its nearest pixels with a BallTree search, falling back to rounded coordinates where coverage is thin. Vegetation and water indices and a radar ratio are added to the raw bands, and the 40 most informative features are kept. RandomForest, XGBoost, LightGBM and CatBoost are tuned with Optuna and stacked, with a small neural network on top."
+      steps={[
+        { title: "Satellite rows", detail: "aggregated by location" },
+        {
+          title: "Point matching",
+          detail: "BallTree search for the nearest pixels",
+        },
+        {
+          title: "Features",
+          detail: "bands plus NDVI, NDWI, EVI, SAVI, radar",
+        },
+        { title: "Selection", detail: "the 40 most informative features" },
+        {
+          title: "Stacked ensemble",
+          detail: "four tree models, a small neural net on top",
+        },
+      ]}
+      notes={[
+        "Fallback: rounded coordinates where coverage is thin.",
+        "Tuning: Optuna for each tree model.",
+        "Class imbalance: oversampling was tried.",
+      ]}
+    />
+  );
+}
+
+/** production-ai-template's request path (facts: the case study's Approach). */
+export function ProductionTemplatePipeline() {
+  return (
+    <Pipeline
+      id="production-template-pipeline"
+      title="How one query is answered"
+      description="A request reaches a FastAPI service, which sets tenant, user and session scope from the authenticated principal and ignores any scope the caller sends. Input filters run, then a ReAct-style loop routes the question, may split it, calls permission-gated tools and reranks the results, capped at five turns. Model and search calls sit behind circuit breakers. Output filters run before the answer returns, and OpenTelemetry traces each step."
+      steps={[
+        { title: "Request", detail: "FastAPI; input filters, upload limits" },
+        {
+          title: "Scope",
+          detail: "tenant, user, session from the login",
+        },
+        {
+          title: "ReAct loop",
+          detail: "route, split, permission-gated tools, rerank",
+        },
+        {
+          title: "Turn cap",
+          detail: "at five turns it answers, no more calls",
+        },
+        { title: "Answer", detail: "output filters before it returns" },
+      ]}
+      notes={[
+        "Model and search calls sit behind circuit breakers.",
+        "URLs are checked against private addresses.",
+        "OpenTelemetry traces each step.",
+      ]}
+    />
+  );
+}
