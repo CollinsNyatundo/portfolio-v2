@@ -58,6 +58,11 @@ export default function FraudDemoPage() {
                 the model&apos;s own feature contributions, in log-odds units.
               </p>
               <p>
+                Fraud is rare in this data (0.17% of transactions), so the tuned
+                threshold sits far below 50%: a probability that looks small can
+                still be many times the normal rate.
+              </p>
+              <p>
                 The model time is the in-process inference alone; the round trip
                 includes the network. Nothing you enter is stored.
               </p>
@@ -78,11 +83,27 @@ export default function FraudDemoPage() {
               <dd>{demo.modelCard.split}</dd>
               <dt className="text-muted font-sans text-sm">Measured</dt>
               <dd>
-                <ul className="list-disc space-y-1 pl-5">
-                  {demo.modelCard.metrics.map((m) => (
-                    <li key={m}>{m}</li>
-                  ))}
-                </ul>
+                {/* The figures come from the case study, never copied here,
+                    so they keep their dataset and caveat (AGENTS.md rule 1). */}
+                {study && study.metrics.length > 0 ? (
+                  <ul className="space-y-3">
+                    {study.metrics.map((m) => (
+                      <li key={m.name}>
+                        {m.name}{" "}
+                        <span className="figure font-medium">{m.value}</span>
+                        <span className="text-muted block font-sans text-sm">
+                          {m.dataset}. {m.caveat}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="list-disc space-y-1 pl-5">
+                    {demo.modelCard.metrics.map((m) => (
+                      <li key={m}>{m}</li>
+                    ))}
+                  </ul>
+                )}
               </dd>
               <dt className="text-muted font-sans text-sm">Limits</dt>
               <dd>

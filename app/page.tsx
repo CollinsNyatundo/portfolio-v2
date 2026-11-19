@@ -9,7 +9,7 @@ import { Folio } from "@/components/folio";
 import { EvidenceLedger } from "@/components/home/evidence-ledger";
 import { ScrollEngine } from "@/components/home/scroll-engine";
 import { mailtoHref, site } from "@/content/site";
-import { demos, projects, publishedCaseStudies } from "@/lib/content";
+import { demos, featuredCaseStudies, projects } from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
 
 const BUILD_DATE = "2026-11-04";
@@ -37,7 +37,8 @@ const failures = [
 export default async function Home() {
   // JSON-LD is a data block, never executed; it still carries the nonce (D-28).
   const nonce = (await headers()).get("x-nonce") ?? undefined;
-  const studies = publishedCaseStudies();
+  // Featured studies only (docs/03): the rest are on /work.
+  const studies = featuredCaseStudies();
   const ledger = ledgerEntries();
   const liveDemo = demos.find(
     (d) => d.slug === "fraud" && d.status !== "offline",

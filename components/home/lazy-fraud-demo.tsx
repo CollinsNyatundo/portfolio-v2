@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 
 // The demo's code loads only when Act IV comes near, so the first view of
@@ -10,13 +11,24 @@ const FraudDemo = dynamic(
   { loading: () => <DemoPlaceholder /> },
 );
 
+/**
+ * Shown in the server HTML and until the demo's code arrives. It carries a
+ * real link, so a reader without JavaScript (or a crawler) still reaches the
+ * demo instead of three empty bars.
+ */
 function DemoPlaceholder() {
   return (
-    <ul aria-label="Loading the demo" className="space-y-3">
-      {[0, 1, 2].map((i) => (
-        <li key={i} className="bg-surface-2 h-10 rounded-sm" />
-      ))}
-    </ul>
+    <div>
+      <ul aria-hidden="true" className="space-y-3">
+        {[0, 1, 2].map((i) => (
+          <li key={i} className="bg-surface-2 h-10 rounded-sm" />
+        ))}
+      </ul>
+      <p className="text-muted mt-4 font-sans text-sm">
+        Loading the demo. It also runs on its own page:{" "}
+        <Link href="/demos/fraud">open the fraud-score explorer</Link>.
+      </p>
+    </div>
   );
 }
 
