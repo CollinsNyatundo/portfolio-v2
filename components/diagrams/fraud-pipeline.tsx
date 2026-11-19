@@ -35,7 +35,7 @@ export function LegalAiPipeline() {
     <Pipeline
       id="legalai-pipeline"
       title="How a legal question is answered"
-      description="A question first passes a jurisdiction guard. It is embedded with Voyage, and vector and full-text candidates are fused in Postgres with reciprocal rank fusion. Voyage reranks the candidates. An evidence floor returns nothing rather than weak matches, and a citation check flags any section that doesn't exist in the corpus. Answers are generated with Gemini or NVIDIA NIM, with fallback, inside the firm's row-level security."
+      description="A question first passes a jurisdiction guard. It is embedded with Voyage, and vector and full-text candidates are fused in Postgres with reciprocal rank fusion. In parallel, a language model picks up to 10 Acts from the 60 nearest the question, and their best passages join the candidates. Voyage reranks them all, keeping a slot for each picked Act. An evidence floor returns nothing rather than weak matches, and a citation check flags any section that doesn't exist in the corpus. Answers are generated with Gemini or NVIDIA NIM, with fallback, inside the firm's row-level security."
       steps={[
         { title: "Question", detail: "jurisdiction guard first" },
         {
@@ -43,13 +43,18 @@ export function LegalAiPipeline() {
           detail: "pgvector and full-text, fused with RRF",
         },
         {
+          title: "Act router",
+          detail: "an LLM picks up to 10 of the 60 nearest Acts",
+        },
+        {
           title: "Rerank",
-          detail: "Voyage rerank, at most 2 chunks per document",
+          detail: "Voyage rerank; each picked Act keeps a slot",
         },
         { title: "Evidence floor", detail: "returns nothing below 0.45" },
         { title: "Citation check", detail: "flags sections not in the corpus" },
       ]}
       notes={[
+        "Router: Claude Haiku 5.5 via OpenRouter, with fallback.",
         "Generation: Gemini or NVIDIA NIM, with fallback.",
         "Every query runs under the firm's row-level security.",
       ]}

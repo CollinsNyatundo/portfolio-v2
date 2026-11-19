@@ -124,6 +124,10 @@ function Outcome({
             at the tuned threshold of {pct(result.threshold)}
           </span>
         </p>
+        <p className="text-muted mt-2 font-sans text-sm">
+          Fraud is rare (0.17% of transactions in this data), so the threshold
+          sits far below 50%.
+        </p>
         <p className="text-muted mt-4 font-sans text-sm">
           Model {result.latencyMs.model} ms (in-process inference)
           {roundTrip !== undefined &&

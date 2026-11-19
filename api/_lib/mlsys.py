@@ -85,6 +85,70 @@ def source_commit() -> str:
     return json.loads((DATA_DIR / "mlsys.json").read_text(encoding="utf-8"))["commit"]
 
 
+# Markdown and LaTeX left in the chapter text. The index keeps the source as
+# written; snippets are cleaned only for display (the match markers survive).
+_IMAGE = re.compile(r"!\[([^\]]*)\]\([^)]*\)")
+_LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_MATH_DELIM = re.compile(r"\\[()\[\]]")
+_TEX_WRAP = re.compile(r"\\(?:text|textbf|textit|mathbf|mathrm|mathit|mathcal|operatorname|emph)\{([^{}]*)\}")
+_STRONG = re.compile(r"\*\*|__")
+_EM = re.compile(r"(?<![\w*])\*(?=\S)(.+?)(?<=\S)\*(?![\w*])")
+# Line-start syntax: FTS5 snippets keep the source newlines, so these run
+# before whitespace is collapsed ("3 * 4" mid-line is left alone).
+_BULLET = re.compile(r"^[ \t]*[*+-][ \t]+", re.M)
+_HEADING = re.compile(r"^[ \t]*#{1,6}[ \t]+", re.M)
+_QUOTE = re.compile(r"^[ \t]*>[ \t]?", re.M)
+_CODE = re.compile(r"`+")
+_TAG = re.compile(r"</?[a-zA-Z][^<>]*>")
+_FRAC = re.compile(r"\\frac\{([^{}]*)\}\{([^{}]*)\}")
+_SQRT = re.compile(r"\\sqrt\{([^{}]*)\}")
+_TEX_SYMBOLS = {
+    "times": "×", "cdot": "·", "rightarrow": "→", "to": "→", "leftarrow": "←",
+    "sim": "~", "approx": "≈", "leq": "≤", "le": "≤", "geq": "≥", "ge": "≥",
+    "neq": "≠", "pm": "±", "infty": "∞", "in": "∈", "sum": "Σ", "prod": "Π",
+    "partial": "∂", "nabla": "∇", "alpha": "α", "beta": "β", "gamma": "γ",
+    "delta": "δ", "epsilon": "ε", "eta": "η", "theta": "θ", "lambda": "λ",
+    "mu": "μ", "pi": "π", "sigma": "σ", "tau": "τ", "phi": "φ", "omega": "ω",
+    "quad": " ", "qquad": " ", "left": "", "right": "", "log": "log",
+    "exp": "exp", "max": "max", "min": "min", "hat": "", "bar": "",
+}
+_TEX_CMD = re.compile(r"\\([a-zA-Z]+)")
+_SCRIPT = re.compile(r"([_^])\{([^{}]*)\}")
+_TEX_SPACE = re.compile(r"\\[ ,;!]")
+_TABLE_RULE = re.compile(r"\|?\s*:?-{3,}:?\s*(?=\|)")
+_PIPES = re.compile(r"\s*\|[\s|]*")
+
+
+def _tex(s: str) -> str:
+    # Flatten sub- and superscripts first, so \frac and \sqrt see flat args.
+    for _ in range(3):
+        s = _SCRIPT.sub(r"\1\2", s)
+    s = _FRAC.sub(r"(\1)/(\2)", s)
+    s = _SQRT.sub(r"√(\1)", s)
+    s = _TEX_SPACE.sub(" ", s)
+    s = _TEX_CMD.sub(lambda m: _TEX_SYMBOLS.get(m.group(1), m.group(0)), s)
+    return s.replace("{", "").replace("}", "")
+
+
+def plain_snippet(snip: str) -> str:
+    """Display text for a snippet: no Markdown or LaTeX syntax, markers kept."""
+    s = _BULLET.sub("", snip)
+    s = _HEADING.sub("", s)
+    s = _QUOTE.sub("", s)
+    s = _IMAGE.sub(r"\1", s)
+    s = _LINK.sub(r"\1", s)
+    s = _TAG.sub("", s)
+    s = _TEX_WRAP.sub(r"\1", s)
+    s = _MATH_DELIM.sub("", s)
+    s = _tex(s)
+    s = _TABLE_RULE.sub("", s)
+    s = _PIPES.sub(" · ", s).strip(" ·")
+    s = _STRONG.sub("", s)
+    s = _EM.sub(r"\1", s)
+    s = _CODE.sub("", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def search(text: str, limit: int) -> list[dict]:
     """BM25-ranked section chunks: AND first, OR if nothing matches."""
     db = _connect()
@@ -115,7 +179,7 @@ def search(text: str, limit: int) -> list[dict]:
             {
                 "chapter": row["chapter"],
                 "section": row["heading"].split(" > ")[-1],
-                "snippet": re.sub(r"\s+", " ", row["snip"]).strip(),
+                "snippet": plain_snippet(row["snip"]),
                 "url": (
                     "https://github.com/CollinsNyatundo/machine-learning-systems-plugin/blob/"
                     f"{commit}/skills/machine-learning-systems/chapters/{row['file']}"

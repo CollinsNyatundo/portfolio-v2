@@ -182,6 +182,20 @@ html:not(.sc-ready) :is([data-sc-in], [data-sc-stagger] > *) {
   transform: none !important;
 }
 
+/*
+ * Printing, saving as PDF and full-page captures don't scroll, so the
+ * engine's scroll-driven reveals would leave sections blank. On paper,
+ * show everything at rest. The !important beats the engine's inline styles.
+ */
+@media print {
+  :is([data-sc-in], [data-sc-stagger] > *, [data-sc-reveal], [data-sc-cue]) {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+}
+
 .chapter__opener {
   margin-inline: auto;
   max-width: 64rem;

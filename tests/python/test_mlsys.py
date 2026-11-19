@@ -160,3 +160,37 @@ def test_snippets_mark_matches_with_control_characters():
     _, body, _ = call("/api/demos/mlsys/search?q=quantization")
     snippet = body["results"][0]["snippet"]
     assert mlsys.MARK_OPEN in snippet and mlsys.MARK_CLOSE in snippet
+
+
+O, C = mlsys.MARK_OPEN, mlsys.MARK_CLOSE
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        # The live result that showed raw syntax on the demo page.
+        (
+            f"* **{O}Data{C} {O}Drift{C}**: Live distributions drift.\n"
+            f"  * *Covariate Drift ({O}Data{C} Drift)*: Input distribution \\(P(X)\\) changes",
+            f"{O}Data{C} {O}Drift{C}: Live distributions drift. "
+            f"Covariate Drift ({O}Data{C} Drift): Input distribution P(X) changes",
+        ),
+        ("See [the {O}drift{C} chapter](ch14.md) and ![a chart](x.png).".replace("{O}", O).replace("{C}", C),
+         f"See the {O}drift{C} chapter and a chart."),
+        ("\n## Monitoring `psi_score` with \\(\\mathbf{x}_t\\)", "Monitoring psi_score with x_t"),
+        ("Cites [12] and costs $5 to run; 3 * 4 = 12", "Cites [12] and costs $5 to run; 3 * 4 = 12"),
+        ("\\[p_i = \\frac{e^{z_i}}{\\sum_{j} e^{z_j}}\\]", "p_i = (e^z_i)/(Σ_j e^z_j)"),
+        ("2\\times to 10\\times; FP32 | 32 | \\sim 10^{-38}", "2× to 10×; FP32 · 32 · ~ 10^-38"),
+        ("<sup>1</sup> keep snake_case_names intact", "1 keep snake_case_names intact"),
+    ],
+)
+def test_plain_snippet_strips_markdown_and_latex(raw, expected):
+    assert mlsys.plain_snippet(raw) == expected
+
+
+def test_live_snippets_carry_no_markdown_emphasis():
+    _, body, _ = call("/api/demos/mlsys/search?q=data+drift")
+    for r in body["results"]:
+        assert "**" not in r["snippet"]
+        assert "\\(" not in r["snippet"] and "\\)" not in r["snippet"]
+        assert O in r["snippet"] and C in r["snippet"]

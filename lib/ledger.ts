@@ -1,4 +1,4 @@
-import { evidenceSource, publishedCaseStudies } from "@/lib/content";
+import { evidenceSource, featuredCaseStudies } from "@/lib/content";
 
 /** One line of the evidence ledger (D-26): a real figure with its source. */
 export type LedgerEntry = {
@@ -15,12 +15,13 @@ export type LedgerEntry = {
 };
 
 /**
- * Every metric marked `ledger: true` in a published case study, in page
- * order. Nothing else can reach the ledger, so it can't show an invented
- * figure (AGENTS.md rule 12).
+ * Every metric marked `ledger: true` in a featured case study, in page
+ * order. The ledger mirrors the home page's Work chapter, which shows only
+ * featured studies (docs/03). Nothing else can reach the ledger, so it can't
+ * show an invented figure (AGENTS.md rule 12).
  */
 export function ledgerEntries(): LedgerEntry[] {
-  return publishedCaseStudies().flatMap((study) => {
+  return featuredCaseStudies().flatMap((study) => {
     const source = evidenceSource(study)?.url ?? null;
     return study.metrics
       .filter((m) => m.ledger)

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { evidenceSource, publishedCaseStudies } from "@/lib/content";
+import {
+  evidenceSource,
+  featuredCaseStudies,
+  publishedCaseStudies,
+} from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
 
 describe("evidenceSource", () => {
@@ -16,6 +20,27 @@ describe("evidenceSource", () => {
 });
 
 describe("evidence ledger", () => {
+  it("draws figures only from featured case studies, like the home page", () => {
+    const featured = new Set(featuredCaseStudies().map((s) => s.slug));
+    const slugs = new Set(ledgerEntries().map((e) => e.projectSlug));
+    expect(slugs.size).toBeGreaterThan(0);
+    for (const slug of slugs) expect(featured.has(slug)).toBe(true);
+    // Not featured: its figures stay on its case study and /work.
+    expect(slugs.has("geo-ai-cropland-mapping")).toBe(false);
+  });
+
+  it("leads LegalAI with a held-out figure, never a tuned one", () => {
+    const legal = ledgerEntries().filter(
+      (e) => e.projectSlug === "legalai-kenya",
+    );
+    expect(legal[0].label).toMatch(/held out/);
+    // Its caveat must carry the read-nothing baseline it is judged against.
+    expect(legal[0].caveat).toMatch(/0\.803 and 0\.770/);
+    // And its interval: the Method chapter promises intervals, not single numbers.
+    expect(legal[0].caveat).toMatch(/95% Wilson interval/);
+    expect(legal.some((e) => e.value === "0.303")).toBe(false);
+  });
+
   it("cites no source for figures from private case studies", () => {
     const privateSlugs = new Set(
       publishedCaseStudies()
