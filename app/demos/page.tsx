@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
 import { demos } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "Demos",
@@ -43,7 +44,7 @@ export default function DemosPage() {
           </ul>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated={PAGE_UPDATED["/demos"]} />
         </div>
       </div>
     </>

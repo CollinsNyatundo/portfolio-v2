@@ -4,7 +4,9 @@ import { Callout, Figure } from "@/components/case-study/parts";
 import {
   ComplianceGuardPipeline,
   FraudPipeline,
+  GeoAiPipeline,
   LegalAiPipeline,
+  ProductionTemplatePipeline,
 } from "@/components/diagrams/fraud-pipeline";
 
 function textOf(node: ReactNode): string {
@@ -86,6 +88,8 @@ const components: MDXComponents = {
   FraudPipeline,
   LegalAiPipeline,
   ComplianceGuardPipeline,
+  GeoAiPipeline,
+  ProductionTemplatePipeline,
 };
 
 export function useMDXComponents(): MDXComponents {

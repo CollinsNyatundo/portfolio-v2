@@ -4,6 +4,7 @@ import { Colophon } from "@/components/colophon";
 import { MlsysSearch } from "@/components/demos/mlsys-search";
 import { Folio } from "@/components/folio";
 import { demos, projects } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 const demo = demos.find((d) => d.slug === "ml-systems-search")!;
 const project = projects.find((p) => p.slug === demo.caseStudy);
@@ -122,7 +123,7 @@ export default function MlsysSearchPage() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl">
-          <Colophon updated="2026-11-04" />
+          <Colophon updated={PAGE_UPDATED["/demos/ml-systems-search"]} />
         </div>
       </div>
     </>

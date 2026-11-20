@@ -99,7 +99,7 @@ content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, cv.ts 
 mdx-components.tsx  MDX component map (required by @next/mdx)
 scripts/         build-content.ts (validate + index), check-links.ts (evidence links), build_mlsys_index.py, build_fraud_demo.py
 api/             Python Vercel Functions: demos/mlsys/search.py, demos/fraud/score.py; _lib/ shared code; _data/ read-only index (+ manifest)
-lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), seo.ts, og.tsx (preview images)
+lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), seo.ts (incl. Article/breadcrumb JSON-LD), pages.ts (fixed-page dates for colophons and sitemap), og.tsx (preview images)
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
 tests/unit/      Vitest      tests/e2e/   Playwright + axe      tests/python/   pytest (demo functions)
@@ -193,6 +193,7 @@ Rules for editing them:
 - 2026-11-05 — Launch: Current state, Commands, Layout; M5 and M6 checks recorded (Claude Code).
 - 2026-11-05 — Conventions: no pipes in check-and-commit chains (Claude Code).
 - 2026-11-05 — Old-deployment redirects and profile links: Current state (Claude Code).
+- 2026-11-19 — Second audit: Layout (`lib/pages.ts`, JSON-LD helpers) (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

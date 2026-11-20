@@ -84,3 +84,48 @@ test.describe("search and sharing", () => {
     expect(violations).toEqual([]);
   });
 });
+
+test.describe("second audit: head tags", () => {
+  test("a 404 has its own title, noindex and no canonical", async ({
+    page,
+  }) => {
+    const res = await page.goto("/no-such-page-here");
+    expect(res?.status()).toBe(404);
+    await expect(page).toHaveTitle(/^Page not found/);
+    // Next.js may add its own noindex too; at least one must be present.
+    expect(
+      await page.locator('meta[name="robots"][content*="noindex"]').count(),
+    ).toBeGreaterThan(0);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  });
+
+  test("the new diagrams render on their case studies", async ({ page }) => {
+    for (const [slug, title] of [
+      ["geo-ai-cropland-mapping", "How a labelled point becomes a prediction"],
+      ["production-ai-template", "How one query is answered"],
+    ]) {
+      const res = await page.goto(`/work/${slug}`);
+      expect(res?.status()).toBe(200);
+      await expect(page.getByRole("img", { name: title })).toBeVisible();
+    }
+  });
+
+  test("a case study carries Article and breadcrumb data", async ({ page }) => {
+    await page.goto("/work/creditcard-fraud");
+    const blocks = await page
+      .locator('script[type="application/ld+json"]')
+      .allTextContents();
+    const types = blocks.map((b) => JSON.parse(b)["@type"]);
+    expect(types).toEqual(
+      expect.arrayContaining(["Article", "BreadcrumbList"]),
+    );
+  });
+
+  test("sitemap entries all have lastmod", async ({ request }) => {
+    const xml = await (await request.get("/sitemap.xml")).text();
+    const urls = xml.match(/<url>/g)?.length ?? 0;
+    const mods = xml.match(/<lastmod>/g)?.length ?? 0;
+    expect(urls).toBeGreaterThan(0);
+    expect(mods).toBe(urls);
+  });
+});
