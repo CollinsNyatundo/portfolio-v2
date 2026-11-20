@@ -76,7 +76,7 @@ pushing to `main` on GitHub (GitHub account with 2FA and a passkey; branch prote
 |---|---|---|---|---|
 | Vercel | Hosting, functions, analytics | Hobby free tier; set a **spend limit** if upgraded to Pro | Owner | — |
 | Spaceship | Domain + DNS (D-30) | ~US$12/yr | Owner | — (no API use from the site) |
-| Upstash Redis (via Vercel Marketplace) | Rate limiting demos/contact/assistant, daily micro-USD budget & instant kill switch | Free tier 10k commands/day is ample | Owner | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (server only) |
+| Upstash Redis (via Vercel Marketplace) | Rate limiting demos/contact/assistant, daily micro-USD budget & instant kill switch | Free tier 10k commands/day is ample | Owner | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`, or the Marketplace pair `KV_REST_API_URL` + `KV_REST_API_TOKEN` (server only; the read-only token is never used) |
 | Cloudflare Turnstile (P1) | Bot check on contact form | Free | Owner | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` (server only) |
 | Resend (P1) | Send contact-form email to owner | Free tier 100/day | Owner | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified sender; server only) |
 | OpenRouter (v2, D-33) | Single pinned model (`google/gemini-2.5-flash`) for `POST /api/assistant` (`data_collection: "deny"`, reasoning disabled) | Hard dashboard cap `$5/month`; server caps `$0.50/day` prod, `$0.10/day` preview | Owner | `ASSISTANT_MODE`, `ASSISTANT_LLM_BASE_URL`, `ASSISTANT_LLM_MODEL`, `ASSISTANT_LLM_API_KEY`, `ASSISTANT_DAILY_BUDGET_MICRO_USD`, `ASSISTANT_MAX_ATTEMPT_MICRO_USD` (all server only) |

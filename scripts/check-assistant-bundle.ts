@@ -21,6 +21,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /re_[A-Za-z0-9]{20,}/,
   /TURNSTILE_SECRET_KEY/,
   /UPSTASH_REDIS_REST_TOKEN/,
+  /KV_REST_API_TOKEN/,
   /ASSISTANT_LLM_API_KEY/,
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
 ];

@@ -1,13 +1,14 @@
 /**
  * Fixed-window rate limit and assistant spend/kill-switch accounting (02 §5,
- * D-33). Uses Upstash Redis REST when UPSTASH_REDIS_REST_URL and
- * UPSTASH_REDIS_REST_TOKEN are set.
+ * D-33). Uses Upstash Redis REST when credentials are set
+ * (UPSTASH_REDIS_REST_* or the Marketplace KV_REST_API_*; lib/upstash-env.ts).
  *
  * - `rateLimited`: falls back to an in-process window when Redis is unavailable
  *   or returns a malformed/errored command result (never fails open).
  * - `reserveAssistantBudget` / `isAssistantGenerationKilled`: fail closed when
  *   Redis is unavailable or errors, so paid LLM calls never run uncounted.
  */
+import { upstashCredentials } from "./upstash-env.ts";
 
 type LocalEntry = { count: number; expiresAt: number };
 
@@ -39,9 +40,9 @@ type UpstashCommandReply = {
 export async function upstashPipeline(
   commands: string[][],
 ): Promise<unknown[] | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
+  const creds = upstashCredentials();
+  if (!creds) return null;
+  const { url, token } = creds;
   try {
     const res = await fetch(`${url.replace(/\/$/, "")}/multi-exec`, {
       method: "POST",

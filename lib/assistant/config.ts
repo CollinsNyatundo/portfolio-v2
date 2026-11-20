@@ -1,3 +1,4 @@
+import { upstashCredentials } from "../upstash-env.ts";
 import type { AssistantOperationalMode } from "./types.ts";
 
 export const DEFAULT_PROD_DAILY_BUDGET_MICRO_USD = 500_000; // $0.50/day
@@ -70,9 +71,7 @@ export function validateProviderUrl(
 export function upstashConfigured(
   env: Record<string, string | undefined> = process.env,
 ): boolean {
-  return Boolean(
-    env.UPSTASH_REDIS_REST_URL?.trim() && env.UPSTASH_REDIS_REST_TOKEN?.trim(),
-  );
+  return upstashCredentials(env) !== null;
 }
 
 /**

@@ -15,6 +15,7 @@ All secrets are strictly server-only (`NEXT_PUBLIC_` is allowed only for `NEXT_P
 | `ASSISTANT_ALLOW_LOOPBACK_TEST_PROVIDER` | `lib/assistant/config.ts` | Server test only | Local E2E runner (`scripts/run-assistant-e2e.ts`) | Never set on Vercel | Ignored whenever `process.env.VERCEL` is truthy |
 | `UPSTASH_REDIS_REST_URL` | `lib/rate-limit.ts`, `api/_lib/http.py` | Server only | Upstash / Vercel Marketplace | Rotate DB endpoint/token | Missing/unavailable causes assistant generation to fail closed to `retrieval_only` |
 | `UPSTASH_REDIS_REST_TOKEN` | `lib/rate-limit.ts`, `api/_lib/http.py` | Server only | Upstash / Vercel Marketplace | Rotate token in Upstash + Vercel | Allows tampering with rate/budget/kill counters if leaked |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN` | `lib/upstash-env.ts`, `api/_lib/http.py` | Server only | Vercel Marketplace Upstash integration (auto-provisioned) | Rotate in Upstash; Vercel re-syncs | Used when the `UPSTASH_REDIS_REST_*` pair is absent; `KV_REST_API_READ_ONLY_TOKEN` is never read |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `app/contact/page.tsx`, `lib/contact-form.ts` | Public client (by design) | Cloudflare Turnstile | Rotate widget key | Low (site key is public; requires matching secret server-side) |
 | `TURNSTILE_SECRET_KEY` | `app/api/contact/route.ts`, `lib/contact-form.ts` | Server only | Cloudflare Turnstile | Rotate secret in Cloudflare + Vercel | Contact form bot checks bypassed |
 | `RESEND_API_KEY` | `app/api/contact/route.ts`, `lib/contact-form.ts` | Server only | Resend | Revoke + reissue at Resend | Unauthorized mail sending from `CONTACT_FROM_EMAIL` |
@@ -25,7 +26,7 @@ All secrets are strictly server-only (`NEXT_PUBLIC_` is allowed only for `NEXT_P
 
 - **Automated check:** `npm run check:bundle` scans every built chunk in `.next/static/` for secret patterns (`sk-or-`, `gsk_`, `AIza`, `sk-proj-`, `re_`, `UPSTASH_REDIS_REST_TOKEN`, `TURNSTILE_SECRET`, `ASSISTANT_LLM_API_KEY`) and verifies server-only corpus/prompt strings never appear in client JS. `tests/smoke/security.spec.ts` checks live chunks.
 - **Pre-go-live:**
-  1. Confirm `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are provisioned on `portfolio-v2`.
+  1. Confirm Upstash credentials are provisioned on `portfolio-v2`: either `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`, or the Marketplace `KV_REST_API_URL` + `KV_REST_API_TOKEN`.
   2. Set hard monthly spend ceiling (`$5/month`) in OpenRouter before setting `ASSISTANT_LLM_API_KEY`.
   3. Set Preview `ASSISTANT_DAILY_BUDGET_MICRO_USD=100000` ($0.10/day) and Production `500000` ($0.50/day).
   4. Never set `ASSISTANT_ALLOW_LOOPBACK_TEST_PROVIDER` in Vercel.
