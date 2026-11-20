@@ -159,10 +159,9 @@ export async function releaseAssistantConcurrency(
   envName: string,
 ): Promise<void> {
   const concKey = `conc:assistant:${envName}`;
-  const out = await upstashPipeline([
-    ["DECR", concKey],
-    ["EXPIRE", concKey, "30"],
-  ]);
+  // No TTL renewal here: only an admitted request may extend the counter's
+  // life, so slots leaked while Redis was unreachable still expire.
+  const out = await upstashPipeline([["DECR", concKey]]);
   if (out && typeof out[0] === "number" && out[0] < 0) {
     await upstashPipeline([["SET", concKey, "0", "EX", "30"]]);
   }
@@ -218,10 +217,12 @@ export async function reserveAssistantBudget({
 
   // Step 1: check kill switch + claim concurrency slot before touching budget
   // so concurrency floods or a tripped kill switch cannot burn daily dollars.
+  // EXPIRE ... NX gives a new counter its TTL without renewing an existing
+  // one, so rejected attempts can't keep leaked slots alive forever.
   const gate = await upstashPipeline([
     ["GET", "kill:assistant:generation"],
     ["INCR", concKey],
-    ["EXPIRE", concKey, "30"],
+    ["EXPIRE", concKey, "30", "NX"],
   ]);
   if (!gate || !isPositiveSafeInt(gate[1])) {
     return { allowed: false, reason: "accounting_unavailable" };
@@ -248,6 +249,10 @@ export async function reserveAssistantBudget({
     await releaseAssistantConcurrency(envName);
     return { allowed: false, reason: "budget_reached" };
   }
+
+  // Admitted: this request really holds a slot (maxDuration 25 s), so it may
+  // extend the counter's TTL. Best effort; the NX TTL above already bounds it.
+  await upstashPipeline([["EXPIRE", concKey, "30"]]);
 
   let released = false;
   return {

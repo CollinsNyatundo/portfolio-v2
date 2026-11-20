@@ -17,6 +17,7 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `experience` | `content/experience.ts` (array) | One role |
 | `certification` | `content/certifications.ts` (array) | One certificate or degree |
 | `recognition` | `content/experience.ts` (array) | Outside recognition of public work, with its public proof link |
+| `diagramSpec` | `content/diagrams.ts` (map keyed by MDX component name) | A case study's pipeline diagram; also assistant corpus text |
 | `note` | `content/notes/<slug>.mdx` | A technical article (P1) |
 | `evidence` | Inline in `caseStudy` frontmatter | A link backing a claim |
 | `assistantCorpus` | `content/.generated/assistant-corpus.json` (git-ignored, build-time) | Public AST projection, `FactUnit`s, citeable manifest chunks, BM25F index and verified `routeRegistry` (D-33) |
@@ -108,6 +109,13 @@ Certificate (2024-07); Complete AI & ML Bootcamp, Zero To Mastery (2024-05); Pyt
 `title` (max 80), `issuer`, `awarded` YYYY-MM, `url` (https, a public page that shows the recognition), `summary`
 (max 220), `caseStudy?` (slug of the study the work belongs to). An entry needs a public page as proof (D-05); each
 link appears once. Shown on `/about` and `/cv`, and checked by the link checker.
+
+### `diagramSpec`
+
+`id` (kebab-case, unique), `caseStudySlug` (an existing case study), `title` (max 80), `description` (the diagram's
+text alternative), `steps[]` (2 to 8 of `{ title` max 40, `detail` max 80 `}`), `notes[]` (max 4). Keys of
+`DIAGRAM_SPECS` are the PascalCase MDX component names. One spec renders the SVG diagram and becomes text in the
+assistant corpus, so the two can't drift. Checked by `npm run content`.
 
 ### `note`
 

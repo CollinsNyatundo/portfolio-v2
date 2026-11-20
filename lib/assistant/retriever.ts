@@ -18,6 +18,60 @@ export const DEFAULT_STARTERS = [
 
 const MAX_PACKED_TOKENS = 4200;
 
+/**
+ * A snippet of at most `max` characters. When the opening lines don't share
+ * a word with the question, start at the first line that shares the most, so
+ * a long manifest shows the line that answers (e.g. its Email line).
+ */
+export function relevantSnippet(
+  text: string,
+  question: string,
+  max: number,
+): string {
+  if (text.length <= max) return text;
+  const terms = new Set(
+    question
+      .toLowerCase()
+      .split(/[^a-z0-9@.+-]+/)
+      .map((t) => t.replace(/'s$/, "").replace(/\.+$/, ""))
+      .filter((t) => t.length >= 4 && !QUESTION_STOPWORDS.has(t)),
+  );
+  if (terms.size === 0) return text.slice(0, max);
+  const lines = text.split("\n");
+  let offset = 0;
+  let bestOffset = 0;
+  let bestHits = 0;
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    let hits = 0;
+    for (const t of terms) if (lower.includes(t)) hits++;
+    if (hits > bestHits) {
+      bestHits = hits;
+      bestOffset = offset;
+    }
+    offset += line.length + 1;
+  }
+  if (bestHits === 0 || bestOffset + 120 < max) return text.slice(0, max);
+  return text.slice(bestOffset, bestOffset + max);
+}
+
+const QUESTION_STOPWORDS = new Set([
+  "what",
+  "which",
+  "where",
+  "when",
+  "does",
+  "have",
+  "with",
+  "about",
+  "collins",
+  "nyagaka",
+  "tell",
+  "this",
+  "that",
+  "your",
+]);
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -153,6 +207,22 @@ const SKILLS_OR_EXPERIENCE_QUERY =
 
 const PHONE_REQUEST =
   /\b(phone|telephone|cell(?:\s*number)?|mobile(?:\s*number)?|whatsapp|call\s+him|call\s+collins)\b/i;
+
+/** Payment-channel terms that contain "mobile" or "phone" but aren't contact. */
+const MOBILE_MONEY_TERMS = /\b(mobile[\s-]?money|m-?pesa)\b/gi;
+
+/**
+ * True when the question asks for Collins's own number. A project question
+ * that mentions phones ("How does ComplianceGuard protect phone numbers?") or
+ * mobile money is evidence to retrieve, not a contact request.
+ */
+function isPersonalPhoneRequest(q: string): boolean {
+  const withoutPayments = q.replace(MOBILE_MONEY_TERMS, " ");
+  if (!PHONE_REQUEST.test(withoutPayments)) return false;
+  if (/\bcall\s+(him|collins)\b/i.test(withoutPayments)) return true;
+  const namesProject = detectMentionedEntities(q).length > 0;
+  return !namesProject;
+}
 
 const PRIVATE_SOURCE_REQUEST =
   /\b(source\s*code|github(?:\s+repo(?:sitory)?|\s+link)?|repo(?:sitory)?|codebase|clone|download\s+(?:the\s+)?code|show\s+(?:me\s+)?(?:the\s+)?code)\b/i;
@@ -362,7 +432,7 @@ export function classifyScope(params: {
     };
   }
 
-  if (PHONE_REQUEST.test(q)) {
+  if (isPersonalPhoneRequest(q)) {
     const idChunk = getChunk("manifest:identity");
     return {
       kind: "deterministic_boundary",
@@ -789,19 +859,30 @@ export function buildRetrievalFallbackResponse(params: {
   followUps: string[];
   activeEntitySlug: string | null;
 } {
-  // Prefer substantive non-manifest chunks first for human-readable excerpts,
-  // while preserving attached limits/facts (R4).
-  const contentChunks = params.packed.chunks.filter(
-    (c) => c.kind !== "manifest",
-  );
-  const ordered = (
-    contentChunks.length > 0 ? contentChunks : params.packed.chunks
-  ).slice(0, 3);
+  // Order excerpts by relevance to the question. Chunks among the top BM25F
+  // scores come first, manifests included: a contact, skills or education
+  // question is answered by a manifest, and dropping manifests whenever any
+  // project section was packed hid the email address (Devin review, PR #36).
+  // The anchors packed for every question (identity, work index) stay last
+  // unless they scored. Attached limits/facts are preserved (R4).
+  const rank = new Map(params.packed.topScores.map((s, i) => [s.id, i]));
+  const ordered = params.packed.chunks
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => {
+      const ra = rank.get(a.c.id) ?? Infinity;
+      const rb = rank.get(b.c.id) ?? Infinity;
+      if (ra !== rb) return ra - rb;
+      const ma = a.c.kind === "manifest" ? 1 : 0;
+      const mb = b.c.kind === "manifest" ? 1 : 0;
+      return ma - mb || a.i - b.i;
+    })
+    .map(({ c }) => c)
+    .slice(0, 3);
 
   const excerpts: RetrievalExcerpt[] = ordered.map((c) => ({
     title: c.title,
     section: c.section,
-    snippet: c.text.slice(0, 340),
+    snippet: relevantSnippet(c.text, params.question, 340),
     route: c.route,
     visibility: c.visibility,
   }));

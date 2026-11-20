@@ -4,19 +4,11 @@
  * assistant corpus compiler so spoken text and diagram captions never drift.
  */
 
-export type DiagramStep = {
-  title: string;
-  detail: string;
-};
+// The shape is defined and validated in content/schema.ts (rule 14);
+// scripts/build-content.ts checks these specs on every content build.
+import type { DiagramSpec } from "./schema.ts";
 
-export type DiagramSpec = {
-  id: string;
-  caseStudySlug: string;
-  title: string;
-  description: string;
-  steps: readonly DiagramStep[];
-  notes: readonly string[];
-};
+export type { DiagramSpec, DiagramStep } from "./schema.ts";
 
 export const FRAUD_PIPELINE_SPEC: DiagramSpec = {
   id: "fraud-pipeline",

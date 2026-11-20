@@ -19,12 +19,14 @@ import {
   experience,
   recognition as recognitionList,
 } from "../content/experience.ts";
+import { DIAGRAM_SPECS } from "../content/diagrams.ts";
 import { demos, projects } from "../content/projects.ts";
 import {
   CASE_STUDY_SECTIONS,
   caseStudyFrontmatter,
   certification,
   demo,
+  diagramSpec,
   experience as experienceSchema,
   focusArea,
   noteFrontmatter,
@@ -64,6 +66,32 @@ export function recognitionProblems(
     if (typeof study === "string" && !caseStudySlugs.includes(study))
       problems.push(`recognition: caseStudy "${study}" doesn't exist`);
   }
+  return problems;
+}
+
+/**
+ * Problems in the pipeline diagram specs (content/diagrams.ts). Keys are the
+ * MDX component names the assistant corpus compiler resolves.
+ */
+export function diagramProblems(
+  specs: Record<string, unknown>,
+  caseStudySlugs: string[],
+): string[] {
+  const problems: string[] = [];
+  const ids: unknown[] = [];
+  for (const [key, spec] of Object.entries(specs)) {
+    if (!/^[A-Z][A-Za-z0-9]*$/.test(key))
+      problems.push(
+        `diagrams: key "${key}" must be the MDX component name (PascalCase)`,
+      );
+    check(diagramSpec, spec, `diagrams.${key}`, problems);
+    ids.push((spec as { id?: unknown }).id);
+    const study = (spec as { caseStudySlug?: unknown }).caseStudySlug;
+    if (typeof study === "string" && !caseStudySlugs.includes(study))
+      problems.push(`diagrams.${key}: caseStudySlug "${study}" doesn't exist`);
+  }
+  if (new Set(ids).size !== ids.length)
+    problems.push("diagrams: each id may appear once");
   return problems;
 }
 
@@ -277,6 +305,11 @@ if (import.meta.main) {
       index.caseStudies.map((c) => c.slug),
     );
     if (recognitionIssues.length) throw new ContentError(recognitionIssues);
+    const diagramIssues = diagramProblems(
+      DIAGRAM_SPECS,
+      index.caseStudies.map((c) => c.slug),
+    );
+    if (diagramIssues.length) throw new ContentError(diagramIssues);
     if (!process.argv.includes("--check")) {
       const out = join(root, "content", ".generated");
       mkdirSync(out, { recursive: true });

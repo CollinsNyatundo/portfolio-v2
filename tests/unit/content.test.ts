@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   aboutProblems,
+  diagramProblems,
   recognitionProblems,
   skillProblems,
   buildIndex,
@@ -19,6 +20,7 @@ import {
 } from "../../scripts/check-links.ts";
 import { recognition } from "../../content/experience.ts";
 import { demos } from "../../content/projects.ts";
+import { DIAGRAM_SPECS } from "../../content/diagrams.ts";
 
 const fixtures = join(process.cwd(), "tests", "fixtures", "content");
 // Fixture content has none of the site's case studies, so its demos are
@@ -200,6 +202,65 @@ describe("recognition", () => {
     for (const r of recognition) {
       expect(isAllowedHost(r.url)).toBe(true);
       expect(`${r.title} ${r.summary}`).not.toContain("\u2014");
+    }
+  });
+});
+
+describe("diagram specs", () => {
+  const ok = {
+    id: "sample-pipeline",
+    caseStudySlug: "sample-study",
+    title: "How a sample flows",
+    description: "A sample enters, is scored, and leaves.",
+    steps: [
+      { title: "Input", detail: "one sample" },
+      { title: "Score", detail: "one model" },
+    ],
+    notes: ["A note."],
+  };
+  const known = ["sample-study"];
+
+  it("accepts a valid spec", () => {
+    expect(diagramProblems({ SamplePipeline: ok }, known)).toEqual([]);
+  });
+
+  it("rejects missing text, too few steps, a bad id and extra fields", () => {
+    expect(
+      diagramProblems({ SamplePipeline: { ...ok, title: "" } }, known),
+    ).not.toEqual([]);
+    expect(
+      diagramProblems(
+        { SamplePipeline: { ...ok, steps: [ok.steps[0]] } },
+        known,
+      ),
+    ).not.toEqual([]);
+    expect(
+      diagramProblems({ SamplePipeline: { ...ok, id: "Not Kebab" } }, known),
+    ).not.toEqual([]);
+    expect(
+      diagramProblems({ SamplePipeline: { ...ok, colour: "red" } }, known),
+    ).not.toEqual([]);
+  });
+
+  it("rejects unknown case studies, repeated ids and non-component keys", () => {
+    expect(diagramProblems({ SamplePipeline: ok }, [])).toContain(
+      `diagrams.SamplePipeline: caseStudySlug "sample-study" doesn't exist`,
+    );
+    expect(
+      diagramProblems({ SamplePipeline: ok, OtherPipeline: ok }, known),
+    ).toContain("diagrams: each id may appear once");
+    expect(diagramProblems({ samplePipeline: ok }, known)).toContain(
+      'diagrams: key "samplePipeline" must be the MDX component name (PascalCase)',
+    );
+  });
+
+  it("validates the site's own diagrams against the published case studies", () => {
+    const slugs = buildIndex(join(process.cwd(), "content")).caseStudies.map(
+      (c) => c.slug,
+    );
+    expect(diagramProblems(DIAGRAM_SPECS, slugs)).toEqual([]);
+    for (const spec of Object.values(DIAGRAM_SPECS)) {
+      expect(JSON.stringify(spec)).not.toContain("—");
     }
   });
 });

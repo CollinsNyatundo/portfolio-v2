@@ -177,6 +177,30 @@ export const recognition = z.strictObject({
   caseStudy: slug.optional(),
 });
 
+/**
+ * A pipeline diagram (content/diagrams.ts). The same spec renders the SVG
+ * diagram and becomes text in the assistant corpus, so it is content and is
+ * validated like the rest (rule 14).
+ */
+const diagramStep = z.strictObject({
+  title: z.string().min(1).max(40),
+  detail: z.string().min(1).max(80),
+});
+
+export const diagramSpec = z.strictObject({
+  /** Element id for the figure; unique across diagrams. */
+  id: slug,
+  /** The case study the diagram belongs to. */
+  caseStudySlug: slug,
+  title: z.string().min(1).max(80),
+  /** Text alternative for the whole diagram. */
+  description: z.string().min(1),
+  steps: z.array(diagramStep).min(2).max(8),
+  notes: z.array(z.string().min(1)).max(4),
+});
+
+export type DiagramStep = z.infer<typeof diagramStep>;
+export type DiagramSpec = z.infer<typeof diagramSpec>;
 export type CaseStudyFrontmatter = z.infer<typeof caseStudyFrontmatter>;
 export type NoteFrontmatter = z.infer<typeof noteFrontmatter>;
 export type Project = z.infer<typeof project>;
