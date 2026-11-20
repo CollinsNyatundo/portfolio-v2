@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Geist, Geist_Mono, Newsreader } from "next/font/google";
 import { connection } from "next/server";
+import { AssistantRoot } from "@/components/assistant/assistant-root";
 import { site } from "@/content/site";
+import { assistantRuntimeMode } from "@/lib/assistant/config";
 import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
@@ -50,12 +52,16 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Render per request so Next.js can apply the CSP nonce from proxy.ts (D-28).
   await connection();
+  const assistantMode = assistantRuntimeMode();
   return (
     <html
       lang="en"
       className={`${newsreader.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="bg-bg text-text min-h-dvh">
+      <body
+        data-assistant={assistantMode === "disabled" ? undefined : "enabled"}
+        className="bg-bg text-text min-h-dvh"
+      >
         <a
           href="#main"
           className="focus:bg-surface sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:font-sans focus:text-sm"
@@ -63,6 +69,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Skip to main content
         </a>
         {children}
+        <AssistantRoot mode={assistantMode} />
         {/* The script is served by Vercel only; elsewhere it would 404. */}
         {process.env.VERCEL && <Analytics />}
       </body>

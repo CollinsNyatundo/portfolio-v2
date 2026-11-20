@@ -36,6 +36,7 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
   }, []);
   const known = useRef(new Set(entries.map((e) => e.id)));
   const seenRef = useRef(new Set<string>());
+  const stripRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;
@@ -98,12 +99,42 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
   );
   const count = lines.length + (visitor ? 1 : 0);
 
+  // Measure the narrow-screen strip height onto :root so sibling overlays
+  // (e.g. the assistant launcher) shift upward cleanly without overlapping.
+  useEffect(() => {
+    const root = document.documentElement;
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const updateHeight = () => {
+      const el = stripRef.current;
+      if (!el || count === 0 || mq.matches) {
+        root.style.setProperty("--evidence-strip-h", "0px");
+        return;
+      }
+      const h = Math.ceil(el.getBoundingClientRect().height);
+      root.style.setProperty("--evidence-strip-h", `${h}px`);
+    };
+
+    updateHeight();
+    const ro =
+      typeof ResizeObserver !== "undefined" && stripRef.current
+        ? new ResizeObserver(updateHeight)
+        : null;
+    if (ro && stripRef.current) ro.observe(stripRef.current);
+    mq.addEventListener("change", updateHeight);
+
+    return () => {
+      ro?.disconnect();
+      mq.removeEventListener("change", updateHeight);
+      root.style.setProperty("--evidence-strip-h", "0px");
+    };
+  }, [count, open]);
+
   return (
     <>
       {/* Wide screens: a ruled column in the right margin. */}
       <aside
         aria-hidden="true"
-        className="border-border fixed top-10 right-8 bottom-10 hidden w-52 overflow-y-auto border-l pl-5 font-sans xl:block"
+        className="ledger-aside border-border fixed top-10 right-8 bottom-10 hidden w-52 overflow-y-auto border-l pl-5 font-sans xl:block"
       >
         <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
           Evidence read · {count}
@@ -114,8 +145,9 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
       {/* Narrow screens: a collapsed strip at the bottom. */}
       {count > 0 && (
         <section
+          ref={stripRef}
           aria-label="Evidence read so far"
-          className="bg-surface border-border fixed inset-x-0 bottom-0 z-40 border-t px-4 py-2 font-sans xl:hidden"
+          className="bg-surface border-border fixed inset-x-0 bottom-0 z-40 border-t px-4 py-2 font-sans xl:hidden print:hidden"
         >
           <button
             type="button"

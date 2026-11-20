@@ -243,3 +243,121 @@ html:not(.sc-ready) :is([data-sc-in], [data-sc-stagger] > *) {
     transform: translateY(6px);
   }
 }
+
+/* ------------------------------------------------------------------------
+ * Portfolio assistant (v2, D-33): native <dialog>, Drafting Reticle orbit,
+ * theme-safe paper backdrop, Evidence Ledger clearance, print exclusion.
+ * --------------------------------------------------------------------- */
+.assistant-dialog {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+}
+.assistant-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.assistant-dialog::backdrop {
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
+}
+
+/* Override unlayered vendor control resets (font: inherit; color: inherit). */
+.assistant-launcher-btn {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--text);
+}
+
+.assistant-btn-ghost {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+  color: var(--text-muted);
+}
+.assistant-btn-ghost:hover {
+  color: var(--text);
+}
+
+.assistant-btn-close {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--text);
+}
+
+.assistant-btn-chip {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.assistant-textarea {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+.assistant-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.assistant-btn-submit {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--primary-ink);
+}
+.assistant-btn-submit:disabled {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+.assistant-icon-orbit {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .assistant-icon-orbit {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  button:is(:hover, :focus-visible) .assistant-icon-orbit {
+    transform: rotate(30deg);
+  }
+  .assistant-dialog[open] > div {
+    animation: assistant-drawer-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes assistant-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+body[data-assistant="enabled"] .ledger-aside {
+  bottom: 6rem;
+}
+
+@media print {
+  [data-assistant-ui] {
+    display: none !important;
+  }
+}

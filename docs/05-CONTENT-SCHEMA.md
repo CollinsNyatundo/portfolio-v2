@@ -19,7 +19,8 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `recognition` | `content/experience.ts` (array) | Outside recognition of public work, with its public proof link |
 | `note` | `content/notes/<slug>.mdx` | A technical article (P1) |
 | `evidence` | Inline in `caseStudy` frontmatter | A link backing a claim |
-| `rateLimitCounter` | Upstash Redis key | Requests per hashed IP per window |
+| `assistantCorpus` | `content/.generated/assistant-corpus.json` (git-ignored, build-time) | Public AST projection, `FactUnit`s, citeable manifest chunks, BM25F index and verified `routeRegistry` (D-33) |
+| `rateLimitCounter` | Upstash Redis key | Requests per hashed IP per window, plus assistant daily spend budget and kill switch |
 
 ## 2. Content models (Zod, validated at build)
 
@@ -185,9 +186,24 @@ Request: `name` (1–100), `email` (≤ 254, RFC 5322), `topic` (allow-list: `ro
 Response `200 { ok: true }`; errors `400`, `403` (Turnstile failed), `429`, `500`. Email to owner is plain text; user
 input is never rendered as HTML.
 
+### `POST /api/assistant` (v2, D-33)
+
+Request (`Content-Type: application/json`, streaming byte limit 8 KB):
+- `question` (trimmed string, 2–500 chars)
+- `pageContext?` (optional internal path matching `/^\/[a-z0-9/_-]{0,80}$/`)
+- `activeEntitySlug?` (optional slug matching `/^[a-z0-9-]{1,60}$/` or `null`)
+- `history?` (optional array, max 4 items of strict `{ role: "user" | "assistant", content: 1..800 }`; unknown fields rejected)
+
+Response `200` (discriminated by `mode`):
+- `mode: "generated"`: `{ mode, verdict: "answered" | "not_in_portfolio", blocks: { text, evidenceIndices }[], facts: PublicFactCard[], evidence: PublicEvidenceRef[], followUps: string[], activeEntitySlug: string | null, notice: string }`.
+- `mode: "retrieval_only"`: `{ mode, verdict: "answered" | "not_in_portfolio" | "out_of_scope", reason: "configured_retrieval" | "budget_reached" | "provider_unavailable" | "verification_fallback" | "out_of_scope" | "boundary_policy", summary: string, excerpts: { title, section, snippet, route, visibility }[], facts: PublicFactCard[], evidence: PublicEvidenceRef[], followUps: string[], activeEntitySlug: string | null }`.
+
+Every route in `evidence[]` and `facts[]` is validated at build time against the closed `routeRegistry`, and any private project or private evidence URL is projected to `null`. Errors: `400` validation, `403` origin mismatch, `413` body > 8 KB, `415` non-JSON, `429` burst (12 / 10 min) or UTC-day (30 / day) limit with `Retry-After`, `503` when `ASSISTANT_MODE` is disabled.
+
 ## 6. Data validation (summary)
 
 - All content: Zod at build; CI fails on violations.
+- Assistant corpus: AST-extracted via `scripts/build-assistant-corpus.ts` from published, non-archived, visible, non-draft public content only (`schemaVersion`, `contentHash`, `routeRegistry`, `FactUnit[]`, `manifestChunks[]`, BM25F index; fails build on unknown JSX tags, duplicate IDs, missing routes, or phone numbers).
 - All demo/contact input: schema validation server-side (Pydantic for Python, Zod for Node). Client validation is UX only.
 - Strings: trimmed, length-limited, control characters stripped; output escaped by React/Jinja-free JSON.
 - URLs in content: must be `https://`; external hosts from an allow-list (`github.com`, `*.vercel.app`, `*.streamlit.app`, `tundotechsystems.com`, `huggingface.co`, `linkedin.com`, `zindi.africa`, `hub.xerj.org`).
@@ -198,6 +214,8 @@ input is never rendered as HTML.
 |---|---|---|
 | Rate-limit counters | Upstash Redis, key `rl:<route>:<sha256(ip + daily salt)>` | TTL = window (≤ 1 h). No raw IPs stored. |
 | Contact messages | Not stored; emailed to owner | Owner's mailbox policy |
+| Assistant questions & history | Browser memory only (client); forwarded server-side to OpenRouter with `provider.data_collection: "deny"` when `generation_enabled`; zero question/answer logging | Tab session only |
+| Assistant daily budget & kill switch | Upstash Redis (`budget:assistant:<env>:<YYYY-MM-DD>`, `conc:assistant:<env>`, `kill:assistant:generation`) | Budget TTL 48 h; concurrency TTL 30 s |
 | Demo inputs | Not stored; not logged (log only status code, latency, model version) | — |
 | Analytics | Vercel Web Analytics (aggregated, cookieless) | Vercel's retention |
 | Function logs | Vercel runtime logs | Vercel's default (short) |

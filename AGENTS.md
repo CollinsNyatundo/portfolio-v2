@@ -27,6 +27,7 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 | Content models, demo API contracts | `docs/05-CONTENT-SCHEMA.md` |
 | Milestones and done criteria | `docs/06-IMPLEMENTATION-PLAN.md` |
 | Security controls (75-item map) | `docs/07-SECURITY.md` |
+| Shipping audit maps (v2) | `documentation/` (`architecture`, `flows`, `permissions`, `variables`, `automation`, `emails`, `seo`, `tests`) |
 | Home-page scroll design (grammar, score, ledger, world, tokens) | `design/scrollcraft/builds/portfolio-home/BRIEF.md` (scroll-craft) |
 | Which projects appear and what to fix | `private/planning/08-CONTENT-INVENTORY.md` (private) |
 | Owner's open questions, full decision detail, review notes | `private/planning/` (private) |
@@ -34,12 +35,11 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
 - **Phase:** Live at https://collinsnyagaka.com since 2026-11-05 (Vercel project `portfolio-v2`; DNS, CAA and DNSSEC at Spaceship). M0–M6 done except owner tasks: 0.5, 0.6, 0.8, 4.7 video, real-device and NVDA checks (5.3, 5.4), copy sign-off (5.5), 5.6, retiring `v9-theta.vercel.app`, which is in another Vercel account (6.4), LinkedIn and the GitHub profile README (6.5), Search Console (6.6), spend limit (6.7). The contact form turns on when its four keys are set in Vercel.
-- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, the `/work` index and case-study pages at `/work/[slug]`, 404, design tokens, fonts, vendored scroll-craft engine, strict nonce CSP (D-28).
+- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, `/work` index + `/work/[slug]`, `/demos/*`, `/notes/*`, `/cv`, v2 portfolio assistant (`D-33`: `disabled` / `retrieval_only` / `generation_enabled`, M7.0–M7.6 implemented and verified locally on `feat/portfolio-assistant`, awaiting M7.7 preview/production env & Upstash link), strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
-- **Known gaps:** Python functions run only on Vercel; locally the demo pages show their recorded example. The CV at `/cv/Collins_Nyagaka_CV.pdf` is the phone-free public copy; its HTML source and the owner's copy (with phone) are in `private/cv/` (`node private/cv/render.mjs` prints both).
-- **Waiting on owner:** M0 tasks 0.4–0.8 and follow-ups (details in `private/planning/`); 1.5 Vercel link; domain purchase at M6.
-- **Last updated:** 2026-11-04
+- **Known gaps:** Python functions run only on Vercel; locally the demo pages show their recorded example. Upstash Redis is not yet linked on Vercel (assistant degrades cleanly to `retrieval_only`).
+- **Last updated:** 2026-11-20
 
 ## Stack  <!-- LIVING: replace "planned" with exact versions once installed -->
 
@@ -57,6 +57,8 @@ Demo functions (4.5, 4.2): Python 3.13 Vercel Functions in `api/` (`.python-vers
 
 Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash are called over their REST APIs (no SDKs). The form and the Turnstile CSP host switch on only when `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, `RESEND_API_KEY` and `CONTACT_FROM_EMAIL` are all set; rate limits use Upstash when `UPSTASH_REDIS_REST_*` are set, else an in-process window.
 
+Portfolio assistant (M7, D-33): `POST /api/assistant` (Node, `maxDuration = 25`), OpenRouter native REST (`google/gemini-2.5-flash`, `data_collection: "deny"`, reasoning off), AST-compiled `assistant-corpus.json` (`unified` / `remark-mdx`), fail-closed Upstash Redis micro-USD daily budget and instant `kill:assistant:generation` switch.
+
 ## Commands  <!-- LIVING: fill in at M1; every script in package.json must be listed -->
 
 | Task | Command |
@@ -73,7 +75,10 @@ Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash ar
 | Lighthouse (needs a build) | `npm run lhci` |
 | Everything quick before a commit | `npm run check` (lint, typecheck, format check, unit tests) |
 | Git hooks | `npm run prepare` (installs Husky; pre-commit runs gitleaks on staged changes) |
-| Validate content and write the index | `npm run content` (runs automatically before dev, build, typecheck and tests) |
+| Validate content and write the index | `npm run content` (runs automatically before dev, build, typecheck and tests; includes `content:assistant`) |
+| Build assistant AST corpus only | `npm run content:assistant` |
+| Check client bundle secrets & size budgets | `npm run check:bundle` |
+| Guarded live assistant benchmark (manual) | `npm run eval:assistant` |
 | Link + evidence check (network) | `npm run links` |
 | Python demo-function tests | `npm run test:py` (needs `uv`) |
 | Smoke tests against the live site (or `SMOKE_URL`) | `npm run smoke` |
@@ -85,6 +90,7 @@ Contact form (4.8): `POST /api/contact` (Node). Turnstile, Resend and Upstash ar
 
 ```
 docs/            public planning documents (00–07), trimmed
+documentation/   shipping audit maps (architecture, flows, permissions, variables, automation, emails, seo, tests)
 private/         owner-only material, git-ignored, never commit:
   planning/      content inventory (08), full decision detail, review notes, account checklist
   *.md           CV edits, outreach drafts
@@ -93,16 +99,16 @@ design/scrollcraft/   scroll-craft workspace: builds/portfolio-home/BRIEF.md, FI
 .scrollcraft.json     points scroll-craft at design/scrollcraft
 AGENTS.md        shared agent instructions (this file)
 CLAUDE.md        imports AGENTS.md + Claude Code specifics
-app/             Next.js routes: layout (fonts, skip link, per-request rendering), page, not-found, icon
-components/      folio, colophon, theme toggle
-content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, cv.ts (skills), experience.ts, projects.ts (+ demos); case-studies/*.mdx and notes/*.mdx from M3; .generated/ is git-ignored
+app/             Next.js routes: layout, page, work, about, contact, cv, demos, notes, api/{contact,assistant}
+components/      folio, colophon, theme toggle, assistant/*
+content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, cv.ts, experience.ts, projects.ts, diagrams.ts, case-studies/*.mdx, notes/*.mdx; .generated/ is git-ignored
 mdx-components.tsx  MDX component map (required by @next/mdx)
-scripts/         build-content.ts (validate + index), check-links.ts (evidence links), build_mlsys_index.py, build_fraud_demo.py
+scripts/         build-content.ts, build-assistant-corpus.ts, check-links.ts, check-assistant-bundle.ts, eval-assistant.ts, build_mlsys_index.py, build_fraud_demo.py
 api/             Python Vercel Functions: demos/mlsys/search.py, demos/fraud/score.py; _lib/ shared code; _data/ read-only index (+ manifest)
-lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), seo.ts, og.tsx (preview images)
+lib/             security-headers.ts, content.ts, ledger.ts, work.ts, contact.ts, rate-limit.ts, seo.ts, og.tsx, assistant/*
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
-tests/unit/      Vitest      tests/e2e/   Playwright + axe      tests/python/   pytest (demo functions)
+tests/unit/      Vitest      tests/eval/assistant/  golden benchmark      tests/e2e/   Playwright + axe      tests/python/   pytest
 tests/smoke/     live-site smoke and security checks (playwright.smoke.config.ts)
 .github/workflows/ci.yml     CI: gitleaks, content, lint, typecheck, format, unit, links, audit, build, e2e, Lighthouse
 .github/workflows/links.yml  nightly link check
@@ -112,8 +118,8 @@ tests/smoke/     live-site smoke and security checks (playwright.smoke.config.ts
 ## Hard rules (do not break without a new decision in docs/00-README.md)
 
 1. **Evidence-first (D-05).** Every metric needs a dataset/split, a caveat, and an evidence link, or a "Private work" label. Never invent or round up numbers. Never call something "production-grade" unless real users run it.
-2. **No database, CMS, admin or auth in v1 (D-03).** Content is MDX in Git.
-3. **No LLM features in v1 (D-07, D-14).** Demos call no paid model.
+2. **No database, CMS, admin or auth in v1–v2 (D-03).** Content is MDX in Git.
+3. **LLM isolation (D-07, D-14, D-33).** ML demos call no paid model. Only `POST /api/assistant` (v2, D-33) may call the single pinned OpenRouter model (`google/gemini-2.5-flash`) server-side, behind fail-closed Redis spend accounting, instant kill switch, and AST-projected public corpus boundaries.
 4. **Never load pickle/joblib files** in demo code (07, item 58). Use the LightGBM `.txt` model plus JSON parameters.
 5. **Secrets are server-only.** Only `NEXT_PUBLIC_TURNSTILE_SITE_KEY` may be public. Never commit `.env*`, `.remember/`, `.vercel/` or `private/`.
 6. **Excluded content:** only projects approved in the private content inventory may appear. No unfinished projects (D-18), no employer work (D-20), and no code, screenshots or data from private repos. Private repositories are shown as "Private work" (D-19).
@@ -193,6 +199,8 @@ Rules for editing them:
 - 2026-11-05 — Launch: Current state, Commands, Layout; M5 and M6 checks recorded (Claude Code).
 - 2026-11-05 — Conventions: no pipes in check-and-commit chains (Claude Code).
 - 2026-11-05 — Old-deployment redirects and profile links: Current state (Claude Code).
+- 2026-11-20 — M7.0 governance reconciled (D-33): updated `docs/00`–`07` and `AGENTS.md` for the v2 portfolio assistant (Antigravity).
+- 2026-11-20 — M7.1–M7.6 implemented & verified locally on `feat/portfolio-assistant` (D-33); M7.7 preview/production activation pending (Antigravity).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

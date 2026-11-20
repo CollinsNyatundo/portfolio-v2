@@ -47,6 +47,7 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 | Broken links site-wide | 0 | Link checker in CI |
 | Interview requests attributed to the site | ≥ 2 | Contact form `referral` field (05 §5) when the form ships; owner-reported until then |
 | Ranking for "Collins Nyagaka" | Position 1 on Google | Search Console |
+| Assistant evidence click-through & 30-day review (v2, D-33) | Assistant sessions lead to evidence views, CV downloads or contact clicks without slowing Home LCP | Cookieless custom events `assistant_open` and `assistant_evidence_click`; owner 30-day keep/prune review |
 
 ## 5. Core features
 
@@ -71,11 +72,12 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 | F-15 | **Dark / light theme** following system preference with manual toggle | Comfort, accessibility | P1 |
 | F-16 | **Print-friendly / ATS-friendly CV page** (`/cv`) mirroring the PDF in HTML | Recruiters on mobile; parsers | P1 |
 | F-17 | **Redirect old deployments** to the new domain | One canonical presence | P1 |
+| F-20 | **Grounded portfolio assistant** (v2, D-33) — bespoke drafting-seal launcher and reading drawer answering strictly from public portfolio evidence, with verbatim Fact Cards, `retrieval_only` fallback, and strict spend/security gates | Hiring managers interrogate metrics, limits and fit in seconds | P2 (v2) |
 
-## 6. Out of scope for v1
+## 6. Out of scope for v1 (updated for v2 per D-33)
 
 - CMS, admin dashboard, database, user accounts (the old site's Supabase/TinyMCE admin is retired).
-- "Chat with my portfolio" LLM assistant (D-14).
+- "Chat with my portfolio" LLM assistant was out of scope for v1 (D-14) and ships in v2 only under D-33's public-corpus, spend-capped, retrieval-fallback architecture.
 - Proxying LegalAI Kenya or ComplianceGuard as live demos (multi-tenant / heavy backends; shown by video and write-up).
 - Comments, newsletter, blog search, i18n (English only).
 - Freelance pricing, service packages (lives on TundoTech Systems).
@@ -112,6 +114,7 @@ Workaround today: recruiters rely on the PDF CV and LinkedIn, which cannot show 
 | 12 | Visitor scrolls past a tagged figure, then runs the demo | Reaches the colophon | The ledger lists only figures present in the evidence data, each with a source or "Private work", plus their own run; totals match the lines |
 | 9 | Keyboard only | Visitor tabs through Home and the fraud demo | Every interactive element is reachable, has a visible focus ring, and axe-core reports 0 violations |
 | 10 | Owner adds `content/case-studies/new.mdx` with valid frontmatter | Pushes to `main` | Page builds and appears in the index; invalid frontmatter fails the build with a clear message |
+| 13 | Assistant enabled (`retrieval_only` or `generation_enabled`) on any route | Visitor asks a portfolio question, an off-topic question, or hits the budget/limit | Portfolio question returns evidence-linked prose or matching public excerpts with verbatim caveats; off-topic refuses at zero LLM spend; rate-limited or budget-exhausted states degrade gracefully without errors or private leaks |
 
 ## 9. Open questions
 

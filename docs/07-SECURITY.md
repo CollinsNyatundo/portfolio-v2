@@ -12,19 +12,20 @@ recorded manual verification before launch (06, task 5.1).
 |---|---|
 | Owner's reputation | A defaced, phishing-capable or broken portfolio harms job applications directly |
 | Domain and DNS | Takeover = impersonation, email spoofing |
-| Vercel, GitHub, Porkbun, Upstash, Resend accounts | Control of the site and its secrets |
-| Secrets (`UPSTASH_*`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`) | Abuse = cost, spam sent as the owner |
-| Demo compute budget | Abuse = bills or a paused project |
-| Visitor trust / privacy | Contact-form submissions, analytics |
-| Linked private repos | Must not be exposed by mistake (e.g. a private repo URL or code pasted into MDX) |
+| Vercel, GitHub, Spaceship, Upstash, Resend, OpenRouter accounts | Control of the site, billing and its secrets |
+| Secrets (`UPSTASH_*`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `ASSISTANT_LLM_API_KEY`) | Abuse = cost, spam sent as the owner |
+| Demo & assistant compute budget | Abuse = bills or a paused project |
+| Visitor trust / privacy | Contact-form submissions, assistant questions (browser-memory only, OpenRouter `data_collection: "deny"`), analytics |
+| Linked private repos | Must not be exposed by mistake (e.g. a private repo URL or code pasted into MDX or assistant corpus) |
 
 ## 2. Trust boundaries
 
 1. Browser ↔ Vercel CDN (public, static).
-2. Browser ↔ demo/contact functions (untrusted input crosses here).
+2. Browser ↔ demo/contact/assistant functions (untrusted input crosses here).
 3. Functions ↔ Upstash / Resend / Turnstile (server secrets).
-4. GitHub ↔ Vercel build (supply chain: dependencies, CI, Actions).
-5. Owner ↔ registrar/hosting dashboards (account security).
+4. Functions ↔ OpenRouter pinned endpoint (`https://openrouter.ai/api/v1/chat/completions`, server secret, `redirect: "error"`).
+5. GitHub ↔ Vercel build (supply chain: dependencies, CI, Actions).
+6. Owner ↔ registrar/hosting/provider dashboards (account security).
 
 ## 3. Threat model (STRIDE, short)
 
@@ -34,7 +35,7 @@ recorded manual verification before launch (06, task 5.1).
 | Tampering | Malicious dependency changes build output; PR from fork alters CI | Lockfile, `npm ci`, pinned Actions by SHA, no secrets on fork PRs, branch protection |
 | Repudiation | — (no user actions to dispute) | Git history is the audit log |
 | Information disclosure | Secrets in client bundle; source maps; stack traces; private repo names/code in content | Server-only env vars, gitleaks, no public source maps, generic errors, content review |
-| Denial of service / cost | Script hammers fraud demo; huge request bodies; heavy search queries | Rate limits, body limit 4 KB, global daily caps, timeouts, Vercel spend limit; optional Vercel BotID on demos; Turnstile on the contact form only |
+| Denial of service / cost | Script hammers fraud demo or assistant; huge streaming request bodies; heavy search queries | Rate limits, streaming 8 KB body cap, concurrency cap, fail-closed Redis micro-USD daily budget ($0.50/day prod, $0.10/day preview), provider $5/month cap, timeouts, Vercel spend limit |
 | Elevation of privilege | Pickle model file executes code; SQL/FTS injection in search | No pickle loading; bound parameters; read-only SQLite opened with `mode=ro` |
 
 ## 4. Required HTTP security headers
@@ -142,12 +143,12 @@ X-Frame-Options: DENY
 | 71 | Payment entitlement logic | C | N/A | — | — |
 | 72 | Insecure API key auth | H | N/A | Demos are anonymous by design | — |
 | 73 | Missing scope checks | H | N/A | — | — |
-| 74 | AI/LLM tool authorisation | C | N/A in v1 | No LLM (D-14). **If an assistant is added:** read-only tools over public content only, no tools with side effects, server-enforced quotas | Re-assess before any LLM feature |
-| 75 | Prompt injection → unsafe tool use | H | N/A in v1 | Same as 74; treat retrieved content as data; no secrets or private repo content in context | Re-assess |
+| 74 | AI/LLM tool authorisation | C | **A** (v2, D-33) | Zero side-effect tools; read-only retrieval over AST-projected public `assistant-corpus.json` only; server-enforced micro-USD budget (fail closed when Redis unavailable) + instant kill switch | Unit + route tests for budget fail-closed, kill switch, and 0 private/unpublished projection leaks |
+| 75 | Prompt injection → unsafe tool use | H | **A** (v2, D-33) | Evidence wrapped in XML delimiters; history untrusted and cannot supply citations/facts; strict JSON schema verified against current-request chunks; URLs/Fact Cards built server-side from `routeRegistry`; reject-to-fallback on any violation | Synthetic attack/red-team tests in `assistant-eval.test.ts` & `assistant-route.test.ts` |
 
-**Summary:** 45 items apply (A) or apply in reduced form (R); 30 are N/A in v1 because the feature does not exist.
-The highest-risk applicable items for this specific site are **58 (pickle loading)**, **45/46 (cost abuse of demos)**,
-**06/07/65 (secrets)**, **61 (supply chain)** and **18 (owner account MFA)**.
+**Summary:** 47 items apply (A) or apply in reduced form (R); 28 are N/A in v2 because accounts, database, payments, webhooks and uploads do not exist.
+The highest-risk applicable items for this site are **58 (pickle loading)**, **45/46 (cost abuse of demos & assistant)**,
+**06/07/65 (secrets)**, **61 (supply chain)**, **74/75 (assistant grounding & isolation)** and **18 (owner account MFA)**.
 
 ## 6. Owner account hardening
 
@@ -168,7 +169,8 @@ tokens removed, and has spend alerts where offered. The detailed checklist is ke
 |---|---|
 | Secret leaked | Rotate at provider immediately → redeploy → purge from history if committed → note in vault log |
 | Demo abused / cost spike | Set demo `status: "offline"` (static fallback shows), tighten limits, redeploy |
-| Site defaced / bad deploy | Vercel Instant Rollback to last good deployment; then investigate the commit |
+| Assistant cost spike / bad output | Set Redis `kill:assistant:generation = "1"` (stops all billable generation in < 1 s across deployments), then set `ASSISTANT_MODE=retrieval` or `off` and redeploy; rotate `ASSISTANT_LLM_API_KEY` if compromised |
+| Site defaced / bad deploy | Vercel Instant Rollback to last good deployment (ensure previous prod deploy has safe kill-switch state); then investigate |
 | Domain/DNS hijack | Registrar support + lock; DNSSEC keys; notify LinkedIn/GitHub followers via post |
 
 ## 9. Verification record (task 5.1, 2026-11-05)

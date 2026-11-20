@@ -12,7 +12,7 @@ import { mailtoHref, site } from "@/content/site";
 import { demos, projects, publishedCaseStudies } from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
 
-const BUILD_DATE = "2026-11-04";
+const BUILD_DATE = "2026-11-16";
 
 const failures = [
   {

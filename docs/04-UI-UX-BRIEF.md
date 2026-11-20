@@ -135,6 +135,8 @@ Both are self-hosted via `next/font`.
 | Timeline | Vertical, dates in mono, role + org + 1–3 bullets |
 | Toast | Bottom-centre, 4 s, pausable, `role="status"` |
 | Colophon | The ledger table + totals, then running text: "Email Collins at …", "CV (PDF)", LinkedIn, GitHub, last updated, source of this site |
+| Portfolio Index launcher & icon (v2, D-33) | Hydrate-gated button (`>= 48 × 48 px`, `bottom-4 right-4` / `xl:bottom-6 xl:right-8`, `print:hidden`), offset above the mobile evidence strip via `--evidence-strip-h`. Features the bespoke inline SVG **Drafting Reticle & Folio Mark** (outer crosshair ring + rotating dashed registration orbit on hover/focus + folded folio with `--primary` ink dot), zero pulsing animations |
+| Portfolio Index drawer (v2, D-33) | Native `<dialog>` (`showModal()`), right-docked (`max-w-[440px]`) on desktop, full-height bottom sheet on `< 640 px`, paper `--surface` fill, theme-safe translucent paper backdrop (no dark overlay, no `backdrop-filter`). Contains internal labelled `Close` and `Reset` buttons, contextual starters, Newsreader answer blocks, verbatim Fact Cards, `Evidence` list, and pre-submit privacy notice |
 
 ## 6. Layout rules
 
