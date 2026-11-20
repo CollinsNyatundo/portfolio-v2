@@ -225,7 +225,7 @@ Every route in `evidence[]` and `facts[]` is validated at build time against the
 | Rate-limit counters | Upstash Redis, key `rl:<route>:<sha256(ip + daily salt)>` | TTL = window (≤ 1 h). No raw IPs stored. |
 | Contact messages | Not stored; emailed to owner | Owner's mailbox policy |
 | Assistant questions & history | Browser memory only (client); forwarded server-side to OpenRouter with `provider.data_collection: "deny"` when `generation_enabled`; zero question/answer logging | Tab session only |
-| Assistant daily budget & kill switch | Upstash Redis (`budget:assistant:<env>:<YYYY-MM-DD>`, `conc:assistant:<env>`, `kill:assistant:generation`) | Budget TTL 48 h; concurrency TTL 30 s |
+| Assistant daily budget & kill switch | Upstash Redis (`budget:assistant:<env>:<YYYY-MM-DD>`, `conc:assistant:<env>`, `kill:assistant:generation`) | Budget TTL 48 h; concurrency TTL 30 s, renewed only by an admitted request. Admission (kill switch, cap, budget, slot) is one atomic Lua `EVAL`; a rejected attempt writes nothing |
 | Demo inputs | Not stored; not logged (log only status code, latency, model version) | — |
 | Analytics | Vercel Web Analytics (aggregated, cookieless) | Vercel's retention |
 | Function logs | Vercel runtime logs | Vercel's default (short) |

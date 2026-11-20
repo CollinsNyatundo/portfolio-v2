@@ -5,6 +5,12 @@ import {
   validateProviderUrl,
 } from "@/lib/assistant/config";
 import { resetLocalRateLimits } from "@/lib/rate-limit";
+import {
+  isAdmissionEval,
+  isReleaseEval,
+  runAdmissionEval,
+  runReleaseEval,
+} from "../support/upstash-admission";
 
 const ORIGIN = "https://collinsnyagaka.com";
 
@@ -44,28 +50,46 @@ function mockHealthyRedisAndOpenRouter(
   openRouterReply: () => Response | Promise<Response>,
   opts: { kill?: string | null; dailySpentOverride?: number } = {},
 ) {
-  let conc = 0;
-  let spent = opts.dailySpentOverride ?? 0;
+  // Redis keys the assistant touches; the admission/release EVALs run
+  // through the JS mirror of the Lua scripts (tests/support).
+  const data = new Map<string, string>();
+  if (opts.kill) data.set("kill:assistant:generation", opts.kill);
+  const today = new Date().toISOString().slice(0, 10);
+  for (const env of ["development", "test", "preview", "production"]) {
+    if (opts.dailySpentOverride)
+      data.set(
+        `budget:assistant:${env}:${today}`,
+        String(opts.dailySpentOverride),
+      );
+  }
+  const mini = {
+    get: (k: string) => data.get(k) ?? null,
+    incrBy: (k: string, by: number) => {
+      const n = Number(data.get(k) ?? 0) + by;
+      data.set(k, String(n));
+      return n;
+    },
+    expire: () => {},
+    del: (k: string) => void data.delete(k),
+  };
+  const getConc = () =>
+    [...data.entries()]
+      .filter(([k]) => k.startsWith("conc:"))
+      .reduce((sum, [, v]) => sum + Number(v), 0);
   const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
     const url = String(input);
     if (url.includes("redis.example")) {
       const cmds = JSON.parse(String(init?.body)) as string[][];
       return Response.json(
-        cmds.map(([cmd, key, arg]) => {
+        cmds.map((c) => {
+          if (isAdmissionEval(c)) return { result: runAdmissionEval(mini, c) };
+          if (isReleaseEval(c)) return { result: runReleaseEval(mini, c) };
+          const [cmd, key] = c;
           if (cmd === "SET" && key.startsWith("salt:")) return { result: "OK" };
           if (cmd === "GET" && key.startsWith("salt:"))
             return { result: "daily-salt" };
-          if (cmd === "GET" && key === "kill:assistant:generation")
-            return { result: opts.kill ?? null };
-          if (cmd === "INCR" && key.startsWith("conc:"))
-            return { result: ++conc };
-          if (cmd === "DECR" && key.startsWith("conc:"))
-            return { result: --conc };
+          if (cmd === "GET") return { result: data.get(key) ?? null };
           if (cmd === "INCR") return { result: 1 };
-          if (cmd === "INCRBY") {
-            spent += Number(arg);
-            return { result: spent };
-          }
           if (cmd === "SET") return { result: "OK" };
           return { result: 1 };
         }),
@@ -77,7 +101,7 @@ function mockHealthyRedisAndOpenRouter(
     throw new Error(`Unexpected outbound fetch: ${url}`);
   });
   vi.stubGlobal("fetch", fetchMock);
-  return { fetchMock, getConc: () => conc };
+  return { fetchMock, getConc };
 }
 
 beforeEach(() => {

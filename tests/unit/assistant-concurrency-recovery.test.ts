@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { reserveAssistantBudget } from "@/lib/rate-limit";
+import {
+  isAdmissionEval,
+  isReleaseEval,
+  runAdmissionEval,
+  runReleaseEval,
+} from "../support/upstash-admission";
 
 // Devin review on PR #36: slots leaked during a Redis outage must expire.
 // Rejected attempts and releases must not keep renewing the counter's TTL.
@@ -24,7 +30,21 @@ function fakeRedis() {
     store.set(key, { value: String(next), expiresAt: e?.expiresAt ?? null });
     return next;
   };
+  const mini = {
+    get: (key: string) => live(key)?.value ?? null,
+    incrBy,
+    expire: (key: string, seconds: number, nx = false) => {
+      const e = live(key);
+      if (!e || (nx && e.expiresAt !== null)) return;
+      e.expiresAt = clock + seconds * 1000;
+    },
+    del: (key: string) => void store.delete(key),
+  };
+  const commands: string[][] = [];
   const run = (cmd: string[]): unknown => {
+    commands.push(cmd);
+    if (isAdmissionEval(cmd)) return runAdmissionEval(mini, cmd);
+    if (isReleaseEval(cmd)) return runReleaseEval(mini, cmd);
     const [op, key, ...args] = cmd;
     switch (op) {
       case "GET":
@@ -42,6 +62,8 @@ function fakeRedis() {
         e.expiresAt = clock + Number(args[0]) * 1000;
         return 1;
       }
+      case "DEL":
+        return store.delete(key) ? 1 : 0;
       case "SET": {
         const ex = args.indexOf("EX");
         store.set(key, {
@@ -61,8 +83,20 @@ function fakeRedis() {
   });
   return {
     fetchMock,
+    commands,
     advance: (ms: number) => (clock += ms),
     setOutage: (v: boolean) => (outage = v),
+    peek: (key: string) => {
+      const e = live(key);
+      return e
+        ? {
+            value: e.value,
+            ttlMs: e.expiresAt === null ? null : e.expiresAt - clock,
+          }
+        : null;
+    },
+    seed: (key: string, value: string, ttlMs: number) =>
+      store.set(key, { value, expiresAt: clock + ttlMs }),
   };
 }
 
@@ -112,6 +146,54 @@ describe("assistant concurrency slots after a Redis outage", () => {
     }
     expect(outcomes[0]).toBe(false); // still inside the first 30 s
     expect(outcomes).toContain(true);
+  });
+
+  it("admits in one atomic Redis call: kill switch, cap, budget and slot together", async () => {
+    const redis = fakeRedis();
+    vi.stubGlobal("fetch", redis.fetchMock);
+    redis.commands.length = 0;
+    const r = await reserve();
+    expect(r.allowed).toBe(true);
+    expect(redis.fetchMock).toHaveBeenCalledTimes(1);
+    expect(redis.commands).toHaveLength(1);
+    expect(isAdmissionEval(redis.commands[0])).toBe(true);
+  });
+
+  it("never admits a request whose slot is lost to a counter expiring mid-admission", async () => {
+    // Devin review on PR #36: a zero counter about to expire.
+    const redis = fakeRedis();
+    vi.stubGlobal("fetch", redis.fetchMock);
+    redis.seed("conc:assistant:test", "0", 100);
+    const r = await reserve();
+    expect(r.allowed).toBe(true);
+    redis.advance(200); // the old counter's expiry time passes
+    expect(redis.peek("conc:assistant:test")).toEqual({
+      value: "1",
+      ttlMs: 29_800,
+    });
+  });
+
+  it("deletes the counter when the last slot is released", async () => {
+    const redis = fakeRedis();
+    vi.stubGlobal("fetch", redis.fetchMock);
+    const r = await reserve();
+    if (r.allowed) await r.releaseConcurrency();
+    expect(redis.peek("conc:assistant:test")).toBeNull();
+  });
+
+  it("does not burn budget on a rejected attempt", async () => {
+    const redis = fakeRedis();
+    vi.stubGlobal("fetch", redis.fetchMock);
+    for (let i = 0; i < 5; i++) await reserve();
+    const spentBefore = redis.peek(
+      `budget:assistant:test:${new Date().toISOString().slice(0, 10)}`,
+    )?.value;
+    expect((await reserve()).allowed).toBe(false);
+    expect(
+      redis.peek(
+        `budget:assistant:test:${new Date().toISOString().slice(0, 10)}`,
+      )?.value,
+    ).toBe(spentBefore);
   });
 
   it("still enforces the cap while slots are genuinely held", async () => {

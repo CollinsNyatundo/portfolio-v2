@@ -11,6 +11,12 @@ import {
   type ServerResponse,
 } from "node:http";
 import { createRequire } from "node:module";
+import {
+  isAdmissionEval,
+  isReleaseEval,
+  runAdmissionEval,
+  runReleaseEval,
+} from "../tests/support/upstash-admission.ts";
 
 const require = createRequire(import.meta.url);
 
@@ -33,8 +39,19 @@ function sendJson(res: ServerResponse, status: number, body: unknown) {
 }
 
 async function main() {
-  let conc = 0;
-  let spent = 0;
+  // Redis double: the admission/release EVALs run through the JS mirror of
+  // the Lua scripts in lib/rate-limit.ts.
+  const data = new Map<string, string>();
+  const mini = {
+    get: (k: string) => data.get(k) ?? null,
+    incrBy: (k: string, by: number) => {
+      const n = Number(data.get(k) ?? 0) + by;
+      data.set(k, String(n));
+      return n;
+    },
+    expire: () => {},
+    del: (k: string) => void data.delete(k),
+  };
 
   const server = createServer(async (req, res) => {
     const raw = await readBody(req);
@@ -42,25 +59,16 @@ async function main() {
 
     if (url.startsWith("/redis/multi-exec")) {
       const cmds = JSON.parse(raw) as string[][];
-      const replies = cmds.map(([cmd, key, arg]) => {
+      const replies = cmds.map((c) => {
+        if (isAdmissionEval(c)) return { result: runAdmissionEval(mini, c) };
+        if (isReleaseEval(c)) return { result: runReleaseEval(mini, c) };
+        const [cmd, key] = c;
         if (cmd === "SET" && key.startsWith("salt:")) return { result: "OK" };
         if (cmd === "GET" && key.startsWith("salt:")) {
           return { result: "e2e-salt" };
         }
-        if (cmd === "GET" && key === "kill:assistant:generation") {
-          return { result: null };
-        }
-        if (cmd === "INCR" && key.startsWith("conc:")) {
-          return { result: ++conc };
-        }
-        if (cmd === "DECR" && key.startsWith("conc:")) {
-          return { result: --conc };
-        }
+        if (cmd === "GET") return { result: data.get(key) ?? null };
         if (cmd === "INCR") return { result: 1 };
-        if (cmd === "INCRBY") {
-          spent += Number(arg);
-          return { result: spent };
-        }
         if (cmd === "SET") return { result: "OK" };
         return { result: 1 };
       });

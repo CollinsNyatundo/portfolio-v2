@@ -20,6 +20,7 @@
     "content": "node scripts/build-content.ts && node scripts/build-assistant-corpus.ts",
     "content:assistant": "node scripts/build-assistant-corpus.ts",
     "check:bundle": "node scripts/check-assistant-bundle.ts",
+    "check:admission-lua": "node scripts/check-admission-lua.ts",
     "eval:assistant": "node scripts/eval-assistant.ts",
     "links": "node scripts/check-links.ts",
     "predev": "npm run content --silent",

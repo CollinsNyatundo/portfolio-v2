@@ -6,6 +6,38 @@ import {
   reserveAssistantBudget,
   resetLocalRateLimits,
 } from "@/lib/rate-limit";
+import {
+  isAdmissionEval,
+  isReleaseEval,
+  runAdmissionEval,
+  runReleaseEval,
+} from "../support/upstash-admission";
+
+/** Upstash double without TTLs, running the admission and release mirrors. */
+function memoryRedis(seed: Record<string, string> = {}) {
+  const data = new Map(Object.entries(seed));
+  const mini = {
+    get: (k: string) => data.get(k) ?? null,
+    incrBy: (k: string, by: number) => {
+      const n = Number(data.get(k) ?? 0) + by;
+      data.set(k, String(n));
+      return n;
+    },
+    expire: () => {},
+    del: (k: string) => void data.delete(k),
+  };
+  const fetchMock = vi.fn(async (_url: string, init: RequestInit) => {
+    const cmds = JSON.parse(String(init.body)) as string[][];
+    return Response.json(
+      cmds.map((c) => {
+        if (isAdmissionEval(c)) return { result: runAdmissionEval(mini, c) };
+        if (isReleaseEval(c)) return { result: runReleaseEval(mini, c) };
+        throw new Error(`unexpected command ${c[0]}`);
+      }),
+    );
+  });
+  return { data, fetchMock };
+}
 
 beforeEach(() => {
   resetLocalRateLimits();
@@ -158,9 +190,7 @@ describe("assistant fail-closed kill switch and spend reservation", () => {
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test-token");
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        Response.json([{ result: null }, { error: "ERR oom" }, { result: 1 }]),
-      ),
+      vi.fn(async () => Response.json([{ error: "ERR oom" }])),
     );
     expect(
       await reserveAssistantBudget({
@@ -171,21 +201,30 @@ describe("assistant fail-closed kill switch and spend reservation", () => {
     ).toEqual({ allowed: false, reason: "accounting_unavailable" });
   });
 
+  it("fails closed on a malformed admission reply", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
+    vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test-token");
+    for (const result of [null, "OK", [0], [0, "5000"], [9, 1], [0, 0]]) {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => Response.json([{ result }])),
+      );
+      expect(
+        await reserveAssistantBudget({
+          envName: "test",
+          maxAttemptMicroUsd: 5000,
+          dailyCapMicroUsd: 100000,
+        }),
+        JSON.stringify(result),
+      ).toEqual({ allowed: false, reason: "accounting_unavailable" });
+    }
+  });
+
   it("blocks immediately when kill:assistant:generation is 1 without burning daily budget", async () => {
     vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test-token");
-    const commandsLog: string[][][] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_url: string, init: RequestInit) => {
-        const cmds = JSON.parse(String(init.body)) as string[][];
-        commandsLog.push(cmds);
-        if (cmds[0][0] === "GET") {
-          return Response.json([{ result: "1" }, { result: 1 }, { result: 1 }]);
-        }
-        return Response.json([{ result: 0 }, { result: 1 }]);
-      }),
-    );
+    const redis = memoryRedis({ "kill:assistant:generation": "1" });
+    vi.stubGlobal("fetch", redis.fetchMock);
 
     const res = await reserveAssistantBudget({
       envName: "preview",
@@ -193,84 +232,57 @@ describe("assistant fail-closed kill switch and spend reservation", () => {
       dailyCapMicroUsd: 100000,
     });
     expect(res).toEqual({ allowed: false, reason: "kill_switch" });
-    expect(commandsLog.flat().some((c) => c[0] === "INCRBY")).toBe(false);
-    expect(commandsLog.flat().some((c) => c[0] === "DECR")).toBe(true);
+    expect(redis.data.size).toBe(1); // no budget or slot written
   });
 
   it("enforces concurrency cap, daily budget cap, and releases concurrency once", async () => {
     vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://redis.example");
     vi.stubEnv("UPSTASH_REDIS_REST_TOKEN", "test-token");
+    const redis = memoryRedis();
+    vi.stubGlobal("fetch", redis.fetchMock);
+    const conc = () => Number(redis.data.get("conc:assistant:prod") ?? 0);
+    const spent = () =>
+      [...redis.data.entries()]
+        .filter(([k]) => k.startsWith("budget:assistant:prod:"))
+        .reduce((sum, [, v]) => sum + Number(v), 0);
+    const reserve = () =>
+      reserveAssistantBudget({
+        envName: "prod",
+        maxAttemptMicroUsd: 5000,
+        dailyCapMicroUsd: 10000,
+        maxConcurrent: 2,
+      });
 
-    let conc = 0;
-    let spent = 0;
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (_url: string, init: RequestInit) => {
-        const cmds = JSON.parse(String(init.body)) as string[][];
-        const replies = cmds.map((parts) => {
-          const [cmd, , arg] = parts;
-          if (cmd === "GET") return { result: null };
-          if (cmd === "INCR") return { result: ++conc };
-          if (cmd === "DECR") return { result: --conc };
-          if (cmd === "INCRBY") {
-            spent += Number(arg);
-            return { result: spent };
-          }
-          if (cmd === "SET") {
-            conc = Number(arg);
-            return { result: "OK" };
-          }
-          return { result: 1 };
-        });
-        return Response.json(replies);
-      }),
-    );
-
-    const ok = await reserveAssistantBudget({
-      envName: "prod",
-      maxAttemptMicroUsd: 5000,
-      dailyCapMicroUsd: 10000,
-      maxConcurrent: 2,
-    });
+    const ok = await reserve();
     expect(ok.allowed).toBe(true);
     if (ok.allowed) {
       expect(ok.spentMicroUsd).toBe(5000);
       // Idempotent release even if called twice.
       await ok.releaseConcurrency();
       await ok.releaseConcurrency();
-      expect(conc).toBe(0);
+      expect(conc()).toBe(0);
     }
 
-    // Simulate saturated concurrency.
-    conc = 2;
-    const busy = await reserveAssistantBudget({
-      envName: "prod",
-      maxAttemptMicroUsd: 5000,
-      dailyCapMicroUsd: 10000,
-      maxConcurrent: 2,
+    // Simulate saturated concurrency: rejected without spending.
+    redis.data.set("conc:assistant:prod", "2");
+    expect(await reserve()).toEqual({
+      allowed: false,
+      reason: "concurrency_limit",
     });
-    expect(busy).toEqual({ allowed: false, reason: "concurrency_limit" });
-    expect(conc).toBe(2);
-    expect(spent).toBe(5000);
+    expect(conc()).toBe(2);
+    expect(spent()).toBe(5000);
 
     // Simulate budget exhaustion.
-    conc = 0;
-    const r2 = await reserveAssistantBudget({
-      envName: "prod",
-      maxAttemptMicroUsd: 5000,
-      dailyCapMicroUsd: 10000,
-      maxConcurrent: 2,
-    });
+    redis.data.delete("conc:assistant:prod");
+    const r2 = await reserve();
     expect(r2.allowed).toBe(true);
     if (r2.allowed) await r2.releaseConcurrency();
 
-    const r3 = await reserveAssistantBudget({
-      envName: "prod",
-      maxAttemptMicroUsd: 5000,
-      dailyCapMicroUsd: 10000,
-      maxConcurrent: 2,
+    expect(await reserve()).toEqual({
+      allowed: false,
+      reason: "budget_reached",
     });
-    expect(r3).toEqual({ allowed: false, reason: "budget_reached" });
-    expect(conc).toBe(0);
+    expect(conc()).toBe(0);
+    expect(spent()).toBe(10000);
   });
 });

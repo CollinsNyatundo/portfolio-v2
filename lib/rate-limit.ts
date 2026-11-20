@@ -159,12 +159,9 @@ export async function releaseAssistantConcurrency(
   envName: string,
 ): Promise<void> {
   const concKey = `conc:assistant:${envName}`;
-  // No TTL renewal here: only an admitted request may extend the counter's
-  // life, so slots leaked while Redis was unreachable still expire.
-  const out = await upstashPipeline([["DECR", concKey]]);
-  if (out && typeof out[0] === "number" && out[0] < 0) {
-    await upstashPipeline([["SET", concKey, "0", "EX", "30"]]);
-  }
+  // Atomic: decrement, and delete the counter at zero or below so a stale
+  // zero can't linger. No TTL renewal: only admission extends it.
+  await upstashPipeline([["EVAL", ASSISTANT_RELEASE_SCRIPT, "1", concKey]]);
 }
 
 export type AssistantBudgetReservation =
@@ -181,6 +178,37 @@ export type AssistantBudgetReservation =
         | "concurrency_limit"
         | "budget_reached";
     };
+
+const ASSISTANT_KILL_KEY = "kill:assistant:generation";
+const CONCURRENCY_TTL_SECONDS = 30;
+const BUDGET_TTL_SECONDS = 172_800;
+
+/**
+ * Admission script (Lua, runs atomically in Redis). KEYS: kill switch,
+ * concurrency counter, daily budget. ARGV: max concurrent, attempt
+ * micro-USD, daily cap micro-USD, counter TTL, budget TTL. Returns
+ * {code, value}: 0 admitted (value = spent today), 1 kill switch,
+ * 2 concurrency limit, 3 budget reached. A rejected attempt writes nothing.
+ * Mirrored for test doubles in tests/support/upstash-admission.ts.
+ */
+export const ASSISTANT_ADMIT_SCRIPT = `-- assistant-admit v1
+if redis.call('GET', KEYS[1]) == '1' then return {1, 0} end
+local conc = tonumber(redis.call('GET', KEYS[2]) or '0')
+if conc < 0 then redis.call('DEL', KEYS[2]); conc = 0 end
+if conc >= tonumber(ARGV[1]) then return {2, conc} end
+local spent = tonumber(redis.call('GET', KEYS[3]) or '0')
+if spent + tonumber(ARGV[2]) > tonumber(ARGV[3]) then return {3, spent} end
+spent = redis.call('INCRBY', KEYS[3], ARGV[2])
+if redis.call('TTL', KEYS[3]) < 0 then redis.call('EXPIRE', KEYS[3], ARGV[5]) end
+redis.call('INCR', KEYS[2])
+redis.call('EXPIRE', KEYS[2], ARGV[4])
+return {0, spent}`;
+
+/** Release script: decrement the slot counter, deleting it at zero or below. */
+export const ASSISTANT_RELEASE_SCRIPT = `-- assistant-release v1
+local n = redis.call('DECR', KEYS[1])
+if n <= 0 then redis.call('DEL', KEYS[1]) end
+return n`;
 
 /**
  * Atomically check the instant kill switch, acquire a short-TTL concurrency
@@ -215,49 +243,45 @@ export async function reserveAssistantBudget({
   const day = new Date(now).toISOString().slice(0, 10);
   const budgetKey = `budget:assistant:${envName}:${day}`;
 
-  // Step 1: check kill switch + claim concurrency slot before touching budget
-  // so concurrency floods or a tripped kill switch cannot burn daily dollars.
-  // EXPIRE ... NX gives a new counter its TTL without renewing an existing
-  // one, so rejected attempts can't keep leaked slots alive forever.
-  const gate = await upstashPipeline([
-    ["GET", "kill:assistant:generation"],
-    ["INCR", concKey],
-    ["EXPIRE", concKey, "30", "NX"],
+  // One atomic script: kill switch, concurrency cap, daily budget, then the
+  // budget reservation and the slot with its TTL. Nothing can expire or
+  // interleave between the checks and the writes (Devin review, PR #36).
+  const out = await upstashPipeline([
+    [
+      "EVAL",
+      ASSISTANT_ADMIT_SCRIPT,
+      "3",
+      ASSISTANT_KILL_KEY,
+      concKey,
+      budgetKey,
+      String(maxConcurrent),
+      String(maxAttemptMicroUsd),
+      String(dailyCapMicroUsd),
+      String(CONCURRENCY_TTL_SECONDS),
+      String(BUDGET_TTL_SECONDS),
+    ],
   ]);
-  if (!gate || !isPositiveSafeInt(gate[1])) {
+  const reply = out?.[0];
+  if (
+    !Array.isArray(reply) ||
+    reply.length !== 2 ||
+    !reply.every((v) => Number.isSafeInteger(v))
+  ) {
     return { allowed: false, reason: "accounting_unavailable" };
   }
-  if (gate[0] === "1") {
-    await releaseAssistantConcurrency(envName);
-    return { allowed: false, reason: "kill_switch" };
-  }
-  if (gate[1] > maxConcurrent) {
-    await releaseAssistantConcurrency(envName);
-    return { allowed: false, reason: "concurrency_limit" };
-  }
-
-  // Step 2: conservatively reserve worst-case micro-USD for this single attempt.
-  const spend = await upstashPipeline([
-    ["INCRBY", budgetKey, String(maxAttemptMicroUsd)],
-    ["EXPIRE", budgetKey, "172800", "NX"],
-  ]);
-  if (!spend || !isPositiveSafeInt(spend[0])) {
-    await releaseAssistantConcurrency(envName);
+  const [code, value] = reply as [number, number];
+  if (code === 1) return { allowed: false, reason: "kill_switch" };
+  if (code === 2) return { allowed: false, reason: "concurrency_limit" };
+  if (code === 3) return { allowed: false, reason: "budget_reached" };
+  if (code !== 0 || !isPositiveSafeInt(value)) {
     return { allowed: false, reason: "accounting_unavailable" };
   }
-  if (spend[0] > dailyCapMicroUsd) {
-    await releaseAssistantConcurrency(envName);
-    return { allowed: false, reason: "budget_reached" };
-  }
-
-  // Admitted: this request really holds a slot (maxDuration 25 s), so it may
-  // extend the counter's TTL. Best effort; the NX TTL above already bounds it.
-  await upstashPipeline([["EXPIRE", concKey, "30"]]);
+  const spent = value;
 
   let released = false;
   return {
     allowed: true,
-    spentMicroUsd: spend[0],
+    spentMicroUsd: spent,
     releaseConcurrency: async () => {
       if (released) return;
       released = true;
