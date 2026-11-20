@@ -21,7 +21,7 @@ in a `<noscript>` message.
 | Fonts | `next/font` self-hosted: Newsreader (variable, OFL) + Geist Sans/Mono (OFL). No Google Fonts runtime request | CSP stays strict. Subset to Latin; preload the two main weights |
 | Images | `next/image`, AVIF/WebP, explicit sizes | |
 | Hosting | **Vercel** (Hobby to start; Pro only if demo traffic needs it) | Node.js 24 runtime (current default). Owner already uses Vercel. |
-| Domain / DNS | Domain registered at **Porkbun** (D-15: `collinsnyagaka.com`); apex + `www` pointed at Vercel; `www` → apex 308 redirect | DNSSEC on. CAA record limiting issuers to Let's Encrypt (Vercel's issuer). |
+| Domain / DNS | Domain registered at **Spaceship** (D-15: `collinsnyagaka.com`, D-30); apex + `www` pointed at Vercel; `www` → apex 308 redirect | DNSSEC on. CAA record limiting issuers to Let's Encrypt (Vercel's issuer). |
 | Analytics | Vercel Web Analytics + Speed Insights (cookieless) | No consent banner needed; no PII collected. |
 
 ## 3. Backend (demo functions only)
@@ -35,6 +35,7 @@ contact form. Each is an isolated Vercel Function.
 | `GET /api/demos/fraud/samples` | Same function (or static JSON) | Return 20 pre-selected test-split transactions (10 legit, 10 fraud), **each with its preceding window of 10 transactions** (`Time`, `Amount`) | Static JSON built from the public ULB dataset (already PCA-anonymised; CC BY-NC-SA 4.0 per the repo's `DATA_LICENSE`) |
 | `GET /api/demos/mlsys/search?q=` | **Python 3.13** Vercel Function | BM25 search over the adapted *ML Systems* corpus using SQLite FTS5 (same index builder as `machine-learning-systems-plugin`) | Read-only SQLite file bundled in the function |
 | `POST /api/contact` (P1) | Node.js 24 | Verify Turnstile, rate-limit, send one email via Resend | Nothing stored. Message goes to owner's inbox only. |
+| `POST /api/assistant` (v2, D-33) | Node.js 24 (`maxDuration = 25`) | Scope-gate, BM25F retrieve over public build-time corpus, reserve micro-USD budget, call pinned OpenRouter model (or degrade to `retrieval_only`), verify citations and output | Bundled read-only `content/.generated/assistant-corpus.json`; Redis rate-limit, concurrency, kill-switch and daily spend keys only |
 
 **Fraud model packaging (important):** the repo ships `models/optimized_lightgbm.pkl` and `preprocessor.pkl`.
 Pickle files execute code when loaded (framework item 58, Insecure Deserialization). The demo **must not load
@@ -74,14 +75,14 @@ pushing to `main` on GitHub (GitHub account with 2FA and a passkey; branch prote
 | Provider | Purpose | Limits / cost | Credentials owner | Env var |
 |---|---|---|---|---|
 | Vercel | Hosting, functions, analytics | Hobby free tier; set a **spend limit** if upgraded to Pro | Owner | — |
-| Porkbun | Domain + DNS | ~US$12/yr | Owner | — (no API use from the site) |
-| Upstash Redis (via Vercel Marketplace) | Rate limiting demos and contact form | Free tier 10k commands/day is ample | Owner | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` (server only) |
+| Spaceship | Domain + DNS (D-30) | ~US$12/yr | Owner | — (no API use from the site) |
+| Upstash Redis (via Vercel Marketplace) | Rate limiting demos/contact/assistant, daily micro-USD budget & instant kill switch | Free tier 10k commands/day is ample | Owner | `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`, or the Marketplace pair `KV_REST_API_URL` + `KV_REST_API_TOKEN` (server only; the read-only token is never used) |
 | Cloudflare Turnstile (P1) | Bot check on contact form | Free | Owner | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` (server only) |
 | Resend (P1) | Send contact-form email to owner | Free tier 100/day | Owner | `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` (verified sender; server only) |
+| OpenRouter (v2, D-33) | Single pinned model (`google/gemini-2.5-flash`) for `POST /api/assistant` (`data_collection: "deny"`, reasoning disabled) | Hard dashboard cap `$5/month`; server caps `$0.50/day` prod, `$0.10/day` preview | Owner | `ASSISTANT_MODE`, `ASSISTANT_LLM_BASE_URL`, `ASSISTANT_LLM_MODEL`, `ASSISTANT_LLM_API_KEY`, `ASSISTANT_DAILY_BUDGET_MICRO_USD`, `ASSISTANT_MAX_ATTEMPT_MICRO_USD` (all server only) |
 | GitHub | Source, CI, evidence links | Free | Owner | `GITHUB_TOKEN` in CI only (link checker), read-only |
 
-No LLM provider is called in v1 (D-07, D-14). No secret is ever prefixed `NEXT_PUBLIC_` except the Turnstile site key,
-which is public by design.
+In v1 no LLM provider was called (D-07, D-14). In v2 (D-33), only `POST /api/assistant` calls OpenRouter server-side; the fraud and search demos remain zero-LLM. No secret is ever prefixed `NEXT_PUBLIC_` except the Turnstile site key, which is public by design.
 
 ## 6. Architecture
 
@@ -93,8 +94,9 @@ Visitor ── HTTPS ──►  │  CDN (static HTML/CSS/JS, images, CV PDF, OG
                       │  /api/demos/fraud/*  ──► Python fn (LightGBM .txt + JSON prep)│
                       │  /api/demos/mlsys/*  ──► Python fn (SQLite FTS5, read-only)   │
                       │  /api/contact (P1)   ──► Node fn ──► Turnstile, Resend        │
+                      │  /api/assistant (v2) ──► Node fn ──► OpenRouter (pinned, server)│
                       │        │                                                      │
-                      │        └── rate limit ──► Upstash Redis (counters only)       │
+                      │        └── rate limit, budget & kill ──► Upstash Redis        │
                       └───────────────────────────────────────────────────────────────┘
 GitHub (main) ── push ──► Vercel build (CI checks must pass first)
 Live app links (outbound only): legalai-kenya.vercel.app, cropland-mapping.streamlit.app, tundotechsystems.com
@@ -110,7 +112,8 @@ Full detail in [07-SECURITY.md](07-SECURITY.md). Summary of the non-negotiables:
 - Strict CSP with nonces or hashes; no `unsafe-inline` scripts; `frame-ancestors 'none'`.
 - HSTS (2 years, `includeSubDomains`, `preload`), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` denying camera/mic/geolocation.
 - Demo inputs validated against a strict schema (types, ranges, max body 4 KB); unknown fields rejected.
-- Rate limits: fraud demo 30 requests / 10 min / IP; search 60 / 10 min / IP; contact 3 / hour / IP. Global daily cap per function as a cost backstop.
+- Assistant inputs validated strictly (max streaming body 8 KB, question 2–500 chars, up to 4 prior turns, unknown fields rejected).
+- Rate limits: fraud demo 30 requests / 10 min / IP; search 60 / 10 min / IP; contact 3 / hour / IP; assistant 12 / 10 min / IP + 30 / UTC day / IP + Redis concurrency cap 5 + global daily micro-USD budget (`$0.50/day` prod, `$0.10/day` preview) failing closed to `retrieval_only`.
 - No PII stored. Contact form content is emailed, not saved. Analytics are cookieless.
 - Production source maps not public; no `.env*`, `.git`, or build artifacts served.
 - Dependencies: lockfile committed, `npm audit` + `pip-audit` + gitleaks + CodeQL in CI; Dependabot weekly.
@@ -125,7 +128,8 @@ Full detail in [07-SECURITY.md](07-SECURITY.md). Summary of the non-negotiables:
 | JS shipped on Home | ≤ 90 KB gzipped |
 | Fraud demo latency | Model inference ≤ 10 ms (the repo measures 1.4 ms p95 in-process, single row, precomputed features; it is not end-to-end API latency); end-to-end ≤ 2 s p95 warm, ≤ 5 s cold |
 | Search demo latency | ≤ 500 ms p95 warm |
-| Availability | Static pages inherit Vercel CDN availability; demos may degrade — page shows a friendly fallback with a recorded result, never a blank or a stack trace |
+| Assistant latency (v2, D-33) | Warm generated answer p50 ≤ 1.8 s, p95 ≤ 3.5 s (18 s total deadline inside `maxDuration = 25`, leaving ≥ 4 s for verification or `retrieval_only` fallback) |
+| Availability | Static pages inherit Vercel CDN availability; demos and the assistant degrade gracefully (`retrieval_only` or recorded result), never a blank or a stack trace |
 | Backups | Git is the backup. CV PDF and media are in the repo (or Vercel Blob if > 10 MB total) |
 
 ## 9. Environments and delivery

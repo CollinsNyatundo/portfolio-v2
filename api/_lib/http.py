@@ -1,7 +1,9 @@
 """Shared plumbing for the demo functions: JSON responses and rate limits.
 
-Rate limits use Upstash Redis when UPSTASH_REDIS_REST_URL and
-UPSTASH_REDIS_REST_TOKEN are set (02 §5), and an in-process window
+Rate limits use Upstash Redis when its REST credentials are set (02 §5):
+UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN, or the KV_REST_API_URL +
+KV_REST_API_TOKEN pair the Vercel Marketplace integration provisions. They
+fall back to an in-process window
 otherwise, which only limits one warm instance. Both are fixed windows.
 """
 
@@ -33,11 +35,24 @@ def hash_ip(ip: str, salt: str) -> str:
     return hashlib.sha256(f"{salt}:{ip}".encode()).hexdigest()[:32]
 
 
+def _upstash_credentials() -> tuple[str, str] | None:
+    """A complete URL + token pair; explicit UPSTASH_* names win. Mirrors lib/upstash-env.ts."""
+    for url_key, token_key in (
+        ("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"),
+        ("KV_REST_API_URL", "KV_REST_API_TOKEN"),
+    ):
+        url = (os.environ.get(url_key) or "").strip()
+        token = (os.environ.get(token_key) or "").strip()
+        if url and token:
+            return url, token
+    return None
+
+
 def _upstash(commands: list[list[str]]) -> list | None:
-    url = os.environ.get("UPSTASH_REDIS_REST_URL")
-    token = os.environ.get("UPSTASH_REDIS_REST_TOKEN")
-    if not url or not token:
+    creds = _upstash_credentials()
+    if creds is None:
         return None
+    url, token = creds
     req = urllib.request.Request(
         f"{url.rstrip('/')}/multi-exec",
         data=json.dumps(commands).encode(),

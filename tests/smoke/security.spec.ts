@@ -51,7 +51,7 @@ test.describe("security on the deployed site", () => {
     for (const src of js) {
       const body = await (await request.get(src)).text();
       expect(body, src).not.toMatch(
-        /(sk_live_|re_[A-Za-z0-9]{20,}|TURNSTILE_SECRET|UPSTASH_REDIS_REST_TOKEN|-----BEGIN [A-Z ]*PRIVATE KEY)/,
+        /(sk_live_|sk-or-|gsk_|AIza|sk-proj-|re_[A-Za-z0-9]{20,}|TURNSTILE_SECRET|UPSTASH_REDIS_REST_TOKEN|ASSISTANT_LLM_API_KEY|-----BEGIN [A-Z ]*PRIVATE KEY)/,
       );
     }
   });
@@ -66,6 +66,17 @@ test.describe("security on the deployed site", () => {
     const text = await res.text();
     expect(text).not.toMatch(/Traceback|\/var\/task|\.py"|File "/);
     expect(JSON.parse(text).fields.admin).toBe("is not allowed");
+  });
+
+  test("15, 31 assistant denies cross-origin requests and emits no CORS header", async ({
+    request,
+  }) => {
+    const res = await request.post("/api/assistant", {
+      headers: { Origin: "https://evil.test" },
+      data: { question: "What is LegalAI Kenya?" },
+    });
+    expect([403, 503]).toContain(res.status());
+    expect(res.headers()["access-control-allow-origin"]).toBeUndefined();
   });
 
   test("42, 46 search limits are enforced, long queries refused", async ({

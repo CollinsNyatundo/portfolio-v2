@@ -118,3 +118,18 @@ Order follows dependencies: pages that others link to first.
 | 4 | M4.1–4.5 |
 | 5 | M4.6–4.10, M5 |
 | 6 | M6 launch |
+| 7 | M7.0–M7.7 (v2 portfolio assistant, D-33) |
+
+## Milestone 7 — Grounded portfolio assistant (v2, D-33)
+
+| # | Task | Owner | Output | Definition of done |
+|---|---|---|---|---|
+| 7.0 | Governance & doc reconciliation (D-33, docs 00–07, `AGENTS.md`, `Spaceship` DNS & `ml-systems-search` reconciliation) | A | Reconciled docs | All numbered docs agree on v2 scope, 3 operational states, spend caps and security controls |
+| 7.1 | Shared rate limiter fixes (`S1` error-item validation, `S2` per-entry `expiresAt`) + fail-closed `reserveAssistantBudget` & `isGenerationKilled` | A | `lib/rate-limit.ts` + tests | Mocked Upstash command errors never fail open; mixed-window tests and `contact-form.test.ts` pass |
+| 7.2 | AST corpus compiler, explicit public projection, `FactUnit`s & verified `routeRegistry` | A | `scripts/build-assistant-corpus.ts`, `content/diagrams.ts` | Synthetic leak tests prove 0 private/unpublished/phone leaks; `npm run content` deterministic |
+| 7.3 | Retriever, deterministic scope gate, pinned OpenRouter adapter, verifier & `POST /api/assistant` | A | `lib/assistant/*`, `app/api/assistant/route.ts` | Offline 55+ query benchmark ≥ 0.95 packed Recall; 100% verifier rejection of invalid IDs/XSS/em dashes/banned words |
+| 7.4 | Module C editorial UI, bespoke Drafting Reticle icon, native `<dialog>`, `--evidence-strip-h` ledger coordination & `print:hidden` | A | `components/assistant/*`, layout & ledger hooks | Disabled + enabled-stub E2E green; 0 axe violations at 320/768/1280 px; 0 CSP violations; no-JS clean; Home JS delta ≤ 3 KB gz |
+| 7.5 | Shipping artifacts (`/documentation/` audit set), compiled-bundle secret/byte check & smoke updates | A | `documentation/*.md`, `scripts/check-assistant-bundle.ts` | `check:bundle` passes; smoke security checks updated with LLM key prefixes |
+| 7.6 | Full CI verification, visual QA screenshots & guarded live eval (`npm run eval:assistant`) | A | Verified branch `feat/portfolio-assistant` | CI checks, LHCI (≥ 95/100/100/100), bundle check and live eval report green |
+| 7.7 | Owner-approved staged rollout (preview `retrieval` → `live` + kill-switch rehearsal → production env vars & spend limit → 30-day review) | O+A | Live v2 assistant | Disable rehearsal verified in < 1 s via Redis kill key; owner approves production cut-over |
+| 7.8 | Tighten `eval:assistant` exit criteria: fail when generated answers fall below the in-scope target, when p95 latency misses the release target, or on any faithfulness miss | A | Release gate in the script, not a separate check | Script exits non-zero on each failure mode; covered by a unit test |

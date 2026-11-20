@@ -78,11 +78,19 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Client bundle security and size check
+        run: npm run check:bundle
+        env:
+          CI_SECRET_SENTINEL: ci_sentinel_token_never_leak_into_bundle
+
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
-      - name: End-to-end and accessibility tests
+      - name: End-to-end and accessibility tests (default disabled assistant)
         run: npm run e2e
+
+      - name: End-to-end and accessibility tests (enabled assistant stub)
+        run: npm run e2e:assistant-enabled
 
       - name: Lighthouse
         run: npm run lhci

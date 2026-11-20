@@ -34,8 +34,10 @@
 
 Global chrome on every page: the **folio** (no header bar): name → `/`, current chapter or page title, then Work,
 Demos, Notes*, "Email Collins", "CV", theme toggle. The evidence ledger sits in the opposite margin on pages that
-have figures. Every page ends in a **colophon** (ledger table where relevant, email, LinkedIn, GitHub, "Last updated
-<build date>", content licence, link to source repo).
+have figures. When `ASSISTANT_MODE` is not disabled (v2, D-33), a hydrate-gated **Portfolio Index** launcher sits at
+bottom-right (clearing the mobile evidence strip via `--evidence-strip-h` and the desktop ledger via `bottom-24`)
+and opens a native `<dialog>` drawer on click. Every page ends in a **colophon** (ledger table where relevant, email,
+LinkedIn, GitHub, "Last updated <build date>", content licence, link to source repo).
 *Notes appears only when ≥ 2 notes exist.
 
 ## 3. Primary journeys
@@ -81,6 +83,7 @@ Success state: `demo_run` + contact action.
 | Search ML Systems | Submit (debounced 300 ms if typing, min 3 chars) | 3–200 chars, stripped of FTS operators | Skeleton results | Up to 10 results: chapter, section, snippet with highlight, link | 0 results → "No matches. Try: 'quantization', 'data drift'" · 429/5xx as above | Result link opens chapter source (attributed) |
 | Contact form submit (P1) | Submit | Name 1–100, email RFC-valid ≤ 254, topic from list, message 20–2000, Turnstile token present | Button spinner, fields disabled | "Thanks — I reply within 2 working days (EAT)." Form cleared | Field errors inline; 429 "Too many messages"; 5xx "Couldn't send — email me directly at …" | Stay |
 | Request a walkthrough | Link on private card | — | — | `/contact?topic=<slug>` with topic pre-filled (allow-listed slugs only) | Unknown topic → "General" | Contact |
+| Ask portfolio assistant (v2, D-33) | Click launcher seal (`Ask`) → pick starter or submit question | Question 2–500 chars, optional `pageContext` route & ≤ 4 turns | After 300 ms: "Searching portfolio…", Cancel button (`AbortController`) | Generated prose blocks + inline `[N]` citations + verbatim Fact Cards + Evidence links (or `retrieval_only` matching excerpts) | 400 → field error · 429 → "Limit reached, try again in N min" (kept across close/reopen) · upstream/budget/verification failure → `200` `retrieval_only` fallback | Clicking internal Evidence link closes dialog & navigates; `Close` button or `Esc` restores focus to launcher |
 
 ## 6. Navigation rules
 
@@ -91,6 +94,7 @@ Success state: `demo_run` + contact action.
 - Deep links: every case-study heading has an anchor (`#evaluation`, `#security`) with a copy-link button.
 - Case studies end with "Previous / Next case study" and a CTA block (CV, Email).
 - No infinite scroll; no modal on page load; no exit-intent pop-ups; no "scroll" cue.
+- Portfolio assistant drawer (v2, D-33): hydrate-gated so no inert button renders without JS; opens only on explicit click via native `<dialog>` (`showModal()`), always has an explicit internal Close button plus `Esc`, never appears in print (`print:hidden`), keeps transcripts in browser memory only, and resets/aborts cleanly on explicit Reset or unmount.
 - Home-page pinning (Act IV) uses native sticky scroll: wheel, keyboard (Space, Page Down, arrows), touch and find-in-page all keep working, and Tab moves through the demo controls in reading order.
 - Evidence ledger: on desktop always visible in the margin; on mobile a collapsed bottom strip showing "Evidence · N" that expands to the list. Ledger source links open in a new tab. The visitor's demo run adds a line styled as theirs; running it again replaces that line rather than adding more.
 

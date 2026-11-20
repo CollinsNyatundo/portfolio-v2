@@ -179,7 +179,8 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                 {index.projects.map((p) => (
                   <li
                     key={p.slug}
-                    className="border-border grid gap-2 border-b py-6 md:grid-cols-[1fr_auto] md:gap-10"
+                    id={p.slug}
+                    className="border-border grid scroll-mt-24 gap-2 border-b py-6 md:grid-cols-[1fr_auto] md:gap-10"
                   >
                     <div>
                       <h3 className="font-sans text-lg font-semibold">
