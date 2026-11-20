@@ -104,12 +104,12 @@ app/             Next.js routes: layout, page, work, about, contact, cv, demos, 
 components/      folio, colophon, theme toggle, assistant/*
 content/         site.ts, schema.ts (Zod), tags.ts, about.ts + about.mdx, cv.ts, experience.ts, projects.ts, diagrams.ts, case-studies/*.mdx, notes/*.mdx; .generated/ is git-ignored
 mdx-components.tsx  MDX component map (required by @next/mdx)
-scripts/         build-content.ts, build-assistant-corpus.ts, check-links.ts, check-assistant-bundle.ts, check-admission-lua.ts, eval-assistant.ts, build_mlsys_index.py, build_fraud_demo.py
+scripts/         build-content.ts, build-assistant-corpus.ts, check-links.ts, check-assistant-bundle.ts, check-admission-lua.ts (+ lib/upstash-admission.ts, the Lua mirror shared with tests), eval-assistant.ts, build_mlsys_index.py, build_fraud_demo.py
 api/             Python Vercel Functions: demos/mlsys/search.py, demos/fraud/score.py; _lib/ shared code; _data/ read-only index (+ manifest)
 lib/             security-headers.ts (CSP builder), content.ts (typed content), ledger.ts, work.ts (work index filter), contact.ts (topics), rate-limit.ts, seo.ts (incl. Article/breadcrumb JSON-LD), pages.ts (fixed-page dates for colophons and sitemap), og.tsx (preview images), assistant/*
 proxy.ts         per-request nonce CSP (Next.js 16 Proxy)
 public/vendor/scrollcraft/   vendored engine + SHA256SUMS + SOURCE.md (never edit)
-tests/unit/      Vitest (helpers in tests/support/)      tests/eval/assistant/  golden benchmark      tests/e2e/   Playwright + axe      tests/python/   pytest
+tests/unit/      Vitest      tests/eval/assistant/  golden benchmark      tests/e2e/   Playwright + axe      tests/python/   pytest
 tests/smoke/     live-site smoke and security checks (playwright.smoke.config.ts)
 .github/workflows/ci.yml     CI: gitleaks, content, lint, typecheck, format, unit, links, audit, build, e2e, Lighthouse
 .github/workflows/links.yml  nightly link check
@@ -204,7 +204,7 @@ Rules for editing them:
 - 2026-11-20 — M7.0 governance reconciled (D-33): updated `docs/00`–`07` and `AGENTS.md` for the v2 portfolio assistant (Antigravity).
 - 2026-11-20 — M7.1–M7.6 implemented & verified locally on `feat/portfolio-assistant` (D-33); M7.7 preview/production activation pending (Antigravity).
 - 2026-11-20 — `main` merged into `feat/portfolio-assistant` after the #35 re-land (#37) and #38; Layout lists `pages.ts` and `assistant/*`; the assistant now accepts only the pinned model and cancels stalled request bodies (Claude Code).
-- 2026-11-20 — Assistant admission is one atomic Redis Lua script; Commands adds `check:admission-lua`, Layout adds `tests/support/` (Claude Code).
+- 2026-11-20 — Assistant admission is one atomic Redis Lua script; Commands adds `check:admission-lua`, Layout adds `scripts/lib/` (Claude Code).
 - 2026-11-20 — Stack: Upstash credentials also read from the Marketplace `KV_REST_API_*` names (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->

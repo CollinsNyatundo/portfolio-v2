@@ -11,7 +11,7 @@ import {
   isReleaseEval,
   runAdmissionEval,
   runReleaseEval,
-} from "../support/upstash-admission";
+} from "../../scripts/lib/upstash-admission";
 
 /** Upstash double without TTLs, running the admission and release mirrors. */
 function memoryRedis(seed: Record<string, string> = {}) {

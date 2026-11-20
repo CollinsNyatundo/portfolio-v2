@@ -16,7 +16,7 @@ import {
   isReleaseEval,
   runAdmissionEval,
   runReleaseEval,
-} from "../tests/support/upstash-admission.ts";
+} from "./lib/upstash-admission.ts";
 
 const require = createRequire(import.meta.url);
 

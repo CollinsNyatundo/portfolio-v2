@@ -1,7 +1,7 @@
 /**
  * Runs the assistant admission and release Lua scripts (lib/rate-limit.ts)
  * against a real Redis and compares every reply and resulting key state with
- * the JavaScript mirror the unit tests use (tests/support/upstash-admission.ts).
+ * the JavaScript mirror the unit tests use (scripts/lib/upstash-admission.ts).
  * Run it whenever either script changes:
  *
  *   docker run -d --rm --name admit-redis -p 6390:6379 redis:7-alpine
@@ -20,7 +20,7 @@ import {
   type MiniRedis,
   runAdmissionEval,
   runReleaseEval,
-} from "../tests/support/upstash-admission.ts";
+} from "./lib/upstash-admission.ts";
 
 type Reply = string | number | null | Reply[];
 

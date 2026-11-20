@@ -10,7 +10,7 @@ import {
   isReleaseEval,
   runAdmissionEval,
   runReleaseEval,
-} from "../support/upstash-admission";
+} from "../../scripts/lib/upstash-admission";
 
 const ORIGIN = "https://collinsnyagaka.com";
 
@@ -51,7 +51,7 @@ function mockHealthyRedisAndOpenRouter(
   opts: { kill?: string | null; dailySpentOverride?: number } = {},
 ) {
   // Redis keys the assistant touches; the admission/release EVALs run
-  // through the JS mirror of the Lua scripts (tests/support).
+  // through the JS mirror of the Lua scripts (scripts/lib/upstash-admission.ts).
   const data = new Map<string, string>();
   if (opts.kill) data.set("kill:assistant:generation", opts.kill);
   const today = new Date().toISOString().slice(0, 10);

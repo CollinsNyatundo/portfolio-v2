@@ -5,7 +5,7 @@ import {
   isReleaseEval,
   runAdmissionEval,
   runReleaseEval,
-} from "../support/upstash-admission";
+} from "../../scripts/lib/upstash-admission";
 
 // Devin review on PR #36: slots leaked during a Redis outage must expire.
 // Rejected attempts and releases must not keep renewing the counter's TTL.

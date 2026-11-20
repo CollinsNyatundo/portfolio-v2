@@ -190,7 +190,7 @@ const BUDGET_TTL_SECONDS = 172_800;
  * micro-USD, daily cap micro-USD, counter TTL, budget TTL. Returns
  * {code, value}: 0 admitted (value = spent today), 1 kill switch,
  * 2 concurrency limit, 3 budget reached. A rejected attempt writes nothing.
- * Mirrored for test doubles in tests/support/upstash-admission.ts.
+ * Mirrored for test doubles in scripts/lib/upstash-admission.ts.
  */
 export const ASSISTANT_ADMIT_SCRIPT = `-- assistant-admit v1
 if redis.call('GET', KEYS[1]) == '1' then return {1, 0} end
