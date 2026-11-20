@@ -9,10 +9,9 @@ import { Folio } from "@/components/folio";
 import { EvidenceLedger } from "@/components/home/evidence-ledger";
 import { ScrollEngine } from "@/components/home/scroll-engine";
 import { mailtoHref, site } from "@/content/site";
-import { demos, projects, publishedCaseStudies } from "@/lib/content";
+import { demos, featuredCaseStudies, projects } from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
-
-const BUILD_DATE = "2026-11-16";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 const failures = [
   {
@@ -37,7 +36,8 @@ const failures = [
 export default async function Home() {
   // JSON-LD is a data block, never executed; it still carries the nonce (D-28).
   const nonce = (await headers()).get("x-nonce") ?? undefined;
-  const studies = publishedCaseStudies();
+  // Featured studies only (docs/03): the rest are on /work.
+  const studies = featuredCaseStudies();
   const ledger = ledgerEntries();
   const liveDemo = demos.find(
     (d) => d.slug === "fraud" && d.status !== "offline",
@@ -263,26 +263,33 @@ export default async function Home() {
               <div className="border-border border-t pt-12">
                 <h3 className="text-muted font-sans text-sm">More projects</h3>
                 <ul className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
-                  {projects.slice(0, 4).map((p) => (
-                    <li key={p.slug}>
-                      <p className="font-serif text-xl font-medium">
-                        {p.repoUrl ? (
-                          <a
-                            href={p.repoUrl}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                            className="text-text"
-                          >
-                            {p.title}
-                            <span className="sr-only"> (opens in new tab)</span>
-                          </a>
-                        ) : (
-                          p.title
-                        )}
-                      </p>
-                      <p className="text-muted mt-2 text-base">{p.summary}</p>
-                    </li>
-                  ))}
+                  {projects.slice(0, 4).map((p) => {
+                    // Private work has no repository; link its live site instead.
+                    const href = p.repoUrl ?? p.liveUrl;
+                    return (
+                      <li key={p.slug}>
+                        <p className="font-serif text-xl font-medium">
+                          {href ? (
+                            <a
+                              href={href}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                              className="text-text"
+                            >
+                              {p.title}
+                              <span className="sr-only">
+                                {" "}
+                                (opens in new tab)
+                              </span>
+                            </a>
+                          ) : (
+                            p.title
+                          )}
+                        </p>
+                        <p className="text-muted mt-2 text-base">{p.summary}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>
@@ -429,7 +436,7 @@ export default async function Home() {
           </section>
         </main>
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-16">
-          <Colophon updated={BUILD_DATE} />
+          <Colophon updated={PAGE_UPDATED["/"]} />
         </div>
       </div>
     </>

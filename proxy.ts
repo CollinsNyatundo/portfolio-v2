@@ -16,6 +16,20 @@ export function isMalformedPath(pathname: string): boolean {
   return pathname.includes("\\") || /%(5c|2f)/i.test(pathname);
 }
 
+/**
+ * Review and preview hosts that search engines must skip. An explicit list, so
+ * an unknown host stays indexable and production can never be hidden by a
+ * mistake here. `noindex` goes in a header, not robots.txt: a crawler blocked
+ * by robots.txt never reads the header and may still list the bare URL.
+ */
+export function isNoindexHost(host: string | null): boolean {
+  if (!host) return false;
+  const hostname = host.toLowerCase().split(":")[0];
+  return (
+    hostname === "bench.collinsnyagaka.com" || hostname.endsWith(".vercel.app")
+  );
+}
+
 export function proxy(request: NextRequest) {
   const nonce = createNonce();
   const csp = buildCsp({
@@ -34,6 +48,9 @@ export function proxy(request: NextRequest) {
       })
     : NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
+  if (isNoindexHost(request.headers.get("host"))) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
   return response;
 }
 

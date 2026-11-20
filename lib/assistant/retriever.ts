@@ -18,6 +18,10 @@ export const DEFAULT_STARTERS = [
 
 const MAX_PACKED_TOKENS = 4200;
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 const PORTFOLIO_ANCHORS = new Set([
   "collins",
   "nyagaka",
@@ -689,6 +693,22 @@ export function retrieveAndPack(params: {
   // Enforce measured token ceiling by trimming lowest-scoring non-pinned chunks
   // (never dropping manifest:identity, top-3 scored chunks, or active entity limits).
   const topScoredIds = new Set(scored.slice(0, 3).map((s) => s.chunk.id));
+  // A question that names a section of an active project ("compare the
+  // evaluation of X and Y") keeps that section, even when it is long.
+  const questionLower = params.question.toLowerCase();
+  const namedSectionIds = new Set(
+    selected
+      .filter(
+        (c) =>
+          c.kind !== "manifest" &&
+          activeEntities.includes(c.slug) &&
+          c.section.length > 3 &&
+          new RegExp(`\\b${escapeRegExp(c.section.toLowerCase())}\\b`).test(
+            questionLower,
+          ),
+      )
+      .map((c) => c.id),
+  );
   while (totalPackedTokens() > MAX_PACKED_TOKENS && selected.length > 3) {
     let dropIdx = -1;
     let lowestScore = Infinity;
@@ -697,7 +717,8 @@ export function retrieveAndPack(params: {
       if (
         c.id === "manifest:identity" ||
         topScoredIds.has(c.id) ||
-        (c.kind === "case_study_limits" && activeEntities.includes(c.slug))
+        (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
+        namedSectionIds.has(c.id)
       ) {
         continue;
       }

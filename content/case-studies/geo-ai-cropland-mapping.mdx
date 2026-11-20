@@ -58,7 +58,7 @@ limits:
 featured: false
 order: 5
 published: true
-updated: "2026-11-05"
+updated: "2026-11-19"
 ---
 
 ## Problem
@@ -77,6 +77,10 @@ The GEO-AI challenge asked teams to label points in two regions, Fergana in Uzbe
 I led a team of five. We aggregated the satellite rows by location and matched each labelled point to its nearest pixels with a BallTree search, falling back to rounded coordinates where coverage was thin. On top of the raw bands we computed vegetation and water indices (NDVI, NDWI, EVI, SAVI and others) and a radar ratio, then selected the 40 most informative features.
 
 We tuned RandomForest, XGBoost, LightGBM and CatBoost with Optuna, tried oversampling for the class imbalance, and stacked the models into an ensemble with a small neural network on top.
+
+<Figure caption="From satellite rows to a crop or non-crop label: matching, features, selection, then the stacked ensemble.">
+  <GeoAiPipeline />
+</Figure>
 
 ## Evaluation
 

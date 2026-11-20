@@ -114,7 +114,7 @@ const privateStudies = [
     slug: "legalai-kenya",
     title: "LegalAI Kenya, legal research for advocates",
     diagram: "How a legal question is answered",
-    metrics: 5,
+    metrics: 11,
     live: "https://legalai-kenya.vercel.app",
   },
   {

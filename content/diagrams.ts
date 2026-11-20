@@ -49,23 +49,28 @@ export const LEGAL_AI_PIPELINE_SPEC: DiagramSpec = {
   caseStudySlug: "legalai-kenya",
   title: "How a legal question is answered",
   description:
-    "A question first passes a jurisdiction guard. It is embedded with Voyage, and Postgres returns open hybrid candidates (vector and rare-term full-text fused with reciprocal rank fusion) alongside a 60-Act centroid shortlist. An LLM Act router selects governing Acts and pulls passages inside them. Voyage reranks the combined pool, reserving slots for routed Acts and capping each document. The open-search 0.45 evidence floor returns nothing rather than weak matches, and a citation check flags any section that doesn't exist in the retrieved text. Answers are generated with Gemini or NVIDIA NIM, with fallback, inside the firm's row-level security.",
+    "A question first passes a jurisdiction guard. It is embedded with Voyage, and vector and full-text candidates are fused in Postgres with reciprocal rank fusion. In parallel, a language model picks up to 10 Acts from the 60 nearest the question, and their best passages join the candidates. Voyage reranks them all, keeping a slot for each picked Act. An evidence floor returns nothing rather than weak matches, and a citation check flags any section that doesn't exist in the corpus. Answers are generated with Gemini or NVIDIA NIM, with fallback, inside the firm's row-level security.",
   steps: [
     { title: "Question", detail: "jurisdiction guard first" },
     {
       title: "Candidates",
-      detail: "hybrid RRF + LLM-routed Acts",
+      detail: "pgvector and full-text, fused with RRF",
+    },
+    {
+      title: "Act router",
+      detail: "an LLM picks up to 10 of the 60 nearest Acts",
     },
     {
       title: "Rerank",
-      detail: "Voyage rerank, routed slots + doc cap",
+      detail: "Voyage rerank; each picked Act keeps a slot",
     },
-    { title: "Evidence floor", detail: "open-search gate below 0.45" },
-    { title: "Citation check", detail: "flags sections not in the text" },
+    { title: "Evidence floor", detail: "returns nothing below 0.45" },
+    { title: "Citation check", detail: "flags sections not in the corpus" },
   ],
   notes: [
-    "Routing: Claude Haiku 5.5 via OpenRouter, with Gemini, Groq, NVIDIA NIM and centroid fallbacks.",
-    "Generation: Gemini or NVIDIA NIM, with fallback, under the firm's row-level security.",
+    "Router: Claude Haiku 5.5 via OpenRouter, with fallback.",
+    "Generation: Gemini or NVIDIA NIM, with fallback.",
+    "Every query runs under the firm's row-level security.",
   ],
 };
 
@@ -100,8 +105,69 @@ export const COMPLIANCE_GUARD_PIPELINE_SPEC: DiagramSpec = {
   ],
 };
 
+export const GEO_AI_PIPELINE_SPEC: DiagramSpec = {
+  id: "geo-ai-pipeline",
+  caseStudySlug: "geo-ai-cropland-mapping",
+  title: "How a labelled point becomes a prediction",
+  description:
+    "Satellite rows are aggregated by location, and each labelled point is matched to its nearest pixels with a BallTree search, falling back to rounded coordinates where coverage is thin. Vegetation and water indices and a radar ratio are added to the raw bands, and the 40 most informative features are kept. RandomForest, XGBoost, LightGBM and CatBoost are tuned with Optuna and stacked, with a small neural network on top.",
+  steps: [
+    { title: "Satellite rows", detail: "aggregated by location" },
+    {
+      title: "Point matching",
+      detail: "BallTree search for the nearest pixels",
+    },
+    {
+      title: "Features",
+      detail: "bands plus NDVI, NDWI, EVI, SAVI, radar",
+    },
+    { title: "Selection", detail: "the 40 most informative features" },
+    {
+      title: "Stacked ensemble",
+      detail: "four tree models, a small neural net on top",
+    },
+  ],
+  notes: [
+    "Fallback: rounded coordinates where coverage is thin.",
+    "Tuning: Optuna for each tree model.",
+    "Class imbalance: oversampling was tried.",
+  ],
+};
+
+export const PRODUCTION_TEMPLATE_PIPELINE_SPEC: DiagramSpec = {
+  id: "production-template-pipeline",
+  caseStudySlug: "production-ai-template",
+  title: "How one query is answered",
+  description:
+    "A request reaches a FastAPI service, which sets tenant, user and session scope from the authenticated principal and ignores any scope the caller sends. Input filters run, then a ReAct-style loop routes the question, may split it, calls permission-gated tools and reranks the results, capped at five turns. Model and search calls sit behind circuit breakers. Output filters run before the answer returns, and OpenTelemetry traces each step.",
+  steps: [
+    { title: "Request", detail: "FastAPI; input filters, upload limits" },
+    {
+      title: "Scope",
+      detail: "tenant, user, session from the login",
+    },
+    {
+      title: "ReAct loop",
+      detail: "route, split, permission-gated tools, rerank",
+    },
+    {
+      title: "Turn cap",
+      detail: "at five turns it answers, no more calls",
+    },
+    { title: "Answer", detail: "output filters before it returns" },
+  ],
+  notes: [
+    "Model and search calls sit behind circuit breakers.",
+    "URLs are checked against private addresses.",
+    "OpenTelemetry traces each step.",
+  ],
+};
+
+/** Keys are the exact MDX tag names the corpus compiler resolves. */
 export const DIAGRAM_SPECS: Record<string, DiagramSpec> = {
   FraudPipeline: FRAUD_PIPELINE_SPEC,
   LegalAiPipeline: LEGAL_AI_PIPELINE_SPEC,
   ComplianceGuardPipeline: COMPLIANCE_GUARD_PIPELINE_SPEC,
+  GeoAiPipeline: GEO_AI_PIPELINE_SPEC,
+  ProductionTemplatePipeline: PRODUCTION_TEMPLATE_PIPELINE_SPEC,
 };

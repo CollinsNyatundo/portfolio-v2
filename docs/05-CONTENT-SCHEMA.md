@@ -177,6 +177,8 @@ reported metrics (F1 0.80, precision 0.87, recall 0.75 on the time-ordered holdo
 `q`: 3–200 chars after trimming; FTS5 operators (`" * ^ : ( ) NEAR AND OR NOT`) stripped and the query passed as
 **bound parameters** (never string-concatenated into SQL). `limit` default 10.
 Response `200`: `{ results: { chapter, section, snippet, url, score }[], attribution: { author, title, licence, url } }`.
+`snippet` is plain display text: Markdown and LaTeX syntax are removed (common symbols become Unicode), and matches
+are wrapped in the control characters `\x02` … `\x03`. The index itself keeps the chapter source as written.
 Errors as above.
 
 ### `POST /api/contact` (P1)

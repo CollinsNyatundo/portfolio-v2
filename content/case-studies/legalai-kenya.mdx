@@ -1,7 +1,7 @@
 ---
 slug: legalai-kenya
 title: LegalAI Kenya, legal research for advocates
-outcome: A multi-tenant research workspace over 61,683 passages of Kenyan law that refuses to answer when the evidence is weak.
+outcome: A multi-tenant workspace for Kenyan advocates, with research over 61,683 passages of law that refuses to answer on weak evidence.
 role: Engineer
 period: { start: "2026-08", end: "2026-11" }
 domain: legaltech
@@ -14,7 +14,7 @@ stack:
     Supabase Postgres,
     pgvector,
     Voyage AI,
-    OpenRouter,
+    Claude Haiku (OpenRouter),
     Gemini,
     NVIDIA NIM,
     Vercel,
@@ -22,58 +22,88 @@ stack:
 visibility: private
 liveUrl: https://legalai-kenya.vercel.app
 headlineMetric:
-  label: hit@10 on held-out questions
+  label: hit@10 on held-out questions, Act level
   value: "0.960"
-  context: two held-out sets of 300 litigation questions; settings tuned on a separate dev set
+  context: Both 300-question held-out slices (95% CI 0.931 to 0.977); 10 fixed common Acts score 0.803 and 0.770
 metrics:
-  - name: hit@10, held-out questions
+  - name: hit@10 with Act routing, held-out questions
     value: "0.960"
-    dataset: Two held-out slices of 300 litigation questions each (rows 0 to 299 and 300 to 599), run with the full question against the live index
-    caveat: Settings were chosen on a separate dev slice (rows 600 to 899). Returning the same 10 common Acts for every query already scores 0.803 and 0.770; earlier hybrid search without Act routing scored 0.303 and 0.183.
+    dataset: Two 300-question slices (rows 0 to 599), full question as typed, staging index, 2026-11-15; settings chosen on a separate dev slice
+    caveat: 288 of 300 on each slice, 95% Wilson interval 0.931 to 0.977. Act level only, not the right section. The same 10 common Acts for every question score 0.803 and 0.770 on these slices.
     ledger: true
-    ledgerLabel: hit@10, LegalAI live index
-  - name: Uncommon-Act recall@10
-    value: "90%"
-    dataset: Held-out questions that cite an Act outside the 10 most common (79 of 87 on rows 0 to 299; 80 of 89 on rows 300 to 599)
-    caveat: The constant 10-Act list scores 0 here. On the shorter issues-only query, uncommon-Act recall is 77% and 73% (hit@10 0.897 and 0.863).
+    ledgerLabel: hit@10, Act router, held out
+  - name: Uncommon Acts found
+    value: 79 of 87 and 80 of 89
+    dataset: Questions in each held-out slice that cite an Act outside the 10 most common
+    caveat: The constant 10-Act answer finds none of these, so this is the test it can't pass by guessing.
     ledger: true
-    ledgerLabel: uncommon-Act recall, LegalAI
+    ledgerLabel: uncommon Acts found, held out
+  - name: hit@10 with Act routing, issues-only query
+    value: 0.897 and 0.863
+    dataset: The same two held-out slices, with the 450-character issues text instead of the full question
+    caveat: Routing on its own, the like-for-like comparison with the engine before it. The full question accounts for the rest of the gain to 0.960.
+  - name: Real questions wrongly refused
+    value: 1.0%
+    dataset: Both held-out slices, full question, evidence floor 0.45
+    caveat: Down from 2.7% with the shorter issues-only query.
   - name: Off-topic queries refused
-    value: "34 of 40"
+    value: 34 of 40
     dataset: 40 off-topic or gibberish queries
-    caveat: At an evidence floor of 0.45, about 99% of real questions pass with the full question (1.0% wrongly refused on both slices). The router cannot bypass the floor. A 0.35 floor answered 26 of the 40 and was rejected.
+    caveat: Measured before Act routing, which can't change what is refused. A 0.35 floor answered 26 of the 40 and was rejected.
     ledger: true
     ledgerLabel: off-topic queries refused
+  - name: hit@10 against judge-agreed labels
+    value: "0.983"
+    dataset: The same two slices, scored against the Acts two LLM judges agree govern each question (kappa 0.79 to 0.82)
+    caveat: LLM judges, not advocates, and the pooled candidates include the router's own picks. Advocate review is pending.
+  - name: hit@10 before Act routing, untuned questions (before → after)
+    value: 0.153 → 0.183
+    dataset: Rows 300 to 599, hybrid search and rerank before and after the 2026-10-23 tuning
+    caveat: The engine this replaced. Kept to show where the Act router started from.
+  - name: hit@10 before Act routing, tuning questions
+    value: "0.303"
+    dataset: Rows 0 to 299, run against the live index
+    caveat: Search settings were tuned on these questions, so this flatters the old design. The keyword engine before it scored 0.025.
   - name: Cross-tenant attack probes passed
-    value: "37 of 37"
+    value: 37 of 37
     dataset: Attack suite run against the staging database
     caveat: Staging, not production. No SOC 2 or ISO 27001 certification is held.
     ledger: true
     ledgerLabel: tenant-isolation probes passed
+  - name: Search latency, p50
+    value: 2.4 s
+    dataset: The held-out runs, with router answers cached
+    caveat: A live router call adds about 2.5 s.
   - name: Searchable passages
-    value: "61,683"
+    value: 61,683
     dataset: 543 Acts and 990 judgments from 2024 to 2026, after cleaning
     caveat: Not all of Kenyan law. The Constitution is partial and older case law is largely absent.
 evidence:
-  - label: Retrieval and Act-router evaluation report, judge relabelling and scripts
+  - label: Retrieval evaluation report and scripts
+    url: null
+    private: true
+  - label: Act-routing evaluation with the constant-answer baseline (2026-11-15)
     url: null
     private: true
   - label: Cross-tenant attack suite and its run on staging
     url: null
     private: true
-  - label: Corpus statistics and Act catalogue after cleaning
+  - label: Corpus statistics after cleaning
     url: null
     private: true
 limits:
-  - hit@10 checks only that some passage of a cited Act is in the top 10, not that it is the right section, and hit@1 stays low (0.193 and 0.123 on the two held-out slices) because the reranker orders passages rather than Acts.
-  - The 0.983 hit@10 score on relabelled governing Acts rests on two LLM judges (kappa 0.79 to 0.82) whose candidate pool includes the router's own picks. Blind review sheets for two Kenyan advocates are prepared but not yet completed.
-  - The corpus is cut into fixed 800-character chunks, and 74% start mid-word. Re-chunking by section from the source XML is the biggest remaining passage-level gain.
-  - Rate limits are per server instance, not global, and M-Pesa payments fail closed in production.
+  - hit@10 is Act level. It checks that some passage of a cited Act comes back, not the right section, and hit@1 stays low (0.123 to 0.193).
+  - Act routing calls an LLM (Claude Haiku 5.5 via OpenRouter, with fallbacks). A live call adds about 2.5 s to a search.
+  - The held-out figures were measured on the staging index. Labels from LLM judges still need advocate review.
+  - The party-name masking check was run only on the issues-only query, not on the full question that ships.
+  - The corpus is cut into fixed 800-character chunks, and 74% start mid-word. Re-chunking by section is the biggest remaining gain.
+  - Rate limits are per server instance, not global.
+  - M-Pesa payments aren't implemented; they fail closed in production.
   - It's a research and drafting aid. An advocate must verify every answer and citation.
 featured: true
 order: 1
 published: true
-updated: "2026-11-16"
+updated: "2026-11-19"
 ---
 
 ## Problem
@@ -89,15 +119,15 @@ Kenyan advocates research across Acts, judgments and practice notes that live in
 
 ## Approach
 
-<Figure caption="From question to answer. Open search sets the evidence floor; Act routing brings the right statutes to the reranker.">
+<Figure caption="From question to answer. The evidence floor and citation check are where it chooses not to answer.">
   <LegalAiPipeline />
 </Figure>
 
-Retrieval pairs open hybrid search with an Act router. Each question is embedded with Voyage, and Postgres returns 50 open candidates from a vector index and rare-term full-text search fused with reciprocal rank fusion. Alongside that query, Postgres shortlists the 60 Acts nearest the question by centroid similarity. A zero-shot LLM router (Claude Haiku 5.5 via OpenRouter, with Gemini, Groq, NVIDIA NIM and Act-centroid fallbacks) picks up to 10 governing titles from the 548 legislation titles in the index, and Postgres pulls the five best passages inside each routed Act.
+Retrieval combines meaning and exact wording. Each question is embedded with Voyage, and Postgres returns candidates from both a vector index and full-text search, fused with reciprocal rank fusion.
 
-Voyage reranks the combined pool, reserving up to eight slots for the best passage of each routed Act and capping any single document at two chunks in the remaining slots.
+Search alone kept missing the Act a question turns on, so a second path now names it. Postgres shortlists the 60 Acts nearest the question, and a small language model (Claude Haiku 5.5 via OpenRouter, with other providers as fallback) picks up to 10 of them. It sees only legislation titles, never test questions or answers. The five best passages of each picked Act join the open-search candidates, Voyage reranks the lot, and each picked Act keeps a reserved slot for its best passage. The query is the whole question as an advocate would type it, parties and facts included.
 
-Two checks decide whether to answer at all. The open-search similarity gate and a 0.45 evidence floor decide whether the query has enough grounding, so the router can never rescue an off-topic question. A citation check then flags any section number in the answer that doesn't appear in the retrieved text before the user sees it. Language generation uses Gemini and NVIDIA NIM as fallbacks for each other.
+Then two checks decide whether to answer at all. An evidence floor returns nothing when the best match is too weak, and a citation check flags any section the answer mentions that doesn't exist in the corpus. Only then does a language model write the answer, with Gemini and NVIDIA NIM as fallbacks for each other.
 
 Each firm is a tenant, and Postgres row-level security decides what every query can see. The server keeps two database clients apart: one carries the user's own session so the database enforces their access, and a separate administrative client, never sent to the browser, handles audited operations.
 
@@ -105,21 +135,21 @@ Each firm is a tenant, and Postgres row-level security decides what every query 
 
 The test set is 12,945 synthetic court-submission questions whose model answers cite real Acts. They're kept out of the search index entirely, so they can't leak into results. A hit means an Act the answer cites comes back in the top 10.
 
-Router settings (8 reserved slots, 0.20 routed floor, 5 passages per Act and single-list full-question mode) were chosen on a separate dev slice (rows 600 to 899, where full-question hit@10 was 0.957). Neither of the two reported slices (rows 0 to 299 and rows 300 to 599) played any part in tuning.
-
-Because the Civil Procedure Act is cited in 36% of questions and 10 Acts cover most of the rest, returning the same 10 common Acts for every query already scores 0.803 and 0.770 hit@10 without reading the question. The evaluation gate therefore fails unless the engine beats that constant baseline by at least 0.05 and finds an uncommon Act (outside the top 10) for at least half the questions that cite one.
+That metric turned out to be easy to game. The Civil Procedure Act is cited in over a third of the questions, so returning the same 10 common Acts for every question, without reading it, scores 0.803 and 0.770 on the two reported slices. The evaluation now prints that baseline and fails unless the engine beats it by 0.05 and also finds the uncommon Acts that a fixed list never can. Router settings were chosen on a separate dev slice, so both reported slices are held out.
 
 <Metrics />
 
 ## Results
 
-Open hybrid search with reranking raised hit@10 from 0.025 with the old keyword engine to 0.303 on the first 300 questions (where settings were tuned) and 0.183 on the next 300. Statutory passages rarely match fact-heavy litigation questions chunk for chunk, so candidate recall at 50 rows stalled at 0.447.
+Before Act routing, hybrid search reached hit@10 of 0.303 on the questions I tuned it on and 0.183 on the next 300. Against the constant 10-Act answer, that was worse than not reading the question at all.
 
-Routing through the statute catalogue first fixed that gap. On the two held-out slices, Act routing hit 0.897 and 0.863 hit@10 on the shorter issues-only query (77% and 73% uncommon-Act recall). Sending the full question as an advocate types it, with parties, facts and issues, raised hit@10 to 0.960 on both held-out slices (0.193 and 0.123 hit@1; 0.944 recall@10; MRR 0.398 and 0.335) and found uncommon Acts for 90% of the questions that cite one (79 of 87 and 80 of 89).
+Two changes came after that, and they're measured separately. On the same issues-only query the old engine used, Act routing alone lifts hit@10 to 0.897 and 0.863 on the two held-out slices. Sending the full question, parties and facts included, takes both to 0.960 (288 of 300, 95% interval 0.931 to 0.977). That's 0.157 and 0.190 above the constant answer, and the engine finds the uncommon cited Act for 79 of 87 and 80 of 89 of the questions that have one.
 
-To check string-matching blind spots such as the Penal Code and Criminal Procedure Code, which lack the word "Act", two LLM judges (`gpt-6-sol` and `gpt-6-astra`, Cohen's kappa 0.820 and 0.789) relabelled which statutes govern each question. Against the Acts both judges agree govern, full-question hit@10 is 0.983 on both slices (0.933 and 0.926 recall@10), pending blind review by two Kenyan advocates.
+The full question raises a fair worry: the router's language model may have seen these judgments in training and could recognise a case by its parties. Masking party names moved the dev-slice score only from 0.860 to 0.843, but that check ran on the issues-only query. It hasn't been repeated on the full question yet, so I can't rule out that some of the last step comes from recall.
 
-The evidence floor is a deliberate trade. At 0.45, about 99% of real questions pass with the full question (1.0% wrongly refused on both held-out slices) while 34 of 40 off-topic or gibberish queries are refused. A 0.35 floor answered 26 of those 40 and was rejected.
+The figure is at Act level. It doesn't check the right section, and hit@1 is still between 0.123 and 0.193. Two LLM judges relabelled which Acts actually govern each question; against the labels they agree on, hit@10 is 0.983. Those labels are waiting for advocate review, so 0.960 stays the headline.
+
+The evidence floor is a deliberate trade. A lower floor would answer most of the nonsense queries, so I kept the one that refuses 34 of 40 of them. With the full question, it wrongly refuses 1.0% of real ones.
 
 <Callout title="A benchmark that couldn't fail">
   An earlier 20-question benchmark scored 100%, but it searched a 15-document
@@ -139,7 +169,9 @@ Every request carries a verified session token. Roles gate citation approval, bi
 
 ## What I'd do next
 
-- Score retrieval at provision (section) level rather than only Act level, and complete the two-advocate review of the governing-Act labels.
-- Re-chunk the corpus by section from the source XML, which should raise hit@1 and passage precision.
+- Repeat the party-name masking check on the full question.
+- Finish the advocate review of the judged labels, and score whether the right section comes back, not only the right Act.
+- Re-chunk the corpus by section from the source XML, which should do more for section-level accuracy than any further tuning.
+- Grow the off-topic test set: ten negatives are too few to decide whether the evidence floor can come down.
 - Move rate limiting to a global edge rule.
 - Run the attack suite against production on every release.

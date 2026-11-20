@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
+
+/**
+ * Without this, a 404 inherited the home page's title, description and
+ * canonical, and (because pages stream) Next.js's automatic noindex didn't
+ * reach the head. Say so explicitly.
+ */
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "This page isn't on collinsnyagaka.com.",
+  robots: { index: false, follow: true },
+  alternates: { canonical: null },
+};
 
 export default function NotFound() {
   return (

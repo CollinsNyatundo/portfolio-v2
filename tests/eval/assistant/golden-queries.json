@@ -8,6 +8,7 @@
       "expectedScope": "in_scope",
       "expectedAnyChunkIds": [
         "case:legalai-kenya:approach",
+        "case:legalai-kenya:evaluation",
         "case:legalai-kenya:results"
       ],
       "expectedCoupledChunkIds": ["case:legalai-kenya:limits"],
@@ -23,7 +24,7 @@
         "case:legalai-kenya:results"
       ],
       "expectedCoupledChunkIds": ["case:legalai-kenya:limits"],
-      "mustContainFactValues": ["0.960", "90%"]
+      "mustContainFactValues": ["0.960", "79 of 87"]
     },
     {
       "id": "tech-03",

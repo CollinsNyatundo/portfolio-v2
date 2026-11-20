@@ -13,6 +13,7 @@ import {
   recognition,
   visibleExperience,
 } from "@/lib/content";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
   title: "CV",
@@ -218,7 +219,7 @@ export default function CvPage() {
           </section>
         </main>
         <div className="mx-auto max-w-4xl print:hidden">
-          <Colophon updated="2026-11-14" />
+          <Colophon updated={PAGE_UPDATED["/cv"]} />
         </div>
       </div>
     </>
