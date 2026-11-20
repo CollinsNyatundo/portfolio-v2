@@ -162,6 +162,43 @@ describe("POST /api/assistant security & contract checks", () => {
     expect(await res.json()).toEqual({ error: "disabled" });
   });
 
+  it("returns 400 at the deadline when a client stalls mid-body", async () => {
+    vi.stubEnv("ASSISTANT_MODE", "retrieval");
+    vi.useFakeTimers();
+    try {
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          // Valid JSON, then the stream never closes.
+          controller.enqueue(new TextEncoder().encode('{"question":"x"}'));
+        },
+      });
+      const pending = POST(
+        new Request(`${ORIGIN}/api/assistant`, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-forwarded-for": "203.0.113.77",
+            origin: ORIGIN,
+            "sec-fetch-site": "same-origin",
+          },
+          body: stream,
+          duplex: "half",
+        } as RequestInit),
+      );
+      // Earlier async checks run before the body timer is armed, so step
+      // the clock rather than jumping it once.
+      let settled = false;
+      void pending.then(() => (settled = true));
+      for (let i = 0; i < 20 && !settled; i++) {
+        await vi.advanceTimersByTimeAsync(500);
+      }
+      const res = await pending;
+      expect(res.status).toBe(400);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("enforces same-origin, Fetch Metadata, media type, size limits, and strict schema", async () => {
     vi.stubEnv("ASSISTANT_MODE", "retrieval");
 

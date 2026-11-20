@@ -5,6 +5,17 @@ export const DEFAULT_PREVIEW_DAILY_BUDGET_MICRO_USD = 100_000; // $0.10/day
 export const DEFAULT_MAX_ATTEMPT_MICRO_USD = 5_000; // $0.005 worst-case attempt
 export const OPENROUTER_ENDPOINT =
   "https://openrouter.ai/api/v1/chat/completions";
+/**
+ * The only model the assistant may call (D-33, AGENTS.md hard rule 3). Any
+ * other configured value degrades to retrieval_only: the Redis budget reserves
+ * a fixed worst case per attempt that is sized for this model.
+ */
+export const PINNED_ASSISTANT_MODEL = "google/gemini-2.5-flash";
+
+/** Exact match after trimming; case and suffixes (e.g. `:thinking`) count. */
+export function isPinnedAssistantModel(raw: string | undefined): boolean {
+  return raw?.trim() === PINNED_ASSISTANT_MODEL;
+}
 
 export function deploymentNamespace(
   env: Record<string, string | undefined> = process.env,
@@ -82,7 +93,7 @@ export function assistantRuntimeMode(
   }
 
   const validUrl = validateProviderUrl(env.ASSISTANT_LLM_BASE_URL, env);
-  const hasModel = Boolean(env.ASSISTANT_LLM_MODEL?.trim());
+  const hasModel = isPinnedAssistantModel(env.ASSISTANT_LLM_MODEL);
   const hasKey = Boolean(env.ASSISTANT_LLM_API_KEY?.trim());
   const hasAccounting = upstashConfigured(env);
 
@@ -109,10 +120,13 @@ export function assistantProviderConfig(
     return null;
   }
   const url = validateProviderUrl(env.ASSISTANT_LLM_BASE_URL, env);
-  const model = env.ASSISTANT_LLM_MODEL?.trim();
   const apiKey = env.ASSISTANT_LLM_API_KEY?.trim();
-  if (!url || !model || !apiKey) return null;
-  return { url, model, apiKey };
+  // Checked here too: the manual eval path (allowWithoutRedis) skips
+  // assistantRuntimeMode above but must still honour the pin.
+  if (!url || !isPinnedAssistantModel(env.ASSISTANT_LLM_MODEL) || !apiKey) {
+    return null;
+  }
+  return { url, model: PINNED_ASSISTANT_MODEL, apiKey };
 }
 
 function parsePositiveInt(

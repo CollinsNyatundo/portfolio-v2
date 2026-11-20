@@ -3,6 +3,7 @@ import {
   assistantProviderConfig,
   assistantRuntimeMode,
   dailyBudgetMicroUsd,
+  isPinnedAssistantModel,
   deploymentNamespace,
   maxAttemptMicroUsd,
 } from "./config.ts";
@@ -151,6 +152,13 @@ export async function handleAssistantTurn(
     !providerConfig ||
     (!opts.bypassRedisBudget && opMode !== "generation_enabled")
   ) {
+    // A live deployment with a non-pinned model is a misconfiguration. The
+    // visitor sees the normal retrieval answer (public reason unchanged,
+    // docs/05); the server log records why generation is off.
+    const modelNotPinned =
+      env.ASSISTANT_MODE?.trim().toLowerCase() === "live" &&
+      Boolean(env.ASSISTANT_LLM_MODEL?.trim()) &&
+      !isPinnedAssistantModel(env.ASSISTANT_LLM_MODEL);
     return finish(
       buildRetrievalFallbackResponse({
         packed,
@@ -158,7 +166,9 @@ export async function handleAssistantTurn(
         question: reqData.question,
       }),
       {
-        fallbackReason: "configured_retrieval",
+        fallbackReason: modelNotPinned
+          ? "model_not_pinned"
+          : "configured_retrieval",
         retrievedCount: packed.chunks.length,
       },
     );

@@ -1,3 +1,4 @@
+import { readBoundedJsonBody } from "@/lib/assistant/body";
 import {
   assistantRuntimeMode,
   deploymentNamespace,
@@ -43,48 +44,6 @@ function hasExactJsonMediaType(header: string | null): boolean {
   if (!header) return false;
   const mediaType = header.split(";")[0]?.trim().toLowerCase();
   return mediaType === "application/json";
-}
-
-async function readBoundedJsonBody(
-  req: Request,
-  maxBytes: number,
-  timeoutMs: number,
-): Promise<{ ok: true; data: unknown } | { ok: false; status: 400 | 413 }> {
-  if (!req.body) return { ok: false, status: 400 };
-  const reader = req.body.getReader();
-  const decoder = new TextDecoder();
-  const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(), timeoutMs);
-  let total = 0;
-  let text = "";
-
-  try {
-    while (true) {
-      if (ac.signal.aborted) {
-        await reader.cancel().catch(() => {});
-        return { ok: false, status: 400 };
-      }
-      const { value, done } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > maxBytes) {
-        await reader.cancel().catch(() => {});
-        return { ok: false, status: 413 };
-      }
-      text += decoder.decode(value, { stream: true });
-    }
-    text += decoder.decode();
-  } catch {
-    return { ok: false, status: 400 };
-  } finally {
-    clearTimeout(timer);
-  }
-
-  try {
-    return { ok: true, data: JSON.parse(text) };
-  } catch {
-    return { ok: false, status: 400 };
-  }
 }
 
 /**
