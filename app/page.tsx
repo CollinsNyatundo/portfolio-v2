@@ -263,26 +263,33 @@ export default async function Home() {
               <div className="border-border border-t pt-12">
                 <h3 className="text-muted font-sans text-sm">More projects</h3>
                 <ul className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
-                  {projects.slice(0, 4).map((p) => (
-                    <li key={p.slug}>
-                      <p className="font-serif text-xl font-medium">
-                        {p.repoUrl ? (
-                          <a
-                            href={p.repoUrl}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                            className="text-text"
-                          >
-                            {p.title}
-                            <span className="sr-only"> (opens in new tab)</span>
-                          </a>
-                        ) : (
-                          p.title
-                        )}
-                      </p>
-                      <p className="text-muted mt-2 text-base">{p.summary}</p>
-                    </li>
-                  ))}
+                  {projects.slice(0, 4).map((p) => {
+                    // Private work has no repository; link its live site instead.
+                    const href = p.repoUrl ?? p.liveUrl;
+                    return (
+                      <li key={p.slug}>
+                        <p className="font-serif text-xl font-medium">
+                          {href ? (
+                            <a
+                              href={href}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                              className="text-text"
+                            >
+                              {p.title}
+                              <span className="sr-only">
+                                {" "}
+                                (opens in new tab)
+                              </span>
+                            </a>
+                          ) : (
+                            p.title
+                          )}
+                        </p>
+                        <p className="text-muted mt-2 text-base">{p.summary}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>
