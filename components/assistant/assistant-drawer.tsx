@@ -18,6 +18,7 @@ import type {
   PublicFactCard,
 } from "@/lib/assistant/types";
 import { AssistantIcon } from "./assistant-icon";
+import { AssistantRichBlock, AssistantRichText } from "./assistant-rich-text";
 
 type ThreadMessage =
   | { id: string; role: "user"; text: string }
@@ -581,28 +582,16 @@ export function AssistantDrawer({
                   >
                     {resp.mode === "generated" ? (
                       <>
-                        <div className="space-y-2.5 text-base leading-relaxed">
+                        <div className="space-y-3.5 text-base leading-relaxed">
                           {resp.blocks.map((block, idx) => (
-                            <p key={idx}>
-                              {block.text}{" "}
-                              {block.evidenceIndices.map((evIdx) => {
-                                const ref = resp.evidence.find(
-                                  (e) => e.index === evIdx,
-                                );
-                                if (!ref) return null;
-                                return (
-                                  <Link
-                                    key={evIdx}
-                                    href={ref.route}
-                                    onClick={onClose}
-                                    aria-label={`Evidence ${evIdx}: ${ref.title}, ${ref.section}`}
-                                    className="figure ml-1 text-xs no-underline hover:underline"
-                                  >
-                                    [{evIdx}]
-                                  </Link>
-                                );
-                              })}
-                            </p>
+                            <AssistantRichBlock
+                              key={idx}
+                              heading={block.heading}
+                              text={block.text}
+                              evidenceIndices={block.evidenceIndices}
+                              evidence={resp.evidence}
+                              onNavigate={onClose}
+                            />
                           ))}
                         </div>
                         <FactCardList facts={resp.facts} onNavigate={onClose} />
@@ -616,9 +605,7 @@ export function AssistantDrawer({
                       </>
                     ) : (
                       <>
-                        <p className="text-base leading-relaxed">
-                          {resp.summary}
-                        </p>
+                        <AssistantRichText text={resp.summary} />
                         {resp.excerpts.length > 0 && (
                           <ul className="space-y-2">
                             {resp.excerpts.map((ex, i) => (

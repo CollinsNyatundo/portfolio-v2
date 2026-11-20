@@ -26,6 +26,46 @@ const UNSAFE_OR_UNTRUSTED_TEXT = [
   /(?:\+254\s?\d{6,}|\b07\d{2}[\s-]?\d{6}\b)/,
 ];
 
+export function normalizeBlockTypography(block: {
+  heading?: string;
+  text: string;
+  chunkIds: string[];
+}): { heading?: string; text: string; chunkIds: string[] } {
+  let heading = block.heading?.trim();
+  let text = block.text.trim();
+
+  if (heading) {
+    heading = heading
+      .replace(/^[*_#\s]+/, "")
+      .replace(/[*_#\s:]+$/, "")
+      .trim();
+  } else {
+    // Check for leading bold pseudo-heading: **Heading:** or **Heading**\n
+    const boldMatch = text.match(
+      /^\*\*([^*\n]{2,80})\*\*(?::\s*|\s*[\r\n]+\s*|\s+)/,
+    );
+    if (boldMatch) {
+      heading = boldMatch[1].trim().replace(/[:\s]+$/, "");
+      text = text.slice(boldMatch[0].length).trim();
+    } else {
+      // Check for leading markdown heading: ### Heading\n or ## Heading\n
+      const hashMatch = text.match(
+        /^#{1,4}\s+([^\r\n]{2,80})(?:\s*[\r\n]+\s*)/,
+      );
+      if (hashMatch) {
+        heading = hashMatch[1].trim().replace(/[:\s]+$/, "");
+        text = text.slice(hashMatch[0].length).trim();
+      }
+    }
+  }
+
+  return {
+    heading: heading && heading.length > 0 ? heading : undefined,
+    text,
+    chunkIds: block.chunkIds,
+  };
+}
+
 function violatesTextPolicy(text: string): string | null {
   for (const re of BANNED_PROSE) {
     if (re.test(text)) return `copy_policy:${re.source}`;
@@ -70,9 +110,14 @@ export function verifyAndHydrate(
   }
 
   const output = parsed.data;
+  output.blocks = output.blocks.map(normalizeBlockTypography);
 
   // Validate text safety & copy rules across every block and follow-up.
   for (const block of output.blocks) {
+    if (block.heading) {
+      const headingIssue = violatesTextPolicy(block.heading);
+      if (headingIssue) return { ok: false, reason: `heading_${headingIssue}` };
+    }
     const textIssue = violatesTextPolicy(block.text);
     if (textIssue) return { ok: false, reason: textIssue };
     for (const cid of block.chunkIds) {
@@ -132,6 +177,7 @@ export function verifyAndHydrate(
       new Set(block.chunkIds.map((cid) => evidenceByChunkId.get(cid)!.index)),
     ).sort((a, b) => a - b);
     return {
+      heading: block.heading,
       text: block.text,
       evidenceIndices: indices,
     };

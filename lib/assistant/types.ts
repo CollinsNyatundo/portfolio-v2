@@ -125,7 +125,11 @@ export type AssistantResponse =
   | {
       mode: "generated";
       verdict: "answered" | "not_in_portfolio";
-      blocks: { text: string; evidenceIndices: number[] }[];
+      blocks: {
+        heading?: string;
+        text: string;
+        evidenceIndices: number[];
+      }[];
       facts: PublicFactCard[];
       evidence: PublicEvidenceRef[];
       followUps: string[];

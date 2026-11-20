@@ -27,6 +27,7 @@ export type AssistantRequest = z.infer<typeof assistantRequestSchema>;
 export type HistoryTurn = z.infer<typeof historyTurnSchema>;
 
 export const providerBlockSchema = z.strictObject({
+  heading: z.string().trim().max(80).optional(),
   text: z.string().trim().min(1).max(700),
   chunkIds: z.array(z.string().min(1).max(120)).min(1).max(6),
 });
@@ -51,6 +52,11 @@ export const OPENROUTER_RESPONSE_SCHEMA = {
       items: {
         type: "object",
         properties: {
+          heading: {
+            type: "string",
+            description:
+              "Optional section title or subheader in plain text (short, title-case, no markdown asterisks or colons)",
+          },
           text: { type: "string" },
           chunkIds: {
             type: "array",
