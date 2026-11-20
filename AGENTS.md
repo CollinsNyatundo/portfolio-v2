@@ -35,10 +35,10 @@ Read these before changing anything. If code and docs disagree, stop and ask; do
 ## Current state  <!-- LIVING: update at every milestone checkpoint -->
 
 - **Phase:** Live at https://collinsnyagaka.com since 2026-11-05 (Vercel project `portfolio-v2`; DNS, CAA and DNSSEC at Spaceship). M0–M6 done except owner tasks: 0.5, 0.6, 0.8, 4.7 video, real-device and NVDA checks (5.3, 5.4), copy sign-off (5.5), 5.6, retiring `v9-theta.vercel.app`, which is in another Vercel account (6.4), LinkedIn and the GitHub profile README (6.5), Search Console (6.6), spend limit (6.7). The contact form turns on when its four keys are set in Vercel.
-- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, `/work` index + `/work/[slug]`, `/demos/*`, `/notes/*`, `/cv`, v2 portfolio assistant (`D-33`: `disabled` / `retrieval_only` / `generation_enabled`, M7.0–M7.6 implemented and verified locally on `feat/portfolio-assistant`, awaiting M7.7 preview/production env & Upstash link), strict nonce CSP (D-28).
+- **Code:** Next.js app: folio, colophon, home chapters with the evidence ledger, `/about`, `/contact`, `/work` index + `/work/[slug]`, `/demos/*`, `/notes/*`, `/cv`, v2 portfolio assistant (`D-33`: `disabled` / `retrieval_only` / `generation_enabled`, M7.0–M7.6 on `feat/portfolio-assistant` (PR #36); M7.7 in progress: Preview generates with Upstash Redis `portfoliov2` (eu-central-1) and the kill switch was rehearsed there on 2026-11-20; Production env and cut-over pending), strict nonce CSP (D-28).
 - **Positioning:** set in `content/site.ts` (rationale in the BRIEF, "Title-page positioning"); no figures allowed in it (unit test).
 - **Assets:** headshot at `public/images/collins.jpg` (owner's real photo, 1200 px, metadata stripped; a unit test blocks EXIF in published photos).
-- **Known gaps:** Python functions run only on Vercel; locally the demo pages show their recorded example. Upstash Redis is not yet linked on Vercel (assistant degrades cleanly to `retrieval_only`).
+- **Known gaps:** Python functions run only on Vercel; locally the demo pages show their recorded example. Production has no `ASSISTANT_LLM_API_KEY` or `UPSTASH_REDIS_REST_*` yet, so the live site's assistant stays `retrieval_only`.
 - **Last updated:** 2026-11-20
 
 ## Stack  <!-- LIVING: replace "planned" with exact versions once installed -->
@@ -206,6 +206,7 @@ Rules for editing them:
 - 2026-11-20 — `main` merged into `feat/portfolio-assistant` after the #35 re-land (#37) and #38; Layout lists `pages.ts` and `assistant/*`; the assistant now accepts only the pinned model and cancels stalled request bodies (Claude Code).
 - 2026-11-20 — Assistant admission is one atomic Redis Lua script; Commands adds `check:admission-lua`, Layout adds `scripts/lib/` (Claude Code).
 - 2026-11-20 — Stack: Upstash credentials also read from the Marketplace `KV_REST_API_*` names (Claude Code).
+- 2026-11-20 — Current state: M7.7 Preview generation verified and kill switch rehearsed (Claude Code).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
