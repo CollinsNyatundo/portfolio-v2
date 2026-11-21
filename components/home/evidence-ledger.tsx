@@ -132,16 +132,18 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
   return (
     <>
       {/* Wide screens: a ruled column in the right margin. */}
-      {/* data-nosnippet: search results quote the page, not this ledger. */}
       <aside
-        data-nosnippet
         aria-hidden="true"
         className="ledger-aside border-border fixed top-10 right-8 bottom-10 hidden w-52 overflow-y-auto border-l pl-5 font-sans xl:block"
       >
-        <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
-          Evidence read · {count}
-        </p>
-        <div className="mt-4">{list}</div>
+        {/* data-nosnippet: search results quote the page, not this ledger.
+            Google honours it on div, span and section, not on aside. */}
+        <div data-nosnippet>
+          <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
+            Evidence read · {count}
+          </p>
+          <div className="mt-4">{list}</div>
+        </div>
       </aside>
 
       {/* Narrow screens: a collapsed strip at the bottom. */}
