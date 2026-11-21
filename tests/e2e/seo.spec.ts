@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("search and sharing", () => {
-  test("home has Person JSON-LD, canonical and social tags", async ({
+  test("home has a ProfilePage graph, canonical and social tags", async ({
     page,
   }) => {
     await page.goto("/");
@@ -10,8 +10,14 @@ test.describe("search and sharing", () => {
         .locator('script[type="application/ld+json"]')
         .textContent()) ?? "{}",
     );
-    expect(ld["@type"]).toBe("Person");
-    expect(ld.sameAs).toContain("https://github.com/CollinsNyatundo");
+    const graph: { "@type": string; sameAs?: string[] }[] = ld["@graph"];
+    expect(graph.map((n) => n["@type"])).toEqual([
+      "ProfilePage",
+      "Person",
+      "WebSite",
+    ]);
+    const person = graph.find((n) => n["@type"] === "Person");
+    expect(person?.sameAs).toContain("https://github.com/CollinsNyatundo");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       "https://collinsnyagaka.com",
