@@ -5,7 +5,7 @@ import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
 import { JsonLd } from "@/components/json-ld";
 import { caseStudyBySlug, noteBySlug } from "@/lib/content";
-import { breadcrumbJsonLd, noteJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, noteJsonLd, pageTitle } from "@/lib/seo";
 
 function formatDate(iso: string): string {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -22,7 +22,7 @@ export async function generateMetadata({
   const note = noteBySlug((await params).slug);
   if (!note) return {};
   return {
-    title: note.title,
+    title: pageTitle(note.title),
     description: note.summary,
     alternates: { canonical: `/notes/${note.slug}` },
     openGraph: {

@@ -10,7 +10,7 @@ import {
 } from "@/components/case-study/parts";
 import { JsonLd } from "@/components/json-ld";
 import { caseStudyBySlug } from "@/lib/content";
-import { breadcrumbJsonLd, caseStudyJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, caseStudyJsonLd, pageTitle } from "@/lib/seo";
 
 const visibilityLabel = {
   public: "Public code",
@@ -34,7 +34,7 @@ export async function generateMetadata({
   const study = caseStudyBySlug((await params).slug);
   if (!study) return {};
   return {
-    title: study.title,
+    title: pageTitle(study.title),
     description: study.outcome,
     alternates: { canonical: `/work/${study.slug}` },
     openGraph: {

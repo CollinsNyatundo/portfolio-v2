@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { LazyFraudDemo } from "@/components/home/lazy-fraud-demo";
 import { principles } from "@/content/about";
-import { jsonLdHtml, personJsonLd } from "@/lib/seo";
+import { homeJsonLd, jsonLdHtml } from "@/lib/seo";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { CvLink } from "@/components/cv-link";
@@ -48,7 +48,7 @@ export default async function Home() {
       <script
         type="application/ld+json"
         nonce={nonce}
-        dangerouslySetInnerHTML={{ __html: jsonLdHtml(personJsonLd()) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml(homeJsonLd()) }}
       />
       <ScrollEngine />
       <Folio marker="Title" title="Collins Nyagaka" />

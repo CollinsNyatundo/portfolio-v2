@@ -79,7 +79,7 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
     <ol className="space-y-3">
       {lines.map((e) => (
         <li key={e.id} className="ledger-line">
-          <span className="figure text-text block text-sm">{e.value}</span>
+          <span className="figure text-text block text-sm">{e.value}</span>{" "}
           <span className="text-muted block text-xs">
             {e.label} · {e.project}
           </span>
@@ -89,7 +89,7 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
         <li key="visitor" className="ledger-line" data-visitor>
           <span className="figure text-primary block text-sm">
             {visitor.value}
-          </span>
+          </span>{" "}
           <span className="text-primary block text-xs">
             {visitor.label} · you, just now
           </span>
@@ -136,16 +136,21 @@ export function EvidenceLedger({ entries }: { entries: LedgerEntry[] }) {
         aria-hidden="true"
         className="ledger-aside border-border fixed top-10 right-8 bottom-10 hidden w-52 overflow-y-auto border-l pl-5 font-sans xl:block"
       >
-        <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
-          Evidence read · {count}
-        </p>
-        <div className="mt-4">{list}</div>
+        {/* data-nosnippet: search results quote the page, not this ledger.
+            Google honours it on div, span and section, not on aside. */}
+        <div data-nosnippet>
+          <p className="text-muted text-xs [font-variant-caps:all-small-caps]">
+            Evidence read · {count}
+          </p>
+          <div className="mt-4">{list}</div>
+        </div>
       </aside>
 
       {/* Narrow screens: a collapsed strip at the bottom. */}
       {count > 0 && (
         <section
           ref={stripRef}
+          data-nosnippet
           aria-label="Evidence read so far"
           className="bg-surface border-border fixed inset-x-0 bottom-0 z-40 border-t px-4 py-2 font-sans xl:hidden print:hidden"
         >

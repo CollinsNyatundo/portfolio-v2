@@ -3,8 +3,28 @@
  * domain (D-15); previews on *.vercel.app still point search engines there.
  */
 import { site } from "@/content/site";
+import { PAGE_UPDATED } from "@/lib/pages";
 
 export const SITE_URL = "https://collinsnyagaka.com";
+
+/** Stable node ids, so every block on the site points at one person. */
+export const PERSON_ID = `${SITE_URL}/#person`;
+export const WEBSITE_ID = `${SITE_URL}/#website`;
+
+/** Google cuts titles near 60 characters; past that, drop the name suffix. */
+const TITLE_MAX = 60;
+const TITLE_SUFFIX = ` · ${site.name}`;
+
+/**
+ * Page title for metadata: the root template adds " · Collins Nyagaka", unless
+ * the result would run past what search results show. The visible heading is
+ * unchanged; only the <title> loses the suffix.
+ */
+export function pageTitle(title: string): string | { absolute: string } {
+  return title.length + TITLE_SUFFIX.length > TITLE_MAX
+    ? { absolute: title }
+    : title;
+}
 
 /** Absolute URL for a site path. */
 export function absoluteUrl(path: string): string {
@@ -28,6 +48,7 @@ export function personJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": PERSON_ID,
     name: site.name,
     alternateName: site.fullName,
     jobTitle: site.title,
@@ -43,9 +64,50 @@ export function personJsonLd() {
   };
 }
 
-/** The author block shared by every article. */
+/** schema.org WebSite, published by the person. */
+export function websiteJsonLd() {
+  return {
+    "@type": "WebSite",
+    "@id": WEBSITE_ID,
+    url: SITE_URL,
+    name: site.name,
+    inLanguage: "en",
+    publisher: { "@id": PERSON_ID },
+  };
+}
+
+/**
+ * The home page graph: a ProfilePage about one person, on a site that person
+ * publishes (Google's ProfilePage guide). Only dates on record (rule 14).
+ */
+export function homeJsonLd() {
+  const { "@context": context, ...person } = personJsonLd();
+  return {
+    "@context": context,
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": `${SITE_URL}/#profile`,
+        url: SITE_URL,
+        name: `${site.name}, ${site.title}`,
+        isPartOf: { "@id": WEBSITE_ID },
+        dateModified: PAGE_UPDATED["/"],
+        mainEntity: { "@id": PERSON_ID },
+      },
+      person,
+      websiteJsonLd(),
+    ],
+  };
+}
+
+/** The author block shared by every article: a reference to the one person. */
 function author() {
-  return { "@type": "Person", name: site.name, url: SITE_URL };
+  return {
+    "@type": "Person",
+    "@id": PERSON_ID,
+    name: site.name,
+    url: SITE_URL,
+  };
 }
 
 /**
@@ -68,6 +130,7 @@ export function caseStudyJsonLd(study: {
     mainEntityOfPage: url,
     dateModified: study.updated,
     author: author(),
+    isPartOf: { "@id": WEBSITE_ID },
     image: absoluteUrl(`/work/${study.slug}/opengraph-image`),
   };
 }
@@ -91,6 +154,8 @@ export function noteJsonLd(note: {
     datePublished: note.published,
     dateModified: note.updated ?? note.published,
     author: author(),
+    isPartOf: { "@id": WEBSITE_ID },
+    image: absoluteUrl(`/notes/${note.slug}/opengraph-image`),
   };
 }
 

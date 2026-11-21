@@ -439,14 +439,14 @@ export function classifyScope(params: {
       verdict: "not_in_portfolio",
       reason: "boundary_policy",
       summary:
-        "Collins does not publish his phone number on the portfolio. You can email him at cnyagakan@gmail.com or reach him via the Contact page.",
+        "Collins does not publish his phone number on the portfolio. You can email him at collins@collinsnyagaka.com or reach him via the Contact page.",
       excerpts: idChunk
         ? [
             {
               title: idChunk.title,
               section: idChunk.section,
               snippet:
-                "Phone: Not published on the portfolio. Email: cnyagakan@gmail.com (replies within 2 working days EAT).",
+                "Phone: Not published on the portfolio. Email: collins@collinsnyagaka.com (replies within 2 working days EAT).",
               route: "/contact",
               visibility: "public",
             },
