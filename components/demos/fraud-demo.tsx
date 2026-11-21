@@ -142,7 +142,7 @@ function Outcome({
           {result.topContributions.map((c) => (
             <li key={c.feature} className="font-sans text-sm">
               <div className="flex justify-between gap-4">
-                <span className="font-semibold">{c.feature}</span>
+                <span className="font-semibold">{c.feature}</span>{" "}
                 <span className="figure">
                   {c.logOdds > 0 ? "+" : ""}
                   {c.logOdds.toFixed(2)} towards {c.direction}

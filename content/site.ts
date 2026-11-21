@@ -14,7 +14,7 @@ export const site = {
   utcOffsetLabel: "UTC+3",
   availability: "open" as Availability,
   availabilityNote: "Open to remote AI and ML engineering roles",
-  email: "cnyagakan@gmail.com",
+  email: "collins@collinsnyagaka.com",
   links: {
     linkedin: "https://www.linkedin.com/in/collinsnyagaka001/",
     github: "https://github.com/CollinsNyatundo",

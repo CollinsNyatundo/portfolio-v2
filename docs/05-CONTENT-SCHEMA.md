@@ -36,7 +36,7 @@ that does exist: typed content files in Git, demo request/response contracts, an
 | `timeZone` | IANA string | yes | "Africa/Nairobi" |
 | `availability` | enum `open` \| `selective` \| `closed` | yes | `open` |
 | `availabilityNote` | string ≤ 80 | no | e.g. "Open to remote AI/ML engineering roles" |
-| `email` | email | yes | `cnyagakan@gmail.com` (rendered obfuscated) |
+| `email` | email | yes | `collins@collinsnyagaka.com` (rendered obfuscated) |
 | `links` | `{ linkedin, github, company }` URLs | yes | LinkedIn, GitHub, `https://tundotechsystems.com` |
 | `cvPath` | string starting `/cv/` ending `.pdf` | yes | File must exist in `public/` (build check) |
 | `showPhone` | boolean | yes | `false` |

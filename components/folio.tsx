@@ -80,6 +80,7 @@ export function Folio({ marker, title, currentPath }: FolioProps) {
                 {marker}
               </span>
             )}
+            {marker && title && " "}
             {title}
           </p>
         )}

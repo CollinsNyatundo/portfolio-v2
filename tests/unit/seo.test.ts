@@ -4,13 +4,17 @@ import sitemap from "@/app/sitemap";
 import { site } from "@/content/site";
 import { publishedCaseStudies, publishedNotes } from "@/lib/content";
 import {
+  PERSON_ID,
   SITE_URL,
+  WEBSITE_ID,
   absoluteUrl,
   breadcrumbJsonLd,
   caseStudyJsonLd,
   evidenceLabel,
+  homeJsonLd,
   jsonLdHtml,
   noteJsonLd,
+  pageTitle,
   personJsonLd,
 } from "@/lib/seo";
 
@@ -110,5 +114,36 @@ describe("article structured data", () => {
     ]);
     expect(b.itemListElement.map((i) => i.position)).toEqual([1, 2]);
     expect(b.itemListElement[1].item).toBe(absoluteUrl("/work"));
+  });
+});
+
+describe("linked structured data", () => {
+  it("makes the home page a ProfilePage about the one person", () => {
+    const g = homeJsonLd()["@graph"];
+    const types = g.map((n) => n["@type"]);
+    expect(types).toEqual(["ProfilePage", "Person", "WebSite"]);
+    expect(g[0]).toMatchObject({ mainEntity: { "@id": PERSON_ID } });
+    expect(g[1]["@id"]).toBe(PERSON_ID);
+    expect(g[1]).not.toHaveProperty("@context");
+    expect(g[2]).toMatchObject({ publisher: { "@id": PERSON_ID } });
+  });
+
+  it("points every article's author at the same person node", () => {
+    const study = caseStudyJsonLd(publishedCaseStudies()[0]);
+    expect(study.author["@id"]).toBe(PERSON_ID);
+    expect(study.isPartOf["@id"]).toBe(WEBSITE_ID);
+    for (const note of publishedNotes()) {
+      const a = noteJsonLd(note);
+      expect(a.author["@id"]).toBe(PERSON_ID);
+      expect(a.image).toBe(absoluteUrl(`/notes/${note.slug}/opengraph-image`));
+    }
+  });
+});
+
+describe("pageTitle", () => {
+  it("keeps the name suffix only while the title fits in 60 characters", () => {
+    expect(pageTitle("Work")).toBe("Work");
+    const long = "Scoring a LightGBM model without the LightGBM library";
+    expect(pageTitle(long)).toEqual({ absolute: long });
   });
 });

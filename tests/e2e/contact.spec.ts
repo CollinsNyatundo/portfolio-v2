@@ -11,7 +11,7 @@ test.describe("contact page", () => {
     });
     await expect(email).toHaveAttribute(
       "href",
-      /^mailto:cnyagakan@gmail\.com\?subject=/,
+      /^mailto:collins@collinsnyagaka\.com\?subject=/,
     );
     await expect(page.locator("main")).toContainText("UTC+3");
     await expect(page.locator("main")).toContainText(
@@ -33,7 +33,7 @@ test.describe("contact page", () => {
       page.getByRole("status").filter({ hasText: "Email copied" }),
     ).toBeVisible();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-      "cnyagakan@gmail.com",
+      "collins@collinsnyagaka.com",
     );
   });
 
@@ -47,7 +47,7 @@ test.describe("contact page", () => {
     await page.getByRole("button", { name: "Copy email" }).click();
     await expect(
       page.getByRole("status").filter({ hasText: "Couldn't copy" }),
-    ).toContainText("cnyagakan@gmail.com");
+    ).toContainText("collins@collinsnyagaka.com");
   });
 
   test("freelance link goes to TundoTech in a new tab", async ({ page }) => {

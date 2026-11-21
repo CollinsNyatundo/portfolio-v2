@@ -41,7 +41,7 @@ describe("retrieval fallback excerpts", () => {
   it("includes the contact details when asked for an email address", () => {
     const res = fallbackFor("What is Collins's email address?");
     expect(res.excerpts.map((e) => e.snippet).join("\n")).toContain(
-      "cnyagakan@gmail.com",
+      "collins@collinsnyagaka.com",
     );
   });
 
