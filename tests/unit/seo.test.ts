@@ -123,6 +123,8 @@ describe("linked structured data", () => {
     const types = g.map((n) => n["@type"]);
     expect(types).toEqual(["ProfilePage", "Person", "WebSite"]);
     expect(g[0]).toMatchObject({ mainEntity: { "@id": PERSON_ID } });
+    // Google flags a date-only dateModified on ProfilePage; no time is on record.
+    expect(g[0]).not.toHaveProperty("dateModified");
     expect(g[1]["@id"]).toBe(PERSON_ID);
     expect(g[1]).not.toHaveProperty("@context");
     expect(g[2]).toMatchObject({ publisher: { "@id": PERSON_ID } });

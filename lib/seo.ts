@@ -3,7 +3,6 @@
  * domain (D-15); previews on *.vercel.app still point search engines there.
  */
 import { site } from "@/content/site";
-import { PAGE_UPDATED } from "@/lib/pages";
 
 export const SITE_URL = "https://collinsnyagaka.com";
 
@@ -78,7 +77,8 @@ export function websiteJsonLd() {
 
 /**
  * The home page graph: a ProfilePage about one person, on a site that person
- * publishes (Google's ProfilePage guide). Only dates on record (rule 14).
+ * publishes (Google's ProfilePage guide). No dateModified: Google wants a
+ * full date-time there, and only the day is on record (rule 14).
  */
 export function homeJsonLd() {
   const { "@context": context, ...person } = personJsonLd();
@@ -91,7 +91,6 @@ export function homeJsonLd() {
         url: SITE_URL,
         name: `${site.name}, ${site.title}`,
         isPartOf: { "@id": WEBSITE_ID },
-        dateModified: PAGE_UPDATED["/"],
         mainEntity: { "@id": PERSON_ID },
       },
       person,
