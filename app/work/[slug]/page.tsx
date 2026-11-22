@@ -167,7 +167,10 @@ export default async function CaseStudyPage({
               <ul className="mt-6 max-w-[62ch] space-y-4">
                 {notes.map((n) => (
                   <li key={n.slug}>
-                    <Link href={`/notes/${n.slug}`} className="text-lg">
+                    <Link
+                      href={`/notes/${n.slug}`}
+                      className="text-lg hover:underline focus-visible:underline"
+                    >
                       {n.title}
                     </Link>
                     <p className="text-muted mt-1">{n.summary}</p>
