@@ -140,7 +140,7 @@ test.describe("third audit: links", () => {
   test("every colophon links to the /cv page as well as the PDF", async ({
     page,
   }) => {
-    await page.goto("/notes");
+    expect((await page.goto("/notes"))?.status()).toBe(200);
     const footer = page.locator("footer");
     await expect(
       footer.getByRole("link", { name: "CV", exact: true }),
@@ -148,6 +148,7 @@ test.describe("third audit: links", () => {
     await expect(
       footer.getByRole("link", { name: "PDF of the CV" }),
     ).toHaveAttribute("download", "");
+    expect((await page.goto("/cv"))?.status()).toBe(200);
   });
 
   test("links inside paragraphs are underlined, not colour alone", async ({
@@ -158,7 +159,7 @@ test.describe("third audit: links", () => {
       "/contact",
       "/notes/oversampling-before-the-split",
     ]) {
-      await page.goto(path);
+      expect((await page.goto(path))?.status(), path).toBe(200);
       const plain = await page.$$eval("main p a, footer p a", (links) =>
         links
           .filter((a) => !a.className.includes("no-underline"))
