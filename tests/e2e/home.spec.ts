@@ -132,20 +132,30 @@ test.describe("home: projects and recognition", () => {
     page,
   }) => {
     await page.goto("/");
-    const work = page.locator("section[aria-labelledby='work']");
+    const more = page
+      .locator("section[aria-labelledby='work'] div")
+      .filter({ has: page.getByRole("heading", { name: "More projects" }) })
+      .getByRole("list");
+    await expect(more.getByRole("listitem")).toHaveCount(4);
     await expect(
-      work.getByRole("link", { name: "Production AI Reference Template" }),
+      more.getByRole("link", { name: "Production AI Reference Template" }),
     ).toHaveAttribute("href", "/work/production-ai-template");
-    await expect(work).not.toContainText("TundoTech Systems Website");
+    await expect(more).not.toContainText("TundoTech Systems Website");
   });
 
   test("the fraud study shows its XERJ selection", async ({ page }) => {
     await page.goto("/");
+    const fraud = page.locator("article").filter({
+      has: page.locator('h3 a[href="/work/creditcard-fraud"]'),
+    });
     await expect(
-      page.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
+      fraud.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
     ).toHaveAttribute(
       "href",
       "https://hub.xerj.org/contributors/CollinsNyatundo",
     );
+    await expect(
+      page.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
+    ).toHaveCount(1);
   });
 });
