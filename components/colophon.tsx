@@ -11,11 +11,13 @@ const repoUrl = "https://github.com/CollinsNyatundo/portfolio-v2";
 export function Colophon({ updated }: { updated: string }) {
   return (
     <footer className="border-border text-muted mt-36 border-t pt-10 pb-16 font-sans text-sm">
-      {/* Links inside a sentence are underlined, not told apart by colour
-          alone (WCAG 1.4.1; Lighthouse link-in-text-block). */}
-      <p className="text-text font-serif text-lg [&_a]:underline">
+      <p className="text-text font-serif text-lg">
         <a href={mailtoHref}>{site.primaryActionLabel}</a> at {site.email}, or
-        read the <CvLink from="colophon">CV (PDF)</CvLink>.
+        read the <Link href="/cv">CV</Link> (
+        <CvLink from="colophon">
+          PDF<span className="sr-only"> of the CV</span>
+        </CvLink>
+        ).
       </p>
       <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
         <li>
