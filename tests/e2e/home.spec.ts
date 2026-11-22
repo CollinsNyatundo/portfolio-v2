@@ -126,3 +126,26 @@ test.describe("home page without JavaScript", () => {
     }
   });
 });
+
+test.describe("home: projects and recognition", () => {
+  test("more projects lists the reference template, not the company site", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const work = page.locator("section[aria-labelledby='work']");
+    await expect(
+      work.getByRole("link", { name: "Production AI Reference Template" }),
+    ).toHaveAttribute("href", "/work/production-ai-template");
+    await expect(work).not.toContainText("TundoTech Systems Website");
+  });
+
+  test("the fraud study shows its XERJ selection", async ({ page }) => {
+    await page.goto("/");
+    await expect(
+      page.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
+    ).toHaveAttribute(
+      "href",
+      "https://hub.xerj.org/contributors/CollinsNyatundo",
+    );
+  });
+});
