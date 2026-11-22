@@ -126,3 +126,36 @@ test.describe("home page without JavaScript", () => {
     }
   });
 });
+
+test.describe("home: projects and recognition", () => {
+  test("more projects lists the reference template, not the company site", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const more = page
+      .locator("section[aria-labelledby='work'] div")
+      .filter({ has: page.getByRole("heading", { name: "More projects" }) })
+      .getByRole("list");
+    await expect(more.getByRole("listitem")).toHaveCount(4);
+    await expect(
+      more.getByRole("link", { name: "Production AI Reference Template" }),
+    ).toHaveAttribute("href", "/work/production-ai-template");
+    await expect(more).not.toContainText("TundoTech Systems Website");
+  });
+
+  test("the fraud study shows its XERJ selection", async ({ page }) => {
+    await page.goto("/");
+    const fraud = page.locator("article").filter({
+      has: page.locator('h3 a[href="/work/creditcard-fraud"]'),
+    });
+    await expect(
+      fraud.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
+    ).toHaveAttribute(
+      "href",
+      "https://hub.xerj.org/contributors/CollinsNyatundo",
+    );
+    await expect(
+      page.getByRole("link", { name: /Selected for the XERJ Corpus Hub/ }),
+    ).toHaveCount(1);
+  });
+});

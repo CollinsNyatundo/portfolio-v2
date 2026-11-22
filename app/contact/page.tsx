@@ -129,7 +129,8 @@ export default async function ContactPage({
               Freelance or company work?
             </h2>
             <p className="mt-3 max-w-[62ch]">
-              Projects for businesses go through my company,{" "}
+              Looking for a scoped contract build rather than a full-time hire?
+              Contract work runs through my company,{" "}
               <External href={site.links.company}>TundoTech Systems</External>.
             </p>
           </section>

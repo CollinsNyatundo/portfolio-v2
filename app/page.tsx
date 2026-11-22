@@ -9,7 +9,13 @@ import { Folio } from "@/components/folio";
 import { EvidenceLedger } from "@/components/home/evidence-ledger";
 import { ScrollEngine } from "@/components/home/scroll-engine";
 import { mailtoHref, site } from "@/content/site";
-import { demos, featuredCaseStudies, projects } from "@/lib/content";
+import {
+  caseStudyBySlug,
+  demos,
+  featuredCaseStudies,
+  projects,
+  recognition,
+} from "@/lib/content";
 import { ledgerEntries } from "@/lib/ledger";
 import { PAGE_UPDATED } from "@/lib/pages";
 
@@ -38,6 +44,32 @@ export default async function Home() {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   // Featured studies only (docs/03): the rest are on /work.
   const studies = featuredCaseStudies();
+  // "More projects": the reference template's case study takes the company
+  // website's place, so the four entries are all engineering work.
+  const template = caseStudyBySlug("production-ai-template");
+  const moreProjects = [
+    ...projects
+      .filter((p) => p.slug !== "tundotech-systems" && !p.archived)
+      .slice(0, template ? 3 : 4)
+      .map((p) => ({
+        slug: p.slug,
+        title: p.title,
+        summary: p.summary,
+        href: p.repoUrl ?? p.liveUrl,
+        internal: false,
+      })),
+    ...(template
+      ? [
+          {
+            slug: template.slug,
+            title: template.title,
+            summary: template.outcome,
+            href: `/work/${template.slug}`,
+            internal: true,
+          },
+        ]
+      : []),
+  ];
   const ledger = ledgerEntries();
   const liveDemo = demos.find(
     (d) => d.slug === "fraud" && d.status !== "offline",
@@ -233,6 +265,24 @@ export default async function Home() {
                       </Link>
                     </h3>
                     <p className="mt-4 max-w-[48ch]">{study.outcome}</p>
+                    {recognition
+                      .filter((r) => r.caseStudy === study.slug)
+                      .map((r) => (
+                        <p
+                          key={r.url}
+                          className="text-muted mt-4 font-sans text-sm"
+                        >
+                          <a
+                            href={r.url}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            {r.title}
+                            <span className="sr-only"> (opens in new tab)</span>
+                          </a>
+                          : the commit that made this evaluation reproducible.
+                        </p>
+                      ))}
                     <p className="mt-6 font-sans text-sm">
                       <Link href={`/work/${study.slug}`}>
                         Read the case study
@@ -263,33 +313,30 @@ export default async function Home() {
               <div className="border-border border-t pt-12">
                 <h3 className="text-muted font-sans text-sm">More projects</h3>
                 <ul className="mt-6 grid gap-x-10 gap-y-8 md:grid-cols-2">
-                  {projects.slice(0, 4).map((p) => {
-                    // Private work has no repository; link its live site instead.
-                    const href = p.repoUrl ?? p.liveUrl;
-                    return (
-                      <li key={p.slug}>
-                        <p className="font-serif text-xl font-medium">
-                          {href ? (
-                            <a
-                              href={href}
-                              rel="noopener noreferrer"
-                              target="_blank"
-                              className="text-text"
-                            >
-                              {p.title}
-                              <span className="sr-only">
-                                {" "}
-                                (opens in new tab)
-                              </span>
-                            </a>
-                          ) : (
-                            p.title
-                          )}
-                        </p>
-                        <p className="text-muted mt-2 text-base">{p.summary}</p>
-                      </li>
-                    );
-                  })}
+                  {moreProjects.map((p) => (
+                    <li key={p.slug}>
+                      <p className="font-serif text-xl font-medium">
+                        {p.href && p.internal ? (
+                          <Link href={p.href} className="text-text">
+                            {p.title}
+                          </Link>
+                        ) : p.href ? (
+                          <a
+                            href={p.href}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                            className="text-text"
+                          >
+                            {p.title}
+                            <span className="sr-only"> (opens in new tab)</span>
+                          </a>
+                        ) : (
+                          p.title
+                        )}
+                      </p>
+                      <p className="text-muted mt-2 text-base">{p.summary}</p>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
