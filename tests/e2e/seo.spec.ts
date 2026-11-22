@@ -135,3 +135,37 @@ test.describe("second audit: head tags", () => {
     expect(mods).toBe(urls);
   });
 });
+
+test.describe("third audit: links", () => {
+  test("every colophon links to the /cv page as well as the PDF", async ({
+    page,
+  }) => {
+    await page.goto("/notes");
+    const footer = page.locator("footer");
+    await expect(
+      footer.getByRole("link", { name: "CV", exact: true }),
+    ).toHaveAttribute("href", "/cv");
+    await expect(
+      footer.getByRole("link", { name: "PDF of the CV" }),
+    ).toHaveAttribute("download", "");
+  });
+
+  test("links inside paragraphs are underlined, not colour alone", async ({
+    page,
+  }) => {
+    for (const path of [
+      "/",
+      "/contact",
+      "/notes/oversampling-before-the-split",
+    ]) {
+      await page.goto(path);
+      const plain = await page.$$eval("main p a, footer p a", (links) =>
+        links
+          .filter((a) => !a.className.includes("no-underline"))
+          .filter((a) => getComputedStyle(a).textDecorationLine !== "underline")
+          .map((a) => a.outerHTML.slice(0, 80)),
+      );
+      expect(plain, path).toEqual([]);
+    }
+  });
+});

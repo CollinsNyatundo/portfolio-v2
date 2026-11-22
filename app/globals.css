@@ -127,6 +127,15 @@ a:hover {
   color: var(--primary-hover);
 }
 
+/* Links inside running text are underlined, not told apart by colour alone
+   (WCAG 1.4.1; Lighthouse link-in-text-block). In the base layer so a
+   component can still opt out with the no-underline utility. */
+@layer base {
+  p a {
+    text-decoration-line: underline;
+  }
+}
+
 ::selection {
   background: color-mix(in oklab, var(--primary) 22%, transparent);
 }
