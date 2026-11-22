@@ -73,6 +73,15 @@ describe("Person JSON-LD", () => {
     expect(p.sameAs).toEqual([site.links.linkedin, site.links.github]);
   });
 
+  it("names the degree university as alumniOf", () => {
+    expect(personJsonLd().alumniOf).toEqual([
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Jomo Kenyatta University of Agriculture and Technology (JKUAT)",
+      },
+    ]);
+  });
+
   it("escapes < so data can't close the script element", () => {
     const html = jsonLdHtml({ name: "</script><script>alert(1)</script>" });
     expect(html).not.toContain("<");

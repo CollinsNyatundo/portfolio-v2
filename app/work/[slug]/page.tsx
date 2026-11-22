@@ -9,7 +9,7 @@ import {
   MetricTable,
 } from "@/components/case-study/parts";
 import { JsonLd } from "@/components/json-ld";
-import { caseStudyBySlug } from "@/lib/content";
+import { caseStudyBySlug, publishedNotes, showNotes } from "@/lib/content";
 import { breadcrumbJsonLd, caseStudyJsonLd, pageTitle } from "@/lib/seo";
 
 const visibilityLabel = {
@@ -53,6 +53,11 @@ export default async function CaseStudyPage({
   const { slug } = await params;
   const study = caseStudyBySlug(slug);
   if (!study) notFound();
+  // Notes written about this case study link back here; list them so the
+  // link runs both ways (only while the Notes section is shown).
+  const notes = showNotes()
+    ? publishedNotes().filter((n) => n.caseStudy === study.slug)
+    : [];
 
   // Compiled at build time by @next/mdx; no runtime evaluation (D-29).
   const { default: Body } = await import(
@@ -151,6 +156,29 @@ export default async function CaseStudyPage({
               <EvidenceList evidence={study.evidence} />
             </section>
           </article>
+          {notes.length > 0 && (
+            <section aria-labelledby="notes" className="mt-20">
+              <h2
+                id="notes"
+                className="font-serif text-[1.75rem] leading-tight font-medium lg:text-[2.125rem]"
+              >
+                {notes.length === 1 ? "Related note" : "Related notes"}
+              </h2>
+              <ul className="mt-6 max-w-[62ch] space-y-4">
+                {notes.map((n) => (
+                  <li key={n.slug}>
+                    <Link
+                      href={`/notes/${n.slug}`}
+                      className="text-lg hover:underline focus-visible:underline"
+                    >
+                      {n.title}
+                    </Link>
+                    <p className="text-muted mt-1">{n.summary}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </main>
         <div className="mx-auto max-w-5xl">
           <Colophon updated={study.updated} />
