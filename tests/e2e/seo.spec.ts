@@ -184,4 +184,6 @@ test("each demo on /demos links its case study or project", async ({
       name: "Machine Learning Systems Reference MCP Server",
     }),
   ).toHaveAttribute("href", "/work#ml-systems-mcp-server");
+  expect((await page.goto("/work"))?.status()).toBe(200);
+  await expect(page.locator("#ml-systems-mcp-server")).toBeVisible();
 });
