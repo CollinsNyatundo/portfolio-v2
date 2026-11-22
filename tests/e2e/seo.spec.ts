@@ -187,3 +187,15 @@ test("each demo on /demos links its case study or project", async ({
   expect((await page.goto("/work"))?.status()).toBe(200);
   await expect(page.locator("#ml-systems-mcp-server")).toBeVisible();
 });
+
+test("a case study links the notes written about it", async ({ page }) => {
+  for (const [slug, note] of [
+    ["geo-ai-cropland-mapping", "oversampling-before-the-split"],
+    ["creditcard-fraud", "scoring-lightgbm-without-lightgbm"],
+  ]) {
+    expect((await page.goto(`/work/${slug}`))?.status()).toBe(200);
+    await expect(
+      page.locator(`section[aria-labelledby="notes"] a[href="/notes/${note}"]`),
+    ).toBeVisible();
+  }
+});

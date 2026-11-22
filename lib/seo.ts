@@ -2,6 +2,7 @@
  * Search and sharing metadata (task 3.10). The canonical origin is the planned
  * domain (D-15); previews on *.vercel.app still point search engines there.
  */
+import { certifications } from "@/content/experience";
 import { site } from "@/content/site";
 
 export const SITE_URL = "https://collinsnyagaka.com";
@@ -60,6 +61,11 @@ export function personJsonLd() {
       addressCountry: "KE",
     },
     sameAs: [site.links.linkedin, site.links.github],
+    // The degree-granting university helps search engines tell this person
+    // apart from others with the same name.
+    alumniOf: certifications
+      .filter((c) => c.kind === "degree")
+      .map((c) => ({ "@type": "CollegeOrUniversity", name: c.issuer })),
   };
 }
 
