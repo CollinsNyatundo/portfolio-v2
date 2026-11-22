@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Colophon } from "@/components/colophon";
 import { Folio } from "@/components/folio";
-import { caseStudyBySlug, demos } from "@/lib/content";
+import { caseStudyBySlug, demos, projects } from "@/lib/content";
 import { PAGE_UPDATED } from "@/lib/pages";
 
 export const metadata: Metadata = {
@@ -34,14 +34,19 @@ export default function DemosPage() {
           </p>
           <p className="mt-5 max-w-[62ch]">
             Both demos are Python functions on Vercel. They read a fixed model
-            or index that ships with the code, so a result is the same every
-            time you ask. Each one lists the data it was built on, how it was
-            checked and where it falls short, and links to the case study that
-            explains the work behind it.
+            or index that ships with the code, so the same input always gets the
+            same score or the same results. Each one lists the data it was built
+            on, how it was checked and where it falls short, and links to the
+            case study or project behind it.
           </p>
           <ul className="border-border mt-12 border-t">
             {listed.map((d) => {
               const study = caseStudyBySlug(d.caseStudy);
+              // A demo whose work has no published case study links its
+              // project card on the work index instead.
+              const project = study
+                ? undefined
+                : projects.find((p) => p.slug === d.caseStudy && !p.archived);
               return (
                 <li key={d.slug} className="border-border border-b py-8">
                   <h2 className="font-serif text-2xl font-medium">
@@ -62,11 +67,20 @@ export default function DemosPage() {
                     <dt className="text-text font-medium">Limits</dt>
                     <dd>{d.modelCard.limits.join(" ")}</dd>
                   </dl>
-                  {study && (
+                  {study ? (
                     <p className="mt-4 font-sans text-sm">
                       Case study:{" "}
                       <Link href={`/work/${study.slug}`}>{study.title}</Link>
                     </p>
+                  ) : (
+                    project && (
+                      <p className="mt-4 font-sans text-sm">
+                        Project:{" "}
+                        <Link href={`/work#${project.slug}`}>
+                          {project.title}
+                        </Link>
+                      </p>
+                    )
                   )}
                 </li>
               );

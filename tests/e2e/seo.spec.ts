@@ -170,3 +170,18 @@ test.describe("third audit: links", () => {
     }
   });
 });
+
+test("each demo on /demos links its case study or project", async ({
+  page,
+}) => {
+  expect((await page.goto("/demos"))?.status()).toBe(200);
+  const main = page.locator("main");
+  await expect(
+    main.getByRole("link", { name: /fraud/i }).last(),
+  ).toHaveAttribute("href", "/work/creditcard-fraud");
+  await expect(
+    main.getByRole("link", {
+      name: "Machine Learning Systems Reference MCP Server",
+    }),
+  ).toHaveAttribute("href", "/work#ml-systems-mcp-server");
+});
