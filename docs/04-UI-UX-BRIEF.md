@@ -29,7 +29,7 @@ Grammar 2.2 from scroll-craft. Full rationale in the BRIEF.
 
 | Element | Treatment |
 |---|---|
-| Navigation | **No fixed header bar.** A **folio** in the outer margin: chapter number and title (updates as chapters pass), then text links Work · Demos · Notes · Email Collins · CV. On mobile the folio is a slim top line that expands to a sheet. |
+| Navigation | **No fixed header bar.** A **folio** in the outer margin: on inner pages the plain page title (no marker words; the home page shows none, since the title page already names it), then text links Work · About · Demos · Notes · Contact · CV. On mobile the folio is a slim top line (name and Menu only) that expands to a sheet. |
 | Hero | A **title page**: name, one sentence, the folio. No media above the fold. Depth comes from four typographic and paper planes moving at different rates (BRIEF, "Hero depth"). |
 | Chapters | 0 Title page → I Problem → II Method → III Work → intertitle → IV Demo (peak) → V Colophon. Hard cuts between chapter grounds, never crossfaded gradients. |
 | Media | Always in its own column with a caption. Never under type. |
@@ -117,7 +117,7 @@ Both are self-hosted via `next/font`.
 
 | Component | Spec |
 |---|---|
-| Folio | Fixed in the outer margin (desktop ≥ 1024 px), slim top line on smaller screens. Chapter number (small caps) + title, updated via the engine's chapter events. Links: Work · Demos · Notes · Email Collins · CV. Keyboard reachable, `nav` landmark |
+| Folio | Fixed in the outer margin (desktop ≥ 1024 px), slim top line on smaller screens. Name → `/`, then the plain page title on inner pages (desktop only; no marker words; none on the home page). Links: Work · About · Demos · Notes · Contact · CV. Keyboard reachable, `nav` landmark |
 | **Evidence ledger** (signature) | Narrow ruled panel in the opposite margin (desktop) or a collapsible bottom strip (mobile, collapsed by default, shows a count). Appends one line when a figure tagged `data-ledger` passes the reading line: value (mono) · label · project · source link or "Private work". The visitor's own demo result is written in `--primary` with "you, just now". In the colophon it becomes a real `<table>` with totals. Never shows a figure that isn't in the evidence data. Margin copy `aria-hidden`; the colophon table is the accessible version |
 | Title page | Name (h1), one sentence, folio. Four planes (paper tooth, drawing fragment, type, folio rule) with differential translate on scroll. Static under reduced motion with layering intact |
 | Chapter opener | Number (small caps), title, one-line standfirst. Hard ground change on entry (`reveal`) |

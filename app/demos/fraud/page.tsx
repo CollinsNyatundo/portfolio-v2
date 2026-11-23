@@ -22,7 +22,7 @@ const h2 = "font-sans text-sm font-semibold tracking-wide uppercase";
 export default function FraudDemoPage() {
   return (
     <>
-      <Folio marker="Demo" title={demo.title} currentPath="/demos" />
+      <Folio title={demo.title} currentPath="/demos" />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
           <p className="text-muted font-sans text-sm">

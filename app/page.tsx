@@ -83,7 +83,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: jsonLdHtml(homeJsonLd()) }}
       />
       <ScrollEngine />
-      <Folio marker="Title" title="Collins Nyagaka" />
+      <Folio />
       <EvidenceLedger entries={ledger} />
 
       <div className="lg:ml-56 xl:mr-64">

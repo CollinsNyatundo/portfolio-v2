@@ -46,7 +46,7 @@ export default async function ContactPage({
 
   return (
     <>
-      <Folio marker="Reply" title="Contact" />
+      <Folio title="Contact" />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
           <h1 className="font-serif text-[2.25rem] leading-[1.05] font-medium tracking-[-0.015em] sm:text-[2.5rem] lg:text-[4rem]">

@@ -74,7 +74,7 @@ export default async function CaseStudyPage({
           { name: study.title, path: `/work/${study.slug}` },
         ])}
       />
-      <Folio marker="Work" title={study.title} />
+      <Folio title={study.title} />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
           <header>
