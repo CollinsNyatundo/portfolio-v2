@@ -1,38 +1,37 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Recorded } from "@/components/demos/fraud-outcome";
 
 // The demo's code loads only when Act IV comes near, so the first view of
-// the home page doesn't pay for it (Lighthouse budget, 02 §8).
-const FraudDemo = dynamic(
-  () => import("@/components/demos/fraud-demo").then((m) => m.FraudDemo),
-  { loading: () => <DemoPlaceholder /> },
+// the home page doesn't pay for it (Lighthouse budget, 02 §8). React.lazy
+// (not next/dynamic) so the fallback can be the server-rendered preview.
+const FraudDemo = lazy(() =>
+  import("@/components/demos/fraud-demo").then((m) => ({
+    default: m.FraudDemo,
+  })),
 );
 
 /**
- * Shown in the server HTML and until the demo's code arrives. It carries a
- * real link, so a reader without JavaScript (or a crawler) still reaches the
- * demo instead of three empty bars.
+ * `preview` is rendered on the server (a recorded result of the deployed
+ * model, with a link to the demo page), so the first score is in the HTML
+ * before any of the demo's JavaScript loads. It stays until the demo's code
+ * arrives; the demo then opens on the same recorded result.
  */
-function DemoPlaceholder() {
-  return (
-    <div>
-      <ul aria-hidden="true" className="space-y-3">
-        {[0, 1, 2].map((i) => (
-          <li key={i} className="bg-surface-2 h-10 rounded-sm" />
-        ))}
-      </ul>
-      <p className="text-muted mt-4 font-sans text-sm">
-        Loading the demo. It also runs on its own page:{" "}
-        <Link href="/demos/fraud">open the fraud-score explorer</Link>.
-      </p>
-    </div>
-  );
-}
-
-export function LazyFraudDemo() {
+export function LazyFraudDemo({
+  preview,
+  recorded,
+}: {
+  preview: ReactNode;
+  recorded: Recorded;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [near, setNear] = useState(false);
 
@@ -56,11 +55,11 @@ export function LazyFraudDemo() {
   return (
     <div ref={ref}>
       {near ? (
-        <Suspense fallback={<DemoPlaceholder />}>
-          <FraudDemo writesLedger />
+        <Suspense fallback={preview}>
+          <FraudDemo writesLedger recorded={recorded} />
         </Suspense>
       ) : (
-        <DemoPlaceholder />
+        preview
       )}
     </div>
   );

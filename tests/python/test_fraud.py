@@ -225,3 +225,16 @@ def test_internal_errors_hide_details(monkeypatch):
     monkeypatch.setattr(score_fn, "score", boom)
     code, body, _ = call(a_sample())
     assert code == 500 and body == {"error": "internal"}
+
+
+def test_recorded_example_matches_the_model():
+    """The home page and demo open on this recorded result; it must be what
+    the deployed model returns for that sample today (latency aside)."""
+    rec = json.loads((ROOT / "public/demos/fraud/recorded-example.json").read_text())
+    sample = score_fn.samples()[rec["sampleId"]]
+    live = score_fn.score(rec["sampleId"], sample["target"])
+    for key in ("probability", "calibratedProbability", "threshold", "decision", "modelVersion"):
+        assert live[key] == rec["result"][key], key
+    assert live["topContributions"] == rec["result"]["topContributions"]
+    # The caption calls it "sample 1": it must be the first served sample.
+    assert PUBLIC["samples"][0]["id"] == rec["sampleId"]

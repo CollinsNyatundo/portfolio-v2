@@ -112,7 +112,11 @@ test.describe("fraud demo", () => {
     await expect(page.locator("main")).toContainText("70.9%");
     await page.getByRole("button", { name: "Reset" }).click();
     await expect(amount).toHaveValue(original);
-    await expect(page.locator("main")).not.toContainText("70.9%");
+    // The live result is gone; the unedited sample shows its recorded result.
+    await expect(page.locator("main")).not.toContainText(/round trip \d+ ms/);
+    await expect(page.locator("main")).toContainText(
+      "Recorded result for sample 1",
+    );
   });
 
   test("rate limited: says how long and disables Score", async ({ page }) => {
@@ -216,4 +220,21 @@ test.describe("fraud demo", () => {
       ).toBe(false);
     });
   }
+});
+
+test("the demo page opens on the recorded score, labelled as recorded", async ({
+  page,
+}) => {
+  await page.goto("/demos/fraud");
+  await expect(page.getByRole("button", { name: "Score" })).toBeVisible();
+  await expect(page.locator("main")).toContainText(
+    "Recorded result for sample 1",
+  );
+  // Choosing another sample drops the recorded result: it belongs to sample 1.
+  await page
+    .getByRole("combobox", { name: "Transaction" })
+    .selectOption({ index: 1 });
+  await expect(page.locator("main")).not.toContainText(
+    "Recorded result for sample 1",
+  );
 });

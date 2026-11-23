@@ -159,3 +159,25 @@ test.describe("home: projects and recognition", () => {
     ).toHaveCount(1);
   });
 });
+
+test.describe("home: the demo opens on a real score", () => {
+  test("the server HTML already carries the recorded score, no JS needed", async ({
+    request,
+  }) => {
+    const html = await (await request.get("/")).text();
+    expect(html).toContain("Recorded result for sample 1");
+    expect(html).toContain("70.9%");
+    expect(html).not.toContain("Loading the demo");
+  });
+
+  test("the loaded demo keeps the recorded score until a live run replaces it", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const demo = page.locator("section[aria-labelledby='demo']");
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo.getByRole("button", { name: "Score" })).toBeVisible();
+    await expect(demo).toContainText("Recorded result for sample 1");
+    await expect(demo).toContainText("70.9%");
+  });
+});

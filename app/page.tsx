@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { FraudPreview } from "@/components/home/fraud-preview";
 import { LazyFraudDemo } from "@/components/home/lazy-fraud-demo";
 import { principles } from "@/content/about";
 import { homeJsonLd, jsonLdHtml } from "@/lib/seo";
@@ -16,6 +17,7 @@ import {
   projects,
   recognition,
 } from "@/lib/content";
+import { fraudRecorded } from "@/lib/fraud-recorded";
 import { ledgerEntries } from "@/lib/ledger";
 import { PAGE_UPDATED } from "@/lib/pages";
 
@@ -370,7 +372,10 @@ export default async function Home() {
                     before it. Score it, change it, score it again.
                   </p>
                   <div className="mt-8">
-                    <LazyFraudDemo />
+                    <LazyFraudDemo
+                      recorded={fraudRecorded}
+                      preview={<FraudPreview recorded={fraudRecorded} />}
+                    />
                   </div>
                 </div>
               </section>
