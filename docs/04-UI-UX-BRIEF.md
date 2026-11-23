@@ -29,7 +29,7 @@ Grammar 2.2 from scroll-craft. Full rationale in the BRIEF.
 
 | Element | Treatment |
 |---|---|
-| Navigation | **No fixed header bar.** A **folio** in the outer margin: chapter number and title (updates as chapters pass), then text links Work · Demos · Notes · Email Collins · CV. On mobile the folio is a slim top line that expands to a sheet. |
+| Navigation | **No fixed header bar.** A **folio** in the outer margin: on inner pages the plain page title (no marker words; the home page shows none, since the title page already names it), then text links Work · About · Demos · Notes · Contact · CV. On mobile the folio is a slim top line (name and Menu only) that expands to a sheet. |
 | Hero | A **title page**: name, one sentence, the folio. No media above the fold. Depth comes from four typographic and paper planes moving at different rates (BRIEF, "Hero depth"). |
 | Chapters | 0 Title page → I Problem → II Method → III Work → intertitle → IV Demo (peak) → V Colophon. Hard cuts between chapter grounds, never crossfaded gradients. |
 | Media | Always in its own column with a caption. Never under type. |

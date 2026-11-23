@@ -98,7 +98,7 @@ The signature move (the ledger) and the peak (the demo) meet in the same moment:
 | Rhythmic cutlist | The vibe is calm. Cutlist is energy |
 
 **Grammar constraints we accept:**
-- No fixed bar. A **folio** in the margin shows the chapter number and title, plus "Email Collins" and "CV" as text links.
+- No fixed bar. A **folio** in the margin holds the name and text links, including "Contact" and "CV". On the home page it shows no page title: the title page already names the site.
 - No full-bleed scrub hero. The hero is a **title page** with no media above the fold.
 - No pinned crossfade type acts, no `spotlight`, no `magnet`.
 - Media sits in its own column with a caption, never under type.

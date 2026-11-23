@@ -55,7 +55,7 @@ export default async function NotePage({ params }: PageProps<"/notes/[slug]">) {
           { name: note.title, path: `/notes/${note.slug}` },
         ])}
       />
-      <Folio marker="Note" title={note.title} />
+      <Folio title={note.title} />
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16">
         <main id="main" className="mx-auto max-w-5xl pt-20 lg:pt-32">
           <header>

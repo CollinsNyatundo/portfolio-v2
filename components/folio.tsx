@@ -5,9 +5,7 @@ import { showNotes } from "@/lib/content";
 import { ThemeToggle } from "./theme-toggle";
 
 type FolioProps = {
-  /** Small-caps label, e.g. a chapter number ("I") or a section name. */
-  marker?: string;
-  /** Current chapter or page title. */
+  /** Current page title (inner pages only; the home page passes none). */
   title?: string;
   /** Path of the page itself; its section link gets aria-current (docs/03 §6). */
   currentPath?: string;
@@ -60,7 +58,7 @@ function FolioLinks({ currentPath }: { currentPath?: string }) {
  * The folio replaces a header bar (chaptered editorial grammar, docs/04 §2):
  * a margin column on wide screens, a slim top line that expands on small ones.
  */
-export function Folio({ marker, title, currentPath }: FolioProps) {
+export function Folio({ title, currentPath }: FolioProps) {
   return (
     <nav
       aria-label="Site"
@@ -73,14 +71,10 @@ export function Folio({ marker, title, currentPath }: FolioProps) {
         >
           {site.name}
         </Link>
-        {(marker || title) && (
-          <p className="text-muted mt-0 font-sans text-sm lg:mt-6">
-            {marker && (
-              <span className="mr-2 [font-variant-caps:all-small-caps]">
-                {marker}
-              </span>
-            )}
-            {marker && title && " "}
+        {/* Desktop margin only: on small screens the page heading sits just
+            below the top line, so repeating the title there is noise. */}
+        {title && (
+          <p className="text-muted mt-6 hidden font-sans text-sm lg:block">
             {title}
           </p>
         )}

@@ -51,7 +51,7 @@ export default function CvPage() {
   return (
     <>
       <div className="print:hidden">
-        <Folio marker="Record" title="CV" />
+        <Folio title="CV" />
       </div>
       <div className="px-4 sm:px-6 lg:ml-56 lg:px-16 print:m-0 print:p-0">
         <main
