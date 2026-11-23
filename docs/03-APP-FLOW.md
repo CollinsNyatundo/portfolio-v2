@@ -32,8 +32,8 @@
 | `404` | Not found | Recover | Links to Home, Work, Contact |
 | `500` / demo error | Error | Recover gracefully | — |
 
-Global chrome on every page: the **folio** (no header bar): name → `/`, current chapter or page title, then Work,
-Demos, Notes*, "Email Collins", "CV", theme toggle. The evidence ledger sits in the opposite margin on pages that
+Global chrome on every page: the **folio** (no header bar): name → `/`, page title (inner pages, desktop only), then Work,
+About, Demos, Notes*, Contact, CV, theme toggle. The evidence ledger sits in the opposite margin on pages that
 have figures. When `ASSISTANT_MODE` is not disabled (v2, D-33), a hydrate-gated **Portfolio Index** launcher sits at
 bottom-right (clearing the mobile evidence strip via `--evidence-strip-h` and the desktop ledger via `bottom-24`)
 and opens a native `<dialog>` drawer on click. Every page ends in a **colophon** (ledger table where relevant, email,
@@ -87,7 +87,7 @@ Success state: `demo_run` + contact action.
 
 ## 6. Navigation rules
 
-- The folio is identical on every page; the current chapter/section has `aria-current`. Chapter titles in the folio are links that jump to that chapter (home page).
+- The folio links are identical on every page; the current section has `aria-current`. Inner pages add their plain title on desktop; the home page shows none.
 - Mobile (< 1024 px): the folio is a slim top line; tapping it opens a full-height sheet; focus is trapped inside; Esc closes and returns focus to the button.
 - External links open in a new tab only for: GitHub evidence, live apps, TundoTech. They carry an "opens in new tab" icon + `sr-only` text and `rel="noopener noreferrer"`.
 - Back button always works: filters and demo sample selection live in the URL (`?tag=`, `?sample=`), not in hidden state.

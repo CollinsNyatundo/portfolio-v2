@@ -117,7 +117,7 @@ Both are self-hosted via `next/font`.
 
 | Component | Spec |
 |---|---|
-| Folio | Fixed in the outer margin (desktop ≥ 1024 px), slim top line on smaller screens. Chapter number (small caps) + title, updated via the engine's chapter events. Links: Work · Demos · Notes · Email Collins · CV. Keyboard reachable, `nav` landmark |
+| Folio | Fixed in the outer margin (desktop ≥ 1024 px), slim top line on smaller screens. Name → `/`, then the plain page title on inner pages (desktop only; no marker words; none on the home page). Links: Work · About · Demos · Notes · Contact · CV. Keyboard reachable, `nav` landmark |
 | **Evidence ledger** (signature) | Narrow ruled panel in the opposite margin (desktop) or a collapsible bottom strip (mobile, collapsed by default, shows a count). Appends one line when a figure tagged `data-ledger` passes the reading line: value (mono) · label · project · source link or "Private work". The visitor's own demo result is written in `--primary` with "you, just now". In the colophon it becomes a real `<table>` with totals. Never shows a figure that isn't in the evidence data. Margin copy `aria-hidden`; the colophon table is the accessible version |
 | Title page | Name (h1), one sentence, folio. Four planes (paper tooth, drawing fragment, type, folio rule) with differential translate on scroll. Static under reduced motion with layering intact |
 | Chapter opener | Number (small caps), title, one-line standfirst. Hard ground change on entry (`reveal`) |
