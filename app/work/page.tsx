@@ -152,13 +152,13 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                     <p className="font-sans text-sm md:text-right">
                       <span className="figure text-text block text-2xl">
                         {s.headlineMetric.value}
-                      </span>
+                      </span>{" "}
                       <span className="text-text block">
                         {s.headlineMetric.label}
-                      </span>
+                      </span>{" "}
                       <span className="text-muted mt-1 block">
                         {s.headlineMetric.context}
-                      </span>
+                      </span>{" "}
                       <HeadlineSource study={s} />
                     </p>
                   </li>
@@ -190,10 +190,10 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                       <TagList tags={p.tags} />
                     </div>
                     <p className="text-muted flex flex-wrap gap-x-4 font-sans text-sm md:flex-col md:items-end">
-                      <span>{p.year}</span>
+                      <span>{p.year}</span>{" "}
                       {p.visibility === "private" ? (
                         <>
-                          <span>Private work</span>
+                          <span>Private work</span>{" "}
                           <Link
                             href={`/contact?topic=${p.slug}`}
                             className="inline-flex min-h-11 items-center md:min-h-7"
@@ -207,7 +207,7 @@ export default async function WorkPage({ searchParams }: PageProps<"/work">) {
                             Repository
                           </ExternalLink>
                         )
-                      )}
+                      )}{" "}
                       {p.liveUrl && (
                         <ExternalLink href={p.liveUrl}>Live app</ExternalLink>
                       )}
