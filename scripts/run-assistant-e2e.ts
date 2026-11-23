@@ -124,7 +124,7 @@ async function main() {
                   inPortfolio: true,
                   blocks: [
                     {
-                      text: "LegalAI Kenya enforces a 0.45 open-search evidence floor so weak matches are declined rather than guessed, refusing 34 of 40 off-topic queries.",
+                      text: "LegalAI Kenya enforces a 0.45 open-search evidence floor so weak matches are declined rather than guessed, refusing 9 of 10 off-topic queries.",
                       chunkIds: [
                         "case:legalai-kenya:approach",
                         "case:legalai-kenya:results",
