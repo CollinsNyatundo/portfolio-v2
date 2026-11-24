@@ -82,6 +82,24 @@ test.describe("portfolio assistant (enabled with local stub)", () => {
     expect(violations).toEqual([]);
   });
 
+  test("a LegalAI refusal answer cites the off-topic refusal figure", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page
+      .getByRole("button", { name: "Ask about Collins's portfolio" })
+      .click();
+    const dialog = page.getByRole("dialog", { name: "Ask the portfolio" });
+    await dialog
+      .getByLabel("Ask a question about Collins's work")
+      .fill("How does LegalAI Kenya refuse off-topic questions?");
+    await dialog.getByRole("button", { name: "Ask", exact: true }).click();
+    // The answer and its fact card both carry the refusal result, not a
+    // retrieval score.
+    await expect(dialog).toContainText("refusing 9 of 10 off-topic queries");
+    await expect(dialog).toContainText("Off-topic queries refused");
+  });
+
   test("handles out-of-scope refusal, malformed fallback, Reset, internal Close and Esc focus restore", async ({
     page,
   }) => {
