@@ -214,7 +214,12 @@ test.describe("home: the demo opens on a real score", () => {
   }) => {
     await page.goto("/");
     const demo = page.locator("section[aria-labelledby='demo']");
+    // Server preview first, before any demo code loads.
+    await expect(demo).toContainText("Recorded result for sample 1");
+    await expect(demo).not.toContainText("in-process inference");
+    // Then the interactive demo (it has the Score button), same check.
     await demo.scrollIntoViewIfNeeded();
+    await expect(demo.getByRole("button", { name: "Score" })).toBeVisible();
     await expect(demo).toContainText("Recorded result for sample 1");
     // Rendered text, so React's comment nodes between figures don't matter.
     await expect(demo).not.toContainText("in-process inference");
