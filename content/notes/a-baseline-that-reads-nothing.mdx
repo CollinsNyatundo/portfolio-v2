@@ -1,0 +1,49 @@
+---
+slug: a-baseline-that-reads-nothing
+title: A search that never reads the question scored 0.80
+summary: On LegalAI Kenya's benchmark, the same 10 Acts for every question hit 0.80. So I made beating that list, and finding rarer Acts, the pass mark.
+published: "2026-11-23"
+tags: [retrieval, evaluation, llm]
+caseStudy: legalai-kenya
+draft: false
+---
+
+LegalAI Kenya answers legal questions from Kenyan law. To measure its search, I used benchmark questions that are never put in the search index. Each one is a litigation fact pattern with a model answer, and the Acts named in that answer are the labels. A question counts as a hit when a passage from one of those Acts is in the top 10 results (hit@10).
+
+Before the change in this note, the search scored 0.303 hit@10 on the 300 questions its settings were tuned on, and 0.183 on the next 300, which it never saw. The change was tuned on a third set, so both of those sets are held out for it. A first version, without a language model, reached 0.807 and 0.767 on them. That looked like success. It wasn't.
+
+## The labels were lopsided
+
+The Civil Procedure Act alone is cited in 36% of the benchmark questions. So I tried an answer that reads nothing: the same 10 most-cited Acts for every question. To keep it honest, I picked those 10 from benchmark rows the evaluation never scores.
+
+That constant list scored 0.803 and 0.770 hit@10 on the two sets. My 0.807 and 0.767 were a tie with it. A target like "hit@10 of 0.80 or more" would have passed a system that ignores the question.
+
+## Two tests instead of one
+
+The evaluation script now fails unless the search does two things on the same run:
+
+1. beats the constant list's hit@10 by at least 0.05, and
+2. returns an uncommon Act, one outside the constant list, for at least half of the questions that cite one.
+
+The constant list scores zero on the second test by construction, so it can't be gamed by guessing popular Acts. The design that tied the list failed the first test on both sets.
+
+## What passed
+
+The version that passes adds a router: a language model (Claude Haiku via OpenRouter) reads the question and picks the Acts to search inside, and the system reserves result slots for the best passage of each. The router's prompt holds only legislation titles, with no examples from the benchmark. Its settings were chosen on a separate set of 300 questions that is not reported.
+
+With the 450-character issues text as the query, it scored 0.897 and 0.863 hit@10, about 0.09 above the constant list, and found an uncommon Act for 67 of 87 and 65 of 89 of the questions that cite one. With the full question, as a user would type it, both sets reached 0.960, and the uncommon-Act counts rose to 79 of 87 and 80 of 89.
+
+## What this still doesn't measure
+
+- hit@10 is Act level. It checks that some passage of a cited Act is in the top 10, not that it is the right section, and the first result is often not the right one.
+- The labels are Acts named in a model answer, matched by title. Some are cited only in passing. A relabelling by two language-model judges is done; review by advocates is not.
+
+## What I do now
+
+- Before setting a target, compute what a read-nothing answer scores on the same labels.
+- Fit that baseline on data the evaluation never scores, and print it in every run.
+- Add a test the baseline fails by construction. It doesn't rule out every shortcut, but the obvious one, guessing the popular answers, can't pass.
+
+## Evidence
+
+The LegalAI Kenya repository is private work. The figures above come from its retrieval notes and evaluation script; I recomputed the constant list's scores from the benchmark labels while writing this. [The case study](/work/legalai-kenya) has the full metrics and limits, and a [walkthrough is available on request](/contact?topic=legalai-kenya).

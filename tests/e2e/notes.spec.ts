@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const NOTES = [
+  "/notes/a-baseline-that-reads-nothing",
   "/notes/scoring-lightgbm-without-lightgbm",
   "/notes/oversampling-before-the-split",
 ];
@@ -17,17 +18,19 @@ test.describe("notes", () => {
     ).toHaveAttribute("href", "/notes");
   });
 
-  test("the index lists both notes, newest first, linking each", async ({
+  test("the index lists every note, newest first, linking each", async ({
     page,
   }) => {
     const response = await page.goto("/notes");
     expect(response?.status()).toBe(200);
     const links = page.locator("main ol h2 a");
-    await expect(links).toHaveCount(2);
-    for (const href of await links.evaluateAll((as) =>
+    await expect(links).toHaveCount(NOTES.length);
+    const hrefs = await links.evaluateAll((as) =>
       as.map((a) => a.getAttribute("href")),
-    ))
-      expect(NOTES).toContain(href);
+    );
+    expect([...hrefs].sort()).toEqual([...NOTES].sort());
+    // The newest note (2026-11-23) comes first; the two from 2026-11-05 share a date.
+    expect(hrefs[0]).toBe(NOTES[0]);
   });
 
   for (const path of NOTES) {

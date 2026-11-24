@@ -15,7 +15,7 @@ export const PAGE_UPDATED = {
   "/about": "2026-11-14",
   "/contact": "2026-11-22",
   "/cv": "2026-11-14",
-  "/notes": "2026-11-05",
+  "/notes": "2026-11-23",
 } as const satisfies Record<string, `${number}-${number}-${number}`>;
 
 export type FixedPage = keyof typeof PAGE_UPDATED;
