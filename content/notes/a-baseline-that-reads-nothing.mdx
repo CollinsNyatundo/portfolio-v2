@@ -10,7 +10,7 @@ draft: false
 
 LegalAI Kenya answers legal questions from Kenyan law. To measure its search, I used benchmark questions that are never put in the search index. Each one is a litigation fact pattern with a model answer, and the Acts named in that answer are the labels. A question counts as a hit when a passage from one of those Acts is in the top 10 results (hit@10).
 
-Before the change in this note, the search scored 0.303 and 0.183 hit@10 on two held-out sets of 300 questions. A first version of the change, without a language model, reached 0.807 and 0.767. That looked like success. It wasn't.
+Before the change in this note, the search scored 0.303 hit@10 on the 300 questions its settings were tuned on, and 0.183 on the next 300, which it never saw. The change was tuned on a third set, so both of those sets are held out for it. A first version, without a language model, reached 0.807 and 0.767 on them. That looked like success. It wasn't.
 
 ## The labels were lopsided
 
@@ -42,7 +42,7 @@ With the 450-character issues text as the query, it scored 0.897 and 0.863 hit@1
 
 - Before setting a target, compute what a read-nothing answer scores on the same labels.
 - Fit that baseline on data the evaluation never scores, and print it in every run.
-- Add a test the baseline fails by construction, so a high score has to come from reading the input.
+- Add a test the baseline fails by construction. It doesn't rule out every shortcut, but the obvious one, guessing the popular answers, can't pass.
 
 ## Evidence
 
