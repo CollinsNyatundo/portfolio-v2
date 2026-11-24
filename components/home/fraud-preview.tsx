@@ -15,7 +15,7 @@ export function FraudPreview({ recorded }: { recorded: Recorded }) {
   return (
     <div className="font-sans">
       <RecordedCaption recordedOn={recorded.recordedOn} />
-      <Outcome result={recorded.result} />
+      <Outcome result={recorded.result} recorded />
       <p className="text-muted mt-6 text-sm">
         The live demo loads as you scroll. It also runs on its own page:{" "}
         <Link href="/demos/fraud">open the fraud-score explorer</Link>.

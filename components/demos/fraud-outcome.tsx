@@ -31,9 +31,12 @@ export const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 export function Outcome({
   result,
   roundTrip,
+  recorded = false,
 }: {
   result: Result;
   roundTrip?: number;
+  /** A recorded result: its timing came from a warm local run, so it isn't shown. */
+  recorded?: boolean;
 }) {
   const max = Math.max(
     ...result.topContributions.map((c) => Math.abs(c.logOdds)),
@@ -75,11 +78,13 @@ export function Outcome({
           Fraud is rare (0.17% of transactions in this data), so the threshold
           sits far below 50%.
         </p>
-        <p className="text-muted mt-4 font-sans text-sm">
-          Model {result.latencyMs.model} ms (in-process inference)
-          {roundTrip !== undefined &&
-            ` · round trip ${Math.round(roundTrip)} ms`}
-        </p>
+        {!recorded && (
+          <p className="text-muted mt-4 font-sans text-sm">
+            Model {result.latencyMs.model} ms (in-process inference)
+            {roundTrip !== undefined &&
+              ` · round trip ${Math.round(roundTrip)} ms`}
+          </p>
+        )}
       </div>
       <div>
         <p className="font-sans text-sm">

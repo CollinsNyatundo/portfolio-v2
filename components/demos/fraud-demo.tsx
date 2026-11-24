@@ -242,7 +242,12 @@ export function FraudDemo({
     !scored &&
     !mine &&
     (status.kind === "ready" || status.kind === "loading") &&
-    (sample ? sample.id === recorded.sampleId : status.kind === "loading");
+    // Before the samples load, a shared ?sample= link for another sample
+    // must not show sample 1's result.
+    (sample
+      ? sample.id === recorded.sampleId
+      : status.kind === "loading" &&
+        (!sampleId || sampleId === recorded.sampleId));
 
   const limited = status.kind === "limited" && status.until > now;
   const scoring = status.kind === "scoring";
@@ -413,11 +418,11 @@ export function FraudDemo({
       {showRecorded && recorded && (
         <>
           <RecordedCaption recordedOn={recorded.recordedOn} />
-          <Outcome result={recorded.result} />
+          <Outcome result={recorded.result} recorded />
         </>
       )}
       {status.kind === "unavailable" && status.recorded && (
-        <Outcome result={status.recorded.result} />
+        <Outcome result={status.recorded.result} recorded />
       )}
 
       {attribution && (
