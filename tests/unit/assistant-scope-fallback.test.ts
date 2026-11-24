@@ -79,10 +79,12 @@ describe("aws/aws-emulator note scope and packing", () => {
     },
   );
 
-  it("keeps generic AWS and standalone s3vectors pricing questions out of scope", () => {
+  it("keeps generic AWS and standalone s3vectors pricing or coding questions out of scope", () => {
     for (const question of [
       "How much does AWS S3 Standard storage cost per gigabyte?",
       "How much does s3vectors cost per gigabyte?",
+      "How much does an S3 Vectors vector bucket cost?",
+      "Write a Python script to create an S3 Vectors index and query it by cosine distance",
     ]) {
       const decision = classifyScope({ question });
       expect(decision.kind, question).toBe("deterministic_refusal");

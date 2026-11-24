@@ -283,7 +283,7 @@ const ENTITY_ALIASES: Record<string, string> = {
 const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
 const S3_VECTORS_MENTION = /\b(?:s3vectors|s3\s+vectors?)\b/i;
 const S3_VECTORS_BENCHMARK_INTENT =
-  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|metadata|latency|distance|tenant|isolation|emulator|rag|vector\s+bucket|cosine)\b/i;
+  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|emulator)\b/i;
 
 const PRIVATE_ENTITY_SLUGS = new Set([
   "legalai-kenya",
@@ -308,7 +308,9 @@ export function detectMentionedEntities(text: string): string[] {
   }
   if (
     AWS_EMULATOR_PHRASE.test(text) ||
-    (S3_VECTORS_MENTION.test(text) && S3_VECTORS_BENCHMARK_INTENT.test(text))
+    (S3_VECTORS_MENTION.test(text) &&
+      S3_VECTORS_BENCHMARK_INTENT.test(text) &&
+      !GENERIC_CODING_REQUEST.test(text))
   ) {
     found.add("testing-aws-emulator-v1-0-604");
   }
