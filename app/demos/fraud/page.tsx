@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Colophon } from "@/components/colophon";
 import { FraudDemo } from "@/components/demos/fraud-demo";
+import { fraudRecorded } from "@/lib/fraud-recorded";
 import { Folio } from "@/components/folio";
 import { caseStudyBySlug, demos } from "@/lib/content";
 import { PAGE_UPDATED } from "@/lib/pages";
@@ -35,7 +36,7 @@ export default function FraudDemoPage() {
 
           <section aria-label="Demo" className="mt-12">
             <Suspense fallback={null}>
-              <FraudDemo />
+              <FraudDemo recorded={fraudRecorded} />
             </Suspense>
           </section>
 

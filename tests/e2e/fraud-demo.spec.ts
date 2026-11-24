@@ -112,7 +112,11 @@ test.describe("fraud demo", () => {
     await expect(page.locator("main")).toContainText("70.9%");
     await page.getByRole("button", { name: "Reset" }).click();
     await expect(amount).toHaveValue(original);
-    await expect(page.locator("main")).not.toContainText("70.9%");
+    // The live result is gone; the unedited sample shows its recorded result.
+    await expect(page.locator("main")).not.toContainText(/round trip \d+ ms/);
+    await expect(page.locator("main")).toContainText(
+      "Recorded result for sample 1",
+    );
   });
 
   test("rate limited: says how long and disables Score", async ({ page }) => {
@@ -216,4 +220,39 @@ test.describe("fraud demo", () => {
       ).toBe(false);
     });
   }
+});
+
+test("the demo page opens on the recorded score, labelled as recorded", async ({
+  page,
+}) => {
+  await page.goto("/demos/fraud");
+  await expect(page.getByRole("button", { name: "Score" })).toBeVisible();
+  await expect(page.locator("main")).toContainText(
+    "Recorded result for sample 1",
+  );
+  // Choosing another sample drops the recorded result: it belongs to sample 1.
+  await page
+    .getByRole("combobox", { name: "Transaction" })
+    .selectOption({ index: 1 });
+  await expect(page.locator("main")).not.toContainText(
+    "Recorded result for sample 1",
+  );
+});
+
+test("a shared link to another sample never shows sample 1's recorded score", async ({
+  page,
+  request,
+}) => {
+  // Server HTML, before any JavaScript runs.
+  const html = await (await request.get("/demos/fraud?sample=s04")).text();
+  expect(html).not.toContain("Recorded result for sample 1");
+  // Instead it shows the loading placeholder, not an empty panel.
+  expect(html).toContain('aria-label="Loading samples"');
+  await page.goto("/demos/fraud?sample=s04");
+  await expect(page.getByRole("combobox", { name: "Transaction" })).toHaveValue(
+    "s04",
+  );
+  await expect(page.locator("main")).not.toContainText(
+    "Recorded result for sample 1",
+  );
 });

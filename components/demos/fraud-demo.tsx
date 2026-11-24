@@ -3,6 +3,13 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { recordVisitorRun } from "@/components/home/evidence-ledger";
+import {
+  Outcome,
+  RecordedCaption,
+  pct,
+  type Recorded,
+  type Result,
+} from "./fraud-outcome";
 
 type Raw = Record<string, number>;
 type Sample = {
@@ -10,20 +17,6 @@ type Sample = {
   label: "fraud" | "legit";
   window: { Time: number; Amount: number }[];
   target: Raw;
-};
-type Contribution = {
-  feature: string;
-  logOdds: number;
-  direction: "fraud" | "legit";
-};
-type Result = {
-  probability: number;
-  calibratedProbability: number;
-  threshold: number;
-  decision: "flag" | "allow";
-  topContributions: Contribution[];
-  modelVersion: string;
-  latencyMs: { model: number; total: number };
 };
 type Attribution = {
   dataset: string;
@@ -63,7 +56,6 @@ const RANGE: Record<string, [number, number]> = {
   ),
 };
 
-const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
 // Clocks for event handlers only (never called while rendering).
 const clock = () => performance.now();
 const wallClock = () => Date.now();
@@ -81,90 +73,6 @@ function clientErrors(values: Record<string, string>): Record<string, string> {
   return errors;
 }
 
-function Outcome({
-  result,
-  roundTrip,
-}: {
-  result: Result;
-  roundTrip?: number;
-}) {
-  const max = Math.max(
-    ...result.topContributions.map((c) => Math.abs(c.logOdds)),
-    1e-9,
-  );
-  const flag = result.decision === "flag";
-  return (
-    <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-      <div>
-        <p className="font-sans text-sm">Calibrated probability of fraud</p>
-        <p className="figure mt-1 text-4xl">
-          {pct(result.calibratedProbability)}
-        </p>
-        <div
-          className="bg-surface-2 mt-3 h-2 w-full rounded-full"
-          role="img"
-          aria-label={`${pct(result.calibratedProbability)} against a threshold of ${pct(result.threshold)}`}
-        >
-          <div
-            className="bg-text h-2 rounded-full"
-            style={{
-              width: `${Math.max(1, result.calibratedProbability * 100)}%`,
-            }}
-          />
-        </div>
-        <p className="mt-4">
-          <span
-            className={`inline-block rounded-full border px-3 py-1 font-sans text-sm font-semibold ${
-              flag ? "border-text" : "border-border"
-            }`}
-          >
-            {flag ? "Flag" : "Allow"}
-          </span>{" "}
-          <span className="text-muted font-sans text-sm">
-            at the tuned threshold of {pct(result.threshold)}
-          </span>
-        </p>
-        <p className="text-muted mt-2 font-sans text-sm">
-          Fraud is rare (0.17% of transactions in this data), so the threshold
-          sits far below 50%.
-        </p>
-        <p className="text-muted mt-4 font-sans text-sm">
-          Model {result.latencyMs.model} ms (in-process inference)
-          {roundTrip !== undefined &&
-            ` · round trip ${Math.round(roundTrip)} ms`}
-        </p>
-      </div>
-      <div>
-        <p className="font-sans text-sm">
-          Five strongest reasons, in log-odds (margin) units
-        </p>
-        <ol className="mt-3 space-y-3">
-          {result.topContributions.map((c) => (
-            <li key={c.feature} className="font-sans text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="font-semibold">{c.feature}</span>{" "}
-                <span className="figure">
-                  {c.logOdds > 0 ? "+" : ""}
-                  {c.logOdds.toFixed(2)} towards {c.direction}
-                </span>
-              </div>
-              <div
-                className="bg-surface-2 mt-1 h-1.5 rounded-full"
-                aria-hidden="true"
-              >
-                <div
-                  className={`h-1.5 rounded-full ${c.direction === "fraud" ? "bg-text" : "bg-muted"}`}
-                  style={{ width: `${(Math.abs(c.logOdds) / max) * 100}%` }}
-                />
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-}
-
 /**
  * Fraud-score explorer (docs/03 §5): pick a real test-split transaction (its
  * 10-transaction history is read-only), optionally edit it, score it, and
@@ -173,8 +81,11 @@ function Outcome({
  */
 export function FraudDemo({
   writesLedger = false,
+  recorded,
 }: {
   writesLedger?: boolean;
+  /** A recorded result to show for its sample until a visitor scores live. */
+  recorded?: Recorded;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -323,13 +234,28 @@ export function FraudDemo({
       ? status
       : null;
 
+  // Until a visitor scores, the recorded result for the default sample stands
+  // in, so the demo never opens on an empty panel. Editing a value, picking
+  // another sample or any live outcome replaces it.
+  const showRecorded =
+    !!recorded &&
+    !scored &&
+    !mine &&
+    (status.kind === "ready" || status.kind === "loading") &&
+    // Before the samples load, a shared ?sample= link for another sample
+    // must not show sample 1's result.
+    (sample
+      ? sample.id === recorded.sampleId
+      : status.kind === "loading" &&
+        (!sampleId || sampleId === recorded.sampleId));
+
   const limited = status.kind === "limited" && status.until > now;
   const scoring = status.kind === "scoring";
   const err = (k: string) => errors[`features.${k}`];
 
   return (
     <div className="font-sans">
-      {status.kind === "loading" && (
+      {status.kind === "loading" && !showRecorded && (
         <ul aria-label="Loading samples" className="space-y-3">
           {[0, 1, 2].map((i) => (
             <li key={i} className="bg-surface-2 h-10 rounded-sm" />
@@ -489,8 +415,14 @@ export function FraudDemo({
       {scored && (
         <Outcome result={scored.result} roundTrip={scored.roundTrip} />
       )}
+      {showRecorded && recorded && (
+        <>
+          <RecordedCaption recordedOn={recorded.recordedOn} />
+          <Outcome result={recorded.result} recorded />
+        </>
+      )}
       {status.kind === "unavailable" && status.recorded && (
-        <Outcome result={status.recorded.result} />
+        <Outcome result={status.recorded.result} recorded />
       )}
 
       {attribution && (

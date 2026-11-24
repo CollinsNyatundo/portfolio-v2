@@ -159,3 +159,69 @@ test.describe("home: projects and recognition", () => {
     ).toHaveCount(1);
   });
 });
+
+test.describe("home: the demo opens on a real score", () => {
+  test("the server HTML already carries the recorded score, no JS needed", async ({
+    request,
+  }) => {
+    const html = await (await request.get("/")).text();
+    expect(html).toContain("Recorded result for sample 1");
+    expect(html).toContain("70.9%");
+    expect(html).not.toContain("Loading the demo");
+  });
+
+  test("the loaded demo keeps the recorded score until a live run replaces it", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const demo = page.locator("section[aria-labelledby='demo']");
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo.getByRole("button", { name: "Score" })).toBeVisible();
+    await expect(demo).toContainText("Recorded result for sample 1");
+    await expect(demo).toContainText("70.9%");
+  });
+
+  test("a live score replaces the recorded one", async ({ page }) => {
+    // A result that can't be confused with the recorded 70.9%.
+    await page.route("**/api/demos/fraud/score", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          probability: 0.2,
+          calibratedProbability: 0.123,
+          threshold: 0.03,
+          decision: "flag",
+          topContributions: [
+            { feature: "V14", logOdds: 0.5, direction: "fraud" },
+          ],
+          modelVersion: "x",
+          latencyMs: { model: 0.4, total: 150 },
+        }),
+      }),
+    );
+    await page.goto("/");
+    const demo = page.locator("section[aria-labelledby='demo']");
+    await demo.scrollIntoViewIfNeeded();
+    await demo.getByRole("button", { name: "Score" }).click();
+    await expect(demo).toContainText("12.3%");
+    await expect(demo).not.toContainText("Recorded result for sample 1");
+    await expect(demo).not.toContainText("70.9%");
+  });
+
+  test("the recorded result shows no timing from the local run", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const demo = page.locator("section[aria-labelledby='demo']");
+    // Server preview first, before any demo code loads.
+    await expect(demo).toContainText("Recorded result for sample 1");
+    await expect(demo).not.toContainText("in-process inference");
+    // Then the interactive demo (it has the Score button), same check.
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo.getByRole("button", { name: "Score" })).toBeVisible();
+    await expect(demo).toContainText("Recorded result for sample 1");
+    // Rendered text, so React's comment nodes between figures don't matter.
+    await expect(demo).not.toContainText("in-process inference");
+  });
+});
