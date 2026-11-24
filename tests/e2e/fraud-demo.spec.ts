@@ -246,6 +246,8 @@ test("a shared link to another sample never shows sample 1's recorded score", as
   // Server HTML, before any JavaScript runs.
   const html = await (await request.get("/demos/fraud?sample=s04")).text();
   expect(html).not.toContain("Recorded result for sample 1");
+  // Instead it shows the loading placeholder, not an empty panel.
+  expect(html).toContain('aria-label="Loading samples"');
   await page.goto("/demos/fraud?sample=s04");
   await expect(page.getByRole("combobox", { name: "Transaction" })).toHaveValue(
     "s04",

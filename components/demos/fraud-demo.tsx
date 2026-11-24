@@ -255,7 +255,7 @@ export function FraudDemo({
 
   return (
     <div className="font-sans">
-      {status.kind === "loading" && !recorded && (
+      {status.kind === "loading" && !showRecorded && (
         <ul aria-label="Loading samples" className="space-y-3">
           {[0, 1, 2].map((i) => (
             <li key={i} className="bg-surface-2 h-10 rounded-sm" />

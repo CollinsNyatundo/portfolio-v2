@@ -210,9 +210,13 @@ test.describe("home: the demo opens on a real score", () => {
   });
 
   test("the recorded result shows no timing from the local run", async ({
-    request,
+    page,
   }) => {
-    const html = await (await request.get("/")).text();
-    expect(html).not.toContain("0.12 ms");
+    await page.goto("/");
+    const demo = page.locator("section[aria-labelledby='demo']");
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo).toContainText("Recorded result for sample 1");
+    // Rendered text, so React's comment nodes between figures don't matter.
+    await expect(demo).not.toContainText("in-process inference");
   });
 });
