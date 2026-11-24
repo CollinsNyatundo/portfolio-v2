@@ -12,7 +12,7 @@
         "case:legalai-kenya:results"
       ],
       "expectedCoupledChunkIds": ["case:legalai-kenya:limits"],
-      "mustContainFactValues": ["34 of 40"]
+      "mustContainFactValues": ["9 of 10"]
     },
     {
       "id": "tech-02",

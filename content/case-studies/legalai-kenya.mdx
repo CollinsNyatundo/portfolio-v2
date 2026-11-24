@@ -47,9 +47,9 @@ metrics:
     dataset: Both held-out slices, full question, evidence floor 0.45
     caveat: Down from 2.7% with the shorter issues-only query.
   - name: Off-topic queries refused
-    value: 34 of 40
-    dataset: 40 off-topic or gibberish queries
-    caveat: Measured before Act routing, which can't change what is refused. A 0.35 floor answered 26 of the 40 and was rejected.
+    value: 9 of 10
+    dataset: The evaluation script's 10 off-topic or gibberish queries, evidence floor 0.45
+    caveat: Refused in every logged run, before and after Act routing, which can't change what is refused. Ten queries is a small set, so it can't show how a lower floor would behave.
     ledger: true
     ledgerLabel: off-topic queries refused
   - name: hit@10 against judge-agreed labels
@@ -149,7 +149,7 @@ The full question raises a fair worry: the router's language model may have seen
 
 The figure is at Act level. It doesn't check the right section, and hit@1 is still between 0.123 and 0.193. Two LLM judges relabelled which Acts actually govern each question; against the labels they agree on, hit@10 is 0.983. Those labels are waiting for advocate review, so 0.960 stays the headline.
 
-The evidence floor is a deliberate trade. A lower floor would answer most of the nonsense queries, so I kept the one that refuses 34 of 40 of them. With the full question, it wrongly refuses 1.0% of real ones.
+The evidence floor is a deliberate trade. At 0.45 it refuses 9 of the 10 off-topic or gibberish queries in the evaluation, and with the full question it wrongly refuses 1.0% of real ones. On the tuning slice, a 0.40 floor kept the same 9 of 10 and gained one real question, too small a difference on ten negatives to justify lowering it.
 
 <Callout title="A benchmark that couldn't fail">
   An earlier 20-question benchmark scored 100%, but it searched a 15-document
@@ -172,6 +172,6 @@ Every request carries a verified session token. Roles gate citation approval, bi
 - Repeat the party-name masking check on the full question.
 - Finish the advocate review of the judged labels, and score whether the right section comes back, not only the right Act.
 - Re-chunk the corpus by section from the source XML, which should do more for section-level accuracy than any further tuning.
-- Grow the off-topic test set: forty negatives are too few to decide whether the evidence floor can come down.
+- Grow the off-topic test set: ten negatives are too few to decide whether the evidence floor can come down.
 - Move rate limiting to a global edge rule.
 - Run the attack suite against production on every release.
