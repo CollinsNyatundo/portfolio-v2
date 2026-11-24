@@ -206,7 +206,7 @@ const SKILLS_OR_EXPERIENCE_QUERY =
   /\b(know|knows|deployed|deploy|used|using|experience|worked|work|skill|skills|stack|tools|tech|technologies|role|roles|career|background|kubernetes|rust|go|golang|java|aws|azure|gcp|docker|python|pytorch|tensorflow)\b/i;
 
 const EXPLICIT_SKILLS_QUERY =
-  /\b(know|knows|deployed|deploy|experience|skill|skills|stack|tools|tech|technologies|career|background)\b/i;
+  /\b(know|knows|deployed|deploy|used|worked|experience|skill|skills|stack|tools|tech|technologies|career|background)\b/i;
 
 const PHONE_REQUEST =
   /\b(phone|telephone|cell(?:\s*number)?|mobile(?:\s*number)?|whatsapp|call\s+him|call\s+collins)\b/i;
@@ -281,6 +281,9 @@ const ENTITY_ALIASES: Record<string, string> = {
 };
 
 const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
+const S3_VECTORS_MENTION = /\b(?:s3vectors|s3\s+vectors?)\b/i;
+const S3_VECTORS_BENCHMARK_INTENT =
+  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|metadata|latency|distance|tenant|isolation|emulator|rag|vector\s+bucket|cosine)\b/i;
 
 const PRIVATE_ENTITY_SLUGS = new Set([
   "legalai-kenya",
@@ -303,7 +306,10 @@ export function detectMentionedEntities(text: string): string[] {
     const slug = ENTITY_ALIASES[t];
     if (slug) found.add(slug);
   }
-  if (AWS_EMULATOR_PHRASE.test(text)) {
+  if (
+    AWS_EMULATOR_PHRASE.test(text) ||
+    (S3_VECTORS_MENTION.test(text) && S3_VECTORS_BENCHMARK_INTENT.test(text))
+  ) {
     found.add("testing-aws-emulator-v1-0-604");
   }
   return [...found];

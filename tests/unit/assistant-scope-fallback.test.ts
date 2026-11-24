@@ -89,6 +89,28 @@ describe("aws/aws-emulator note scope and packing", () => {
     }
   });
 
+  it.each([
+    [
+      "Did the s3vectors benchmark return the expected tenant metadata?",
+      "/notes/testing-aws-emulator-v1-0-604",
+    ],
+    [
+      "Did the s3vectors benchmark return the expected tenant metadata?",
+      undefined,
+    ],
+  ])(
+    "answers s3vectors benchmark questions without admitting standalone pricing: %s (%s)",
+    (question, pageContext) => {
+      const decision = classifyScope({ question, pageContext });
+      expect(decision.kind).toBe("in_scope");
+      const packed = retrieveAndPack({ question, pageContext });
+      expect(
+        packed.allowedChunkIds.has("note:testing-aws-emulator-v1-0-604"),
+      ).toBe(true);
+      expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+    },
+  );
+
   it("stays within the 4200-token packing target for named-note Terraform queries", () => {
     const packed = retrieveAndPack({
       question: "What Terraform issues did Collins hit with aws/aws-emulator?",
@@ -99,14 +121,18 @@ describe("aws/aws-emulator note scope and packing", () => {
     expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
   });
 
-  it("retains manifest:skills for explicit skills questions mentioning the emulator", () => {
-    const packed = retrieveAndPack({
-      question:
-        "What other technologies does Collins know besides the AWS emulator?",
-    });
-    expect(packed.allowedChunkIds.has("manifest:skills")).toBe(true);
-    expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
-  });
+  it.each([
+    "What other technologies does Collins know besides the AWS emulator?",
+    "What databases has Collins used besides the AWS emulator?",
+    "What frameworks has Collins worked with besides the AWS emulator?",
+  ])(
+    "retains manifest:skills for explicit skills questions: %s",
+    (question) => {
+      const packed = retrieveAndPack({ question });
+      expect(packed.allowedChunkIds.has("manifest:skills")).toBe(true);
+      expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+    },
+  );
 
   it("retains both requested Results sections when comparing two case studies", () => {
     const packed = retrieveAndPack({
