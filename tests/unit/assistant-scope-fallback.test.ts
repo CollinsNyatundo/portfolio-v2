@@ -79,11 +79,14 @@ describe("aws/aws-emulator note scope and packing", () => {
     },
   );
 
-  it("keeps generic AWS questions out of scope", () => {
-    const decision = classifyScope({
-      question: "How much does AWS S3 Standard storage cost per gigabyte?",
-    });
-    expect(decision.kind).toBe("deterministic_refusal");
+  it("keeps generic AWS and standalone s3vectors pricing questions out of scope", () => {
+    for (const question of [
+      "How much does AWS S3 Standard storage cost per gigabyte?",
+      "How much does s3vectors cost per gigabyte?",
+    ]) {
+      const decision = classifyScope({ question });
+      expect(decision.kind, question).toBe("deterministic_refusal");
+    }
   });
 
   it("stays within the 4200-token packing target for named-note Terraform queries", () => {
@@ -93,6 +96,26 @@ describe("aws/aws-emulator note scope and packing", () => {
     expect(
       packed.allowedChunkIds.has("note:testing-aws-emulator-v1-0-604"),
     ).toBe(true);
+    expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+  });
+
+  it("retains manifest:skills for explicit skills questions mentioning the emulator", () => {
+    const packed = retrieveAndPack({
+      question:
+        "What other technologies does Collins know besides the AWS emulator?",
+    });
+    expect(packed.allowedChunkIds.has("manifest:skills")).toBe(true);
+    expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+  });
+
+  it("retains both requested Results sections when comparing two case studies", () => {
+    const packed = retrieveAndPack({
+      question: "Compare the results of LegalAI Kenya and creditcard-fraud",
+    });
+    expect(packed.allowedChunkIds.has("case:legalai-kenya:results")).toBe(true);
+    expect(packed.allowedChunkIds.has("case:creditcard-fraud:results")).toBe(
+      true,
+    );
     expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
   });
 });

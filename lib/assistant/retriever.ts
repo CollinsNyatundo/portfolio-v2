@@ -205,6 +205,9 @@ const ADVERSARIAL_PROBE =
 const SKILLS_OR_EXPERIENCE_QUERY =
   /\b(know|knows|deployed|deploy|used|using|experience|worked|work|skill|skills|stack|tools|tech|technologies|role|roles|career|background|kubernetes|rust|go|golang|java|aws|azure|gcp|docker|python|pytorch|tensorflow)\b/i;
 
+const EXPLICIT_SKILLS_QUERY =
+  /\b(know|knows|deployed|deploy|experience|skill|skills|stack|tools|tech|technologies|career|background)\b/i;
+
 const PHONE_REQUEST =
   /\b(phone|telephone|cell(?:\s*number)?|mobile(?:\s*number)?|whatsapp|call\s+him|call\s+collins)\b/i;
 
@@ -275,7 +278,6 @@ const ENTITY_ALIASES: Record<string, string> = {
   "aws/aws-emulator": "testing-aws-emulator-v1-0-604",
   "aws-emulator": "testing-aws-emulator-v1-0-604",
   "testing-aws-emulator-v1-0-604": "testing-aws-emulator-v1-0-604",
-  s3vectors: "testing-aws-emulator-v1-0-604",
 };
 
 const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
@@ -688,6 +690,9 @@ export function retrieveAndPack(params: {
   // Always include compact identity + work-index manifest anchors so general
   // recruiter questions never miss canonical facts.
   const isSkillsQuery = SKILLS_OR_EXPERIENCE_QUERY.test(params.question);
+  const pinSkillsManifest =
+    EXPLICIT_SKILLS_QUERY.test(params.question) ||
+    (isSkillsQuery && activeEntities.length === 0);
   addChunk(getChunk("manifest:identity"));
   addChunk(getChunk("manifest:work-index"));
   if (isSkillsQuery) {
@@ -796,9 +801,7 @@ export function retrieveAndPack(params: {
       const c = selected[i];
       if (
         c.id === "manifest:identity" ||
-        (isSkillsQuery &&
-          activeEntities.length === 0 &&
-          c.id === "manifest:skills") ||
+        (pinSkillsManifest && c.id === "manifest:skills") ||
         topScoredIds.has(c.id) ||
         (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
         namedSectionIds.has(c.id)
@@ -812,18 +815,36 @@ export function retrieveAndPack(params: {
       }
     }
     if (dropIdx === -1) {
-      // Fallback pass: if pinned chunks alone exceed MAX_PACKED_TOKENS, trim
-      // the lowest-scoring non-primary chunk while keeping identity, skills
-      // (for general skills queries), top-1 match, and active-entity limits.
+      // Fallback pass 1: keep identity, explicit skills manifest, top-1 match,
+      // active-entity limits, AND explicitly named sections while trimming other chunks.
       const topOneId = scored[0]?.chunk.id;
       for (let i = 0; i < selected.length; i++) {
         const c = selected[i];
         if (
           c.id === "manifest:identity" ||
           c.id === topOneId ||
-          (isSkillsQuery &&
-            activeEntities.length === 0 &&
-            c.id === "manifest:skills") ||
+          (pinSkillsManifest && c.id === "manifest:skills") ||
+          (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
+          namedSectionIds.has(c.id)
+        ) {
+          continue;
+        }
+        const s = scoreById.get(c.id) ?? 0;
+        if (s < lowestScore) {
+          lowestScore = s;
+          dropIdx = i;
+        }
+      }
+    }
+    if (dropIdx === -1) {
+      // Fallback pass 2: only relax namedSectionIds if nothing else can satisfy the ceiling.
+      const topOneId = scored[0]?.chunk.id;
+      for (let i = 0; i < selected.length; i++) {
+        const c = selected[i];
+        if (
+          c.id === "manifest:identity" ||
+          c.id === topOneId ||
+          (pinSkillsManifest && c.id === "manifest:skills") ||
           (c.kind === "case_study_limits" && activeEntities.includes(c.slug))
         ) {
           continue;
