@@ -678,9 +678,10 @@ export function retrieveAndPack(params: {
 
   // Always include compact identity + work-index manifest anchors so general
   // recruiter questions never miss canonical facts.
+  const isSkillsQuery = SKILLS_OR_EXPERIENCE_QUERY.test(params.question);
   addChunk(getChunk("manifest:identity"));
   addChunk(getChunk("manifest:work-index"));
-  if (SKILLS_OR_EXPERIENCE_QUERY.test(params.question)) {
+  if (isSkillsQuery) {
     addChunk(getChunk("manifest:skills"));
     addChunk(getChunk("manifest:experience"));
   }
@@ -786,6 +787,7 @@ export function retrieveAndPack(params: {
       const c = selected[i];
       if (
         c.id === "manifest:identity" ||
+        (isSkillsQuery && c.id === "manifest:skills") ||
         topScoredIds.has(c.id) ||
         (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
         namedSectionIds.has(c.id)
