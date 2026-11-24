@@ -272,7 +272,13 @@ const ENTITY_ALIASES: Record<string, string> = {
   "bank-customer-segmentation": "bank-customer-segmentation",
   movielens: "movielens-recommender",
   "movielens-recommender": "movielens-recommender",
+  "aws/aws-emulator": "testing-aws-emulator-v1-0-604",
+  "aws-emulator": "testing-aws-emulator-v1-0-604",
+  "testing-aws-emulator-v1-0-604": "testing-aws-emulator-v1-0-604",
+  s3vectors: "testing-aws-emulator-v1-0-604",
 };
+
+const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
 
 const PRIVATE_ENTITY_SLUGS = new Set([
   "legalai-kenya",
@@ -294,6 +300,9 @@ export function detectMentionedEntities(text: string): string[] {
   for (const t of tokens) {
     const slug = ENTITY_ALIASES[t];
     if (slug) found.add(slug);
+  }
+  if (AWS_EMULATOR_PHRASE.test(text)) {
+    found.add("testing-aws-emulator-v1-0-604");
   }
   return [...found];
 }
@@ -787,7 +796,9 @@ export function retrieveAndPack(params: {
       const c = selected[i];
       if (
         c.id === "manifest:identity" ||
-        (isSkillsQuery && c.id === "manifest:skills") ||
+        (isSkillsQuery &&
+          activeEntities.length === 0 &&
+          c.id === "manifest:skills") ||
         topScoredIds.has(c.id) ||
         (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
         namedSectionIds.has(c.id)
@@ -798,6 +809,30 @@ export function retrieveAndPack(params: {
       if (s < lowestScore) {
         lowestScore = s;
         dropIdx = i;
+      }
+    }
+    if (dropIdx === -1) {
+      // Fallback pass: if pinned chunks alone exceed MAX_PACKED_TOKENS, trim
+      // the lowest-scoring non-primary chunk while keeping identity, skills
+      // (for general skills queries), top-1 match, and active-entity limits.
+      const topOneId = scored[0]?.chunk.id;
+      for (let i = 0; i < selected.length; i++) {
+        const c = selected[i];
+        if (
+          c.id === "manifest:identity" ||
+          c.id === topOneId ||
+          (isSkillsQuery &&
+            activeEntities.length === 0 &&
+            c.id === "manifest:skills") ||
+          (c.kind === "case_study_limits" && activeEntities.includes(c.slug))
+        ) {
+          continue;
+        }
+        const s = scoreById.get(c.id) ?? 0;
+        if (s < lowestScore) {
+          lowestScore = s;
+          dropIdx = i;
+        }
       }
     }
     if (dropIdx === -1) break;

@@ -57,3 +57,42 @@ describe("retrieval fallback excerpts", () => {
     );
   });
 });
+
+describe("aws/aws-emulator note scope and packing", () => {
+  it.each([
+    [
+      "What did the aws/aws-emulator tests find?",
+      "/notes/testing-aws-emulator-v1-0-604",
+    ],
+    ["What did the AWS emulator tests find?", "/notes"],
+    ["What did the aws/aws-emulator tests find?", undefined],
+  ])(
+    "treats first-turn AWS emulator question as in scope: %s (%s)",
+    (question, pageContext) => {
+      const decision = classifyScope({ question, pageContext });
+      expect(decision.kind).toBe("in_scope");
+      const packed = retrieveAndPack({ question, pageContext });
+      expect(
+        packed.allowedChunkIds.has("note:testing-aws-emulator-v1-0-604"),
+      ).toBe(true);
+      expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+    },
+  );
+
+  it("keeps generic AWS questions out of scope", () => {
+    const decision = classifyScope({
+      question: "How much does AWS S3 Standard storage cost per gigabyte?",
+    });
+    expect(decision.kind).toBe("deterministic_refusal");
+  });
+
+  it("stays within the 4200-token packing target for named-note Terraform queries", () => {
+    const packed = retrieveAndPack({
+      question: "What Terraform issues did Collins hit with aws/aws-emulator?",
+    });
+    expect(
+      packed.allowedChunkIds.has("note:testing-aws-emulator-v1-0-604"),
+    ).toBe(true);
+    expect(packed.estimatedTokens).toBeLessThanOrEqual(4200);
+  });
+});

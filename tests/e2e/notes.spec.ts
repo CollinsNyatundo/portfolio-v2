@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const NOTES = [
+  "/notes/testing-aws-emulator-v1-0-604",
   "/notes/a-baseline-that-reads-nothing",
   "/notes/scoring-lightgbm-without-lightgbm",
   "/notes/oversampling-before-the-split",
@@ -29,7 +30,7 @@ test.describe("notes", () => {
       as.map((a) => a.getAttribute("href")),
     );
     expect([...hrefs].sort()).toEqual([...NOTES].sort());
-    // The newest note (2026-11-23) comes first; the two from 2026-11-05 share a date.
+    // The newest note (2026-11-24) comes first; the two from 2026-11-05 share a date.
     expect(hrefs[0]).toBe(NOTES[0]);
   });
 

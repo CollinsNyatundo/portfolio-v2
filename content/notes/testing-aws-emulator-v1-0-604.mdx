@@ -13,11 +13,11 @@ Most local test suites for AWS apps mock `boto3`. Those tests check that your co
 I tested it two ways on Docker Desktop 29.9.3 (Windows 11, official Amazon Linux 2023 RPM container, telemetry off, 2 GiB memory limit):
 
 1. I wired an optional 7-service AWS profile into [the Production AI Reference Template](/work/production-ai-template) (`S3`, `S3 Vectors`, `KMS`, `Secrets Manager`, `SQS` with a dead-letter queue, `DynamoDB`, and `CloudWatch` with `X-Ray`) and ran a live, zero-mock `pytest` suite against port `9297`.
-2. I pointed Terraform 1.9 (`hashicorp/aws v5.100.0`) at the same container with an anonymised 10-service infrastructure stack (`VPC`, subnets, security groups, `KMS`, `IAM`, `CloudWatch Logs`, `S3`, `EKS`, `RDS`, `MSK` and `ElastiCache`) backed by an S3 state bucket and a DynamoDB lock table.
+2. I pointed Terraform 1.9 (`hashicorp/aws v5.100.0`) at the same container in a private local harness against an anonymized 10-service infrastructure stack (`VPC`, subnets, security groups, `KMS`, `IAM`, `CloudWatch Logs`, `S3`, `EKS`, `RDS`, `MSK` and `ElastiCache`) backed by an S3 state bucket and a DynamoDB lock table.
 
 ## The numbers before the caveats
 
-In `v1.0.604`'s published evaluation suite (`scores.json.gz`, 46,037 units scored on 2026-11-24), overall pass rate is 80.0% across single-service checks and 74.6% across 7,229 cross-service scenarios. Locally, the container started and generated its TLS CA and SigV4 credentials in 1.0 s. At peak, serving 23 Terraform-managed resources alongside S3 remote state and a DynamoDB lock table, it used 202.3 MiB of RAM and 0.01% CPU.
+In `v1.0.604`'s published evaluation suite (`scores.json.gz`, 46,037 units scored on 2026-11-24), the overall pass rate is 80.0% (36,841 of 46,037 units): 81.0% across 38,808 single-service checks and 74.6% across 7,229 cross-service scenarios. Locally, the container started and generated its TLS CA and SigV4 credentials in 1.0 s. At peak during the private local Terraform run, serving 23 Terraform-managed resources alongside S3 remote state and a DynamoDB lock table, it used 202.3 MiB of RAM and 0.01% CPU.
 
 The core application services were fast and strict with `boto3 1.44.10`:
 
@@ -54,6 +54,8 @@ Three things failed on my first run not because the emulator was broken, but bec
 - Pin `lifecycle { ignore_changes = [port] }` only in local Terraform test overrides when exercising ElastiCache, and check `scores.json.gz` before trusting a service's fidelity.
 
 ## Evidence
+
+The 10-service Terraform stress test (202.3 MiB peak RAM, 23 managed resources, ElastiCache port drift, and MSK catalogue mismatch) is private work run locally against an anonymized infrastructure configuration; those Terraform files are not publicly hosted. The 7-service application integration suite and the emulator release measurements are public:
 
 - [AWS Emulator v1.0.604 release and scores.json.gz](https://github.com/aws/aws-emulator/releases/tag/v1.0.604)
 - [AWS cloud-native profile and zero-mock CI suite (production-ai-template PR #16)](https://github.com/CollinsNyatundo/production-ai-template/pull/16)
