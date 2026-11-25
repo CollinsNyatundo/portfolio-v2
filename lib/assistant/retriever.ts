@@ -286,13 +286,28 @@ const S3_VECTORS_BENCHMARK_INTENT =
   /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|measured|measurement|measurements|timing|timings|latency|latencies|emulator)\b/i;
 const GENERIC_HOW_TO_AWS_REQUEST =
   /\b(?:how\s+(?:(?:do|can|would)\s+(?:i|you|we|one)|should|to)|in\s+production|typical\s+(?:aws\s+)?(?:s3\s+vectors?|s3vectors))\b/i;
-const CODE_AUTHORING_OBJECT =
-  /\b(?:write|generate|code|implement|fix|debug|create|build|refactor|rewrite)\s+(?:me\s+)?(?:an?\s+|the\s+|some\s+|this\s+)?(?:(?:(?!of\b|about\b|on\b|for\b|from\b|summary\b|overview\b|account\b|explanation\b|note\b|report\b|recap\b|description\b|comparison\b|analysis\b|takeaway\b|takeaways\b)[\w-]+\s+){0,3}(?:script|function|program|snippet|code|algorithm|regex|handler|module|client|class|method|sort)|(?:python|javascript|js|typescript|ts|react|sql|bash|shell|html|css|boto3|terraform|hcl|go|golang|rust|java)\b)/i;
-const CODE_IMPLEMENT_IN_LANG =
-  /\b(?:implement|code|build|write|rewrite|port|migrate|convert|translate)\b[^.?!]*\b(?:in|into|to)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3|code|a\s+script)\b/i;
+const PROSE_SUMMARY_CLAUSE =
+  /^\s*(?:please\s+)?(?:write|give|draft|provide|create|generate)\s+(?:me\s+)?(?:an?\s+|the\s+)?(?:[\w-]+\s+){0,3}(?:summary|overview|account|explanation|note|report|recap|description|comparison|analysis|takeaway|takeaways|write-?up|breakdown)\b/i;
+const CODE_AUTHORING_CLAUSE =
+  /^\s*(?:please\s+)?(?:write|generate|code|implement|fix|debug|create|build|refactor|rewrite)\b.*\b(?:script|function|program|snippet|code|algorithm|regex|handler|module|client|class|method|sort|(?:in|into|to|using)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3)|(?:python|javascript|js|typescript|ts|react|sql|bash|shell|html|css|boto3|terraform|hcl)\s+(?:to|for|that|example|snippet|code|script))\b/i;
+const CODE_CONVERSION_CLAUSE =
+  /^\s*(?:please\s+)?(?:convert|translate|port|migrate)\b.*\b(?:to|into)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3|code|a\s+script)\b/i;
 
 function isCodeAuthoringOrConversionRequest(text: string): boolean {
-  return CODE_AUTHORING_OBJECT.test(text) || CODE_IMPLEMENT_IN_LANG.test(text);
+  const clauses = text
+    .split(/(?:[.?!;]+|\b(?:and|then|also)\b)/i)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  for (const clause of clauses) {
+    if (PROSE_SUMMARY_CLAUSE.test(clause)) continue;
+    if (
+      CODE_AUTHORING_CLAUSE.test(clause) ||
+      CODE_CONVERSION_CLAUSE.test(clause)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 const PRIVATE_ENTITY_SLUGS = new Set([

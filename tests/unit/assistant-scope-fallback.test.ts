@@ -90,6 +90,8 @@ describe("aws/aws-emulator note scope and packing", () => {
       "What is typical S3 Vectors query latency in production?",
       "Write a Python script to create an S3 Vectors index and query it by cosine distance",
       "Write a Python script to benchmark S3 Vectors cosine queries",
+      "Write an example of a script to benchmark S3 Vectors",
+      "Write a small standalone command-line Python script to benchmark S3 Vectors",
       "Write an S3 Vectors test client",
       "Implement the S3 Vectors benchmark in Python.",
       "Write a summary of the S3 Vectors results and write a Python script to reproduce it",
@@ -144,6 +146,7 @@ describe("aws/aws-emulator note scope and packing", () => {
       "Write a short account of what the S3 Vectors test client returned.",
       "/notes",
     ],
+    ["Write a summary of the S3 Vectors tests run in Python", "/notes"],
     [
       "Translate the Python S3 Vectors test results into plain English",
       undefined,
