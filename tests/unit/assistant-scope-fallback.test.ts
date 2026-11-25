@@ -85,6 +85,7 @@ describe("aws/aws-emulator note scope and packing", () => {
       "How much does s3vectors cost per gigabyte?",
       "How much does an S3 Vectors vector bucket cost?",
       "How can I measure S3 Vectors query timings in production?",
+      "How can I benchmark S3 Vectors query latency in production?",
       "Write a Python script to create an S3 Vectors index and query it by cosine distance",
       "Write a Python script to benchmark S3 Vectors cosine queries",
       "Convert the Python S3 Vectors benchmark script to JavaScript",
@@ -124,6 +125,16 @@ describe("aws/aws-emulator note scope and packing", () => {
       "/notes/testing-aws-emulator-v1-0-604",
     ],
     ["What was the measured S3 Vectors latency?", undefined],
+    [
+      "What were the S3 Vectors timings?",
+      "/notes/testing-aws-emulator-v1-0-604",
+    ],
+    ["What were the S3 Vectors timings?", "/notes"],
+    ["How do the S3 Vectors benchmark results compare with AWS?", "/notes"],
+    [
+      "Write a plain-English summary of the S3 Vectors test results from boto3.",
+      "/notes",
+    ],
     [
       "Translate the Python S3 Vectors test results into plain English",
       undefined,
