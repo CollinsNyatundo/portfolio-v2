@@ -85,6 +85,7 @@ describe("aws/aws-emulator note scope and packing", () => {
       "How much does s3vectors cost per gigabyte?",
       "How much does an S3 Vectors vector bucket cost?",
       "Write a Python script to create an S3 Vectors index and query it by cosine distance",
+      "Write a Python script to benchmark S3 Vectors cosine queries",
     ]) {
       const decision = classifyScope({ question });
       expect(decision.kind, question).toBe("deterministic_refusal");
@@ -100,8 +101,17 @@ describe("aws/aws-emulator note scope and packing", () => {
       "Did the s3vectors benchmark return the expected tenant metadata?",
       undefined,
     ],
+    [
+      "What was the measured S3 Vectors latency?",
+      "/notes/testing-aws-emulator-v1-0-604",
+    ],
+    ["What was the measured S3 Vectors latency?", undefined],
+    [
+      "Translate the Python S3 Vectors test results into plain English",
+      undefined,
+    ],
   ])(
-    "answers s3vectors benchmark questions without admitting standalone pricing: %s (%s)",
+    "answers s3vectors benchmark questions without admitting standalone pricing or codegen: %s (%s)",
     (question, pageContext) => {
       const decision = classifyScope({ question, pageContext });
       expect(decision.kind).toBe("in_scope");
