@@ -21,7 +21,7 @@ In `v1.0.604`'s published evaluation suite (`scores.json.gz`, 46,037 units score
 
 The core application services were fast and strict with `boto3 1.44.10`:
 
-- **Amazon S3 Vectors (`s3vectors`)**: creating a vector bucket and cosine index, writing vectors, and running a `topK` query took 39.7 ms and returned the expected neighbour distance and tenant metadata.
+- **Amazon S3 Vectors (`s3vectors`)**: creating a vector bucket and cosine index, writing vectors, and running a `topK` query took a measured 39.7 ms combined latency (not query latency alone) and returned the expected neighbour distance and tenant metadata.
 - **KMS tenant isolation**: encrypting tenant A's text with `EncryptionContext={"tenant_id": "tenant-alpha"}` and attempting to decrypt it under `"tenant-beta"` failed with `InvalidCiphertextException`, matching AWS.
 - **S3 with SSE-KMS and versioning**: `PutObject`, `HeadObject`, and `GetObject` all returned the full KMS key ARN in `SSEKMSKeyId` and a `VersionId`.
 - **SQS dead-letter redrive**: leaving a message unacknowledged past a 1-second visibility timeout with `maxReceiveCount=1` moved it cleanly to the dead-letter queue.

@@ -283,9 +283,20 @@ const ENTITY_ALIASES: Record<string, string> = {
 const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
 const S3_VECTORS_MENTION = /\b(?:s3vectors|s3\s+vectors?)\b/i;
 const S3_VECTORS_BENCHMARK_INTENT =
-  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|measured|measurement|measurements|timing|timings|emulator)\b/i;
-const CODE_GENERATION_REQUEST =
-  /^\s*(?:please\s+)?(?:write|generate|code|implement|fix|debug|create|build)\s+(?:a|an|the|me|this|some)?\s*(?:python|javascript|typescript|react|sql|bash|html|css|boto3|terraform|hcl|sort|algorithm|function|script|program|snippet|regex)\b/i;
+  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|measured|emulator)\b/i;
+const GENERIC_HOW_TO_AWS_REQUEST =
+  /^\s*how\s+(?:do|can|should|would|to)\s+(?:i|you|we|one)?\b/i;
+const CODE_TARGET_LANGUAGE =
+  /\b(?:to|into)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3|code|a\s+script)\b/i;
+const CODE_AUTHORING_REQUEST =
+  /^\s*(?:please\s+)?(?:write|generate|code|implement|fix|debug|create|build|refactor|rewrite)\b.*\b(?:python|javascript|typescript|react|sql|bash|html|css|boto3|terraform|hcl|sort|algorithm|function|script|program|snippet|regex|code)\b/i;
+const CODE_CONVERSION_REQUEST =
+  /^\s*(?:please\s+)?(?:convert|translate|port|migrate)\b/i;
+
+function isCodeAuthoringOrConversionRequest(text: string): boolean {
+  if (CODE_AUTHORING_REQUEST.test(text)) return true;
+  return CODE_CONVERSION_REQUEST.test(text) && CODE_TARGET_LANGUAGE.test(text);
+}
 
 const PRIVATE_ENTITY_SLUGS = new Set([
   "legalai-kenya",
@@ -312,7 +323,8 @@ export function detectMentionedEntities(text: string): string[] {
     AWS_EMULATOR_PHRASE.test(text) ||
     (S3_VECTORS_MENTION.test(text) &&
       S3_VECTORS_BENCHMARK_INTENT.test(text) &&
-      !CODE_GENERATION_REQUEST.test(text))
+      !GENERIC_HOW_TO_AWS_REQUEST.test(text) &&
+      !isCodeAuthoringOrConversionRequest(text))
   ) {
     found.add("testing-aws-emulator-v1-0-604");
   }

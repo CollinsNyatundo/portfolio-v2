@@ -79,17 +79,35 @@ describe("aws/aws-emulator note scope and packing", () => {
     },
   );
 
-  it("keeps generic AWS and standalone s3vectors pricing or coding questions out of scope", () => {
+  it("keeps generic AWS and standalone s3vectors pricing, how-to, or coding questions out of scope", () => {
     for (const question of [
       "How much does AWS S3 Standard storage cost per gigabyte?",
       "How much does s3vectors cost per gigabyte?",
       "How much does an S3 Vectors vector bucket cost?",
+      "How can I measure S3 Vectors query timings in production?",
       "Write a Python script to create an S3 Vectors index and query it by cosine distance",
       "Write a Python script to benchmark S3 Vectors cosine queries",
+      "Convert the Python S3 Vectors benchmark script to JavaScript",
     ]) {
       const decision = classifyScope({ question });
       expect(decision.kind, question).toBe("deterministic_refusal");
     }
+  });
+
+  it("includes the combined-operation caveat when answering measured S3 Vectors latency", () => {
+    const question = "What was the measured S3 Vectors latency?";
+    const packed = retrieveAndPack({
+      question,
+      pageContext: "/notes/testing-aws-emulator-v1-0-604",
+    });
+    const res = buildRetrievalFallbackResponse({
+      packed,
+      reason: "configured_retrieval",
+      question,
+    });
+    const answerText = res.excerpts.map((e) => e.snippet).join("\n");
+    expect(answerText).toContain("39.7 ms");
+    expect(answerText).toMatch(/combined latency|not query latency alone/i);
   });
 
   it.each([
