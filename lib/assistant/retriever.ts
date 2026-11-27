@@ -205,6 +205,9 @@ const ADVERSARIAL_PROBE =
 const SKILLS_OR_EXPERIENCE_QUERY =
   /\b(know|knows|deployed|deploy|used|using|experience|worked|work|skill|skills|stack|tools|tech|technologies|role|roles|career|background|kubernetes|rust|go|golang|java|aws|azure|gcp|docker|python|pytorch|tensorflow)\b/i;
 
+const EXPLICIT_SKILLS_QUERY =
+  /\b(know|knows|deployed|deploy|used|worked|experience|skill|skills|stack|tools|tech|technologies|career|background)\b/i;
+
 const PHONE_REQUEST =
   /\b(phone|telephone|cell(?:\s*number)?|mobile(?:\s*number)?|whatsapp|call\s+him|call\s+collins)\b/i;
 
@@ -272,7 +275,40 @@ const ENTITY_ALIASES: Record<string, string> = {
   "bank-customer-segmentation": "bank-customer-segmentation",
   movielens: "movielens-recommender",
   "movielens-recommender": "movielens-recommender",
+  "aws/aws-emulator": "testing-aws-emulator-v1-0-604",
+  "aws-emulator": "testing-aws-emulator-v1-0-604",
+  "testing-aws-emulator-v1-0-604": "testing-aws-emulator-v1-0-604",
 };
+
+const AWS_EMULATOR_PHRASE = /\baws[\s/-]+emulator\b/i;
+const S3_VECTORS_MENTION = /\b(?:s3vectors|s3\s+vectors?)\b/i;
+const S3_VECTORS_BENCHMARK_INTENT =
+  /\b(benchmark|benchmarks|test|tests|tested|testing|note|notes|finding|findings|result|results|measured|measurement|measurements|timing|timings|latency|latencies|emulator)\b/i;
+const GENERIC_HOW_TO_AWS_REQUEST =
+  /\b(?:how\s+(?:(?:do|can|would)\s+(?:i|you|we|one)|should|to)|in\s+production|typical\s+(?:aws\s+)?(?:s3\s+vectors?|s3vectors))\b/i;
+const PROSE_SUMMARY_CLAUSE =
+  /^\s*(?:please\s+)?(?:write|give|draft|provide|create|generate)\s+(?:me\s+)?(?:an?\s+|the\s+)?(?:[\w-]+\s+){0,3}(?:summary|overview|account|explanation|note|report|recap|description|comparison|analysis|takeaway|takeaways|write-?up|breakdown)\b/i;
+const CODE_AUTHORING_CLAUSE =
+  /^\s*(?:please\s+)?(?:write|generate|code|implement|fix|debug|create|build|refactor|rewrite)\b.*\b(?:script|function|program|snippet|code|algorithm|regex|handler|module|client|class|method|sort|(?:in|into|to|using)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3)|(?:python|javascript|js|typescript|ts|react|sql|bash|shell|html|css|boto3|terraform|hcl)\s+(?:to|for|that|example|snippet|code|script))\b/i;
+const CODE_CONVERSION_CLAUSE =
+  /^\s*(?:please\s+)?(?:convert|translate|port|migrate)\b.*\b(?:to|into)\s+(?:python|javascript|js|typescript|ts|go|golang|rust|java|c\+\+|c#|sql|bash|shell|html|css|terraform|hcl|boto3|code|a\s+script)\b/i;
+
+function isCodeAuthoringOrConversionRequest(text: string): boolean {
+  const clauses = text
+    .split(/(?:[.?!;]+|\b(?:and|then|also)\b)/i)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  for (const clause of clauses) {
+    if (PROSE_SUMMARY_CLAUSE.test(clause)) continue;
+    if (
+      CODE_AUTHORING_CLAUSE.test(clause) ||
+      CODE_CONVERSION_CLAUSE.test(clause)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
 
 const PRIVATE_ENTITY_SLUGS = new Set([
   "legalai-kenya",
@@ -294,6 +330,15 @@ export function detectMentionedEntities(text: string): string[] {
   for (const t of tokens) {
     const slug = ENTITY_ALIASES[t];
     if (slug) found.add(slug);
+  }
+  if (
+    AWS_EMULATOR_PHRASE.test(text) ||
+    (S3_VECTORS_MENTION.test(text) &&
+      S3_VECTORS_BENCHMARK_INTENT.test(text) &&
+      !GENERIC_HOW_TO_AWS_REQUEST.test(text) &&
+      !isCodeAuthoringOrConversionRequest(text))
+  ) {
+    found.add("testing-aws-emulator-v1-0-604");
   }
   return [...found];
 }
@@ -678,9 +723,13 @@ export function retrieveAndPack(params: {
 
   // Always include compact identity + work-index manifest anchors so general
   // recruiter questions never miss canonical facts.
+  const isSkillsQuery = SKILLS_OR_EXPERIENCE_QUERY.test(params.question);
+  const pinSkillsManifest =
+    EXPLICIT_SKILLS_QUERY.test(params.question) ||
+    (isSkillsQuery && activeEntities.length === 0);
   addChunk(getChunk("manifest:identity"));
   addChunk(getChunk("manifest:work-index"));
-  if (SKILLS_OR_EXPERIENCE_QUERY.test(params.question)) {
+  if (isSkillsQuery) {
     addChunk(getChunk("manifest:skills"));
     addChunk(getChunk("manifest:experience"));
   }
@@ -786,6 +835,7 @@ export function retrieveAndPack(params: {
       const c = selected[i];
       if (
         c.id === "manifest:identity" ||
+        (pinSkillsManifest && c.id === "manifest:skills") ||
         topScoredIds.has(c.id) ||
         (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
         namedSectionIds.has(c.id)
@@ -796,6 +846,48 @@ export function retrieveAndPack(params: {
       if (s < lowestScore) {
         lowestScore = s;
         dropIdx = i;
+      }
+    }
+    if (dropIdx === -1) {
+      // Fallback pass 1: keep identity, explicit skills manifest, top-1 match,
+      // active-entity limits, AND explicitly named sections while trimming other chunks.
+      const topOneId = scored[0]?.chunk.id;
+      for (let i = 0; i < selected.length; i++) {
+        const c = selected[i];
+        if (
+          c.id === "manifest:identity" ||
+          c.id === topOneId ||
+          (pinSkillsManifest && c.id === "manifest:skills") ||
+          (c.kind === "case_study_limits" && activeEntities.includes(c.slug)) ||
+          namedSectionIds.has(c.id)
+        ) {
+          continue;
+        }
+        const s = scoreById.get(c.id) ?? 0;
+        if (s < lowestScore) {
+          lowestScore = s;
+          dropIdx = i;
+        }
+      }
+    }
+    if (dropIdx === -1) {
+      // Fallback pass 2: only relax namedSectionIds if nothing else can satisfy the ceiling.
+      const topOneId = scored[0]?.chunk.id;
+      for (let i = 0; i < selected.length; i++) {
+        const c = selected[i];
+        if (
+          c.id === "manifest:identity" ||
+          c.id === topOneId ||
+          (pinSkillsManifest && c.id === "manifest:skills") ||
+          (c.kind === "case_study_limits" && activeEntities.includes(c.slug))
+        ) {
+          continue;
+        }
+        const s = scoreById.get(c.id) ?? 0;
+        if (s < lowestScore) {
+          lowestScore = s;
+          dropIdx = i;
+        }
       }
     }
     if (dropIdx === -1) break;
