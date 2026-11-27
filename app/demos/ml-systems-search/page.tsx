@@ -5,9 +5,13 @@ import { MlsysSearch } from "@/components/demos/mlsys-search";
 import { Folio } from "@/components/folio";
 import { demos, projects } from "@/lib/content";
 import { PAGE_UPDATED } from "@/lib/pages";
+// The index's own manifest, so the counts and commit on this page always
+// match the file the function serves (AGENTS.md rule 14: no copied figures).
+import manifest from "@/api/_data/mlsys.json";
 
 const demo = demos.find((d) => d.slug === "ml-systems-search")!;
 const project = projects.find((p) => p.slug === demo.caseStudy);
+const commitUrl = `${manifest.source}/tree/${manifest.commit}`;
 
 export const metadata: Metadata = {
   title: demo.title,
@@ -36,21 +40,82 @@ export default function MlsysSearchPage() {
             <MlsysSearch />
           </section>
 
-          <details className="border-border mt-16 border-t pt-6">
+          <section
+            aria-labelledby="scope"
+            className="border-border mt-16 border-t pt-6"
+          >
+            <h2 id="scope" className={h2}>
+              What you can search
+            </h2>
+            <div className="mt-4 max-w-[62ch] space-y-4">
+              <p>
+                The index holds {manifest.chapters} chapter and appendix files
+                from both volumes of the book. Volume 1 runs from deployment
+                paradigms and data engineering through training, model
+                compression, hardware acceleration, serving and MLOps. Volume 2
+                moves to fleet scale: compute infrastructure, network fabrics,
+                distributed training, collective communication, fault tolerance,
+                inference at scale, edge intelligence, security and
+                sustainability.
+              </p>
+              <p>
+                Search for a concept such as data drift or quantization, a
+                failure mode such as training-serving skew, or a design question
+                such as batch size and memory. Each result names its chapter and
+                section, shows the matching passage with your words marked, and
+                links to that chapter at the{" "}
+                <a href={commitUrl} rel="noopener noreferrer" target="_blank">
+                  exact commit the index was built from
+                  <span className="sr-only"> (opens in new tab)</span>
+                </a>
+                , so you can read the whole section in context.
+              </p>
+            </div>
+          </section>
+
+          <details className="border-border mt-10 border-t pt-6">
             <summary className="cursor-pointer font-serif text-2xl font-medium">
               How it works
             </summary>
             <div className="mt-4 max-w-[62ch] space-y-4">
               <p>
-                The book&apos;s chapters are split into sections and indexed
-                with SQLite full-text search, ranked by BM25 with section
-                headings weighted above body text. It&apos;s the same index the
-                MCP server builds, saved as a read-only file.
+                A build script runs the MCP server&apos;s own index builder on a
+                checkout pinned to one commit. It splits each chapter at its
+                headings, keeps each section&apos;s own text, and cuts long
+                sections at paragraph breaks into pieces of at most 2,500
+                characters. The pieces go into an SQLite FTS5 table with Porter
+                stemming, so quantize also finds quantization. The table is
+                saved as a read-only file, with the source commit and a SHA-256
+                hash of the file recorded next to it.
               </p>
               <p>
                 Your words are reduced to plain tokens and passed as bound
                 parameters, so search operators and SQL never reach the
-                database. Nothing you type is stored or logged.
+                database. The search first asks for sections that contain every
+                word. If none do, it falls back to sections that contain any of
+                them. The last word also matches as a prefix, so results appear
+                while you are still typing.
+              </p>
+              <p>
+                BM25 ranks the matches, and a word in a section heading counts
+                six times as much as a word in the body. Each section appears
+                once, up to ten results. Snippets are cleaned for reading:
+                Markdown and LaTeX syntax are removed and formulas become plain
+                symbols.
+              </p>
+              <p>
+                A Python function on Vercel answers each search. It uses only
+                the standard library and opens the index read-only, so a request
+                can never change it. Each IP address can run 60 searches in ten
+                minutes. If the function can&apos;t be reached, the page shows a
+                recorded example instead of an empty box.
+              </p>
+              <p>
+                It is the same index the MCP server gives AI assistants, so a
+                result here is what an assistant gets when it searches the book.
+                Keyword search needs no model and no paid API, and the same
+                words always return the same results. Nothing you type is stored
+                or logged.
               </p>
             </div>
           </details>

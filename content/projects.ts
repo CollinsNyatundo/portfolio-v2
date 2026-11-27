@@ -130,7 +130,11 @@ export const demos: Demo[] = [
       data: "Adapted edition of V. J. Reddi's Machine Learning Systems, CC BY-NC-SA 4.0",
       split: "Not applicable (BM25 keyword retrieval, no training)",
       metrics: [],
-      limits: ["Keyword search: it matches words, not meaning."],
+      limits: [
+        "Keyword search: it matches words, not meaning.",
+        "Some chapters also carry a second, verbatim extraction of their text, so a topic can appear twice.",
+        "Some passages still show raw Unicode maths symbols instead of formulas.",
+      ],
     },
     recordedExample: "/demos/ml-systems-search/recorded-example.json",
   },
