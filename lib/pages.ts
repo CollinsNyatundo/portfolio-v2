@@ -9,7 +9,7 @@
 export const PAGE_UPDATED = {
   "/": "2026-11-22",
   "/work": "2026-11-04",
-  "/demos": "2026-11-22",
+  "/demos": "2026-11-27",
   "/demos/fraud": "2026-11-19",
   "/demos/ml-systems-search": "2026-11-27",
   "/about": "2026-11-14",

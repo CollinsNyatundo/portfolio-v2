@@ -62,8 +62,8 @@ export default function MlsysSearchPage() {
                 Search for a concept such as data drift or quantization, a
                 failure mode such as training-serving skew, or a design question
                 such as batch size and memory. Each result names its chapter and
-                section, shows the matching passage with your words marked, and
-                links to that chapter at the{" "}
+                section, shows a passage from it with your words marked where
+                they appear in the text, and links to that chapter at the{" "}
                 <a href={commitUrl} rel="noopener noreferrer" target="_blank">
                   exact commit the index was built from
                   <span className="sr-only"> (opens in new tab)</span>
@@ -81,20 +81,21 @@ export default function MlsysSearchPage() {
               <p>
                 A build script runs the MCP server&apos;s own index builder on a
                 checkout pinned to one commit. It splits each chapter at its
-                headings, keeps each section&apos;s own text, and cuts long
-                sections at paragraph breaks into pieces of at most 2,500
-                characters. The pieces go into an SQLite FTS5 table with Porter
-                stemming, so quantize also finds quantization. The table is
-                saved as a read-only file, with the source commit and a SHA-256
-                hash of the file recorded next to it.
+                headings, keeps each section&apos;s own text, and cuts most long
+                sections into smaller pieces at paragraph breaks. The pieces go
+                into an SQLite FTS5 table with Porter stemming, so quantize also
+                finds quantization. The table is saved as a read-only file, with
+                the source commit and a SHA-256 hash of the file recorded next
+                to it.
               </p>
               <p>
                 Your words are reduced to plain tokens and passed as bound
                 parameters, so search operators and SQL never reach the
-                database. The search first asks for sections that contain every
-                word. If none do, it falls back to sections that contain any of
-                them. The last word also matches as a prefix, so results appear
-                while you are still typing.
+                database. The search first asks for pieces that contain every
+                word. If none do, it falls back to pieces that contain any of
+                them. A match in a heading can rank a section even when the
+                snippet below it has no marked words. The last word also matches
+                as a prefix, so results appear while you are still typing.
               </p>
               <p>
                 BM25 ranks the matches, and a word in a section heading counts
