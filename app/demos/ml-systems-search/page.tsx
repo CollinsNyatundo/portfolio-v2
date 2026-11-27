@@ -81,8 +81,9 @@ export default function MlsysSearchPage() {
               <p>
                 A build script runs the MCP server&apos;s own index builder on a
                 checkout pinned to one commit. It splits each chapter at its
-                headings, keeps each section&apos;s own text, and cuts most long
-                sections into smaller pieces at paragraph breaks. The pieces go
+                headings, keeps each section&apos;s own text, and cuts long
+                sections into smaller pieces at paragraph breaks. A few pieces,
+                mostly tables and reference lists, still run long. The pieces go
                 into an SQLite FTS5 table with Porter stemming, so quantize also
                 finds quantization. The table is saved as a read-only file, with
                 the source commit and a SHA-256 hash of the file recorded next
